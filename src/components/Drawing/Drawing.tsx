@@ -1,43 +1,22 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { convertColorToRgba } from "@/utils";
+
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+
 import "./Drawing.scss";
 
-interface DrawingProps {
-  color: string;
-  lineWidth: number;
-  opacity: number;
-}
-
-type contextColor = string
-
-export const Drawing = ({ color, lineWidth, opacity }: DrawingProps) => {
+export const Drawing = ({}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const points = useRef<{ x: number; y: number }[]>([]);
   const savedImageData = useRef<ImageData | null>(null);
 
-  const convertColorToRgba = (color: string) => {
-    if (color.startsWith("rgba")) {
-      return color.replace(/, [0-9.]+\)$/, `, ${opacity})`);
-    }
-
-    // create temporary div
-    const temp = document.createElement("div");
-    temp.style.color = color;
-    document.body.appendChild(temp);
-
-    const rgbaColor = getComputedStyle(temp).color;  // get color in rgb(...)
-    document.body.removeChild(temp);
-
-    // convert rgb to rgba with opacity
-    const finalColor = rgbaColor.replace("rgb(", "rgba(").replace(")", `, ${opacity})`);
-
-    console.log('finalColor', finalColor)
-    
-    return finalColor;
-  }
-
+  const color = useSelector((state: RootState) => state.settings.color);
+  const lineWidth = useSelector((state: RootState) => state.settings.lineWidth);
+  const opacity = useSelector((state: RootState) => state.settings.opacity);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -58,7 +37,7 @@ export const Drawing = ({ color, lineWidth, opacity }: DrawingProps) => {
 
       ctx.globalCompositeOperation = "source-over";
       ctx.lineWidth = lineWidth;
-      ctx.strokeStyle = convertColorToRgba(ctx.strokeStyle as contextColor);
+      ctx.strokeStyle = convertColorToRgba(color, String(opacity));
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.beginPath();

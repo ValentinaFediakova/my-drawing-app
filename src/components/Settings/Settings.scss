@@ -28,31 +28,6 @@
   display: flex;
   justify-content: space-between;
 }
-.settings__color {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  cursor: pointer;
-
-  &_black {
-    background-color: black;
-  }
-  &_brown {
-    background-color: brown;
-  }
-  &_blue {
-    background-color: blue;
-  }
-  &_green {
-    background-color: limegreen;
-  }
-  &_coral {
-    background-color: coral;
-  }
-  &_violet {
-    background-color: darkviolet;
-  }
-}
 
 .settings__choose-many-colors {
   width: 32px;

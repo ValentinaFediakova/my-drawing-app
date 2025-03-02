@@ -2,6 +2,9 @@
 
 import React from 'react';
 
+import { useDispatch } from "react-redux";
+import { setLineWidth, setOpacity } from "@/store/slices/settingsSlice";
+
 import './Slider.scss'
 
 interface SliderProps {
@@ -10,20 +13,31 @@ interface SliderProps {
   max: string;
   step: string;
   defaultValue: string;
-  onChangeValue: (value: number) => void;
+	purpose: "opacity" | "lineWidth";
 }
 
-export const Slider: React.FC<SliderProps> = ({ type = 'range', min, max, step, defaultValue, onChangeValue }) => {
+export const Slider: React.FC<SliderProps> = ({ type = 'range', min, max, step, defaultValue, purpose }) => {
+  const dispatch = useDispatch();
+	const changeValue = (value: number) => {
+		switch (purpose) {
+			case "opacity":
+				dispatch(setOpacity(value));
+				break;
+			case "lineWidth":
+				dispatch(setLineWidth(value));
+				break;
+		}
+	}
 
   return (
-      <input
-        className="slider__input-range"
-        type={type}
-        min={min}
-        max={max}
-        step={step}
-        defaultValue={defaultValue}
-        onChange={(e) => onChangeValue(Number(e.target.value))}
-      />
+	<input
+		className="slider__input-range"
+		type={type}
+		min={min}
+		max={max}
+		step={step}
+		defaultValue={defaultValue}
+		onChange={(e) => changeValue(Number(e.target.value))}
+	/>
   )
 }

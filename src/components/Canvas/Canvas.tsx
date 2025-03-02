@@ -1,24 +1,18 @@
 "use client";
+import React from "react";
 
-import { useState } from "react";
 import { Drawing } from "../Drawing/Drawing";
 import Toolbar from "../Toolbar/Toolbar";
 import { Settings } from "../Settings/Settings";
 import "./Canvas.scss";
-import React from "react";
 
-const Canvas = () => {
-  const [color, setColor] = useState("black");
-  const [lineWidth, setLineWidth] = useState(5);
-  const [opacity, setOpacity] = useState(1)
+export const Canvas = () => {
 
   return (
     <div className="canvas-wrapper">
       <Toolbar/>
-      <Settings onSetColor={setColor} onSetLineWidth={setLineWidth} onSetOpacity={setOpacity} />
-      <Drawing color={color} lineWidth={lineWidth} opacity={opacity} />
+      <Settings/>
+      <Drawing />
     </div>
   );
 };
-
-export default Canvas;

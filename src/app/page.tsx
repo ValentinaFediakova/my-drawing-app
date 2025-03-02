@@ -1,9 +1,10 @@
-import Canvas from "@/components/Canvas/Canvas";
+import { ReduxProvider } from "@/components/ReduxProvider";
+import { Canvas } from "@/components/Canvas/Canvas";
 
 export default function Home() {
   return (
-    <div>
+    <ReduxProvider>
       <Canvas />
-    </div>
+    </ReduxProvider>
   );
 }

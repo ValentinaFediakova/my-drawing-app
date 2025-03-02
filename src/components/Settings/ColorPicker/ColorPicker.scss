@@ -1,0 +1,25 @@
+.colorPicker__color {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &_black {
+    background-color: black;
+  }
+  &_brown {
+    background-color: brown;
+  }
+  &_blue {
+    background-color: blue;
+  }
+  &_limegreen {
+    background-color: limegreen;
+  }
+  &_coral {
+    background-color: coral;
+  }
+  &_violet {
+    background-color: darkviolet;
+  }
+}

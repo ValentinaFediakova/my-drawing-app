@@ -1,32 +1,42 @@
 "use client";
 
 import { Slider } from '@/components/Settings/Slider/Slider';
+import { ColorPicker } from './ColorPicker/ColorPicker';
+import { PALETTE_COLORS } from '@/constants'
+import { useSelector, useDispatch } from "react-redux";
+import { setColor } from "@/store/slices/settingsSlice";
+import { RootState } from "@/store/index";
+import { convertRgbaToHex } from "@/utils";
+
 import "./Settings.scss";
 
-interface SettingsProps {
-  onSetColor: (color: string) => void;
-  onSetLineWidth: (width: number) => void;
-  onSetOpacity: (opacity: number) => void;
-}
 
-export const Settings: React.FC<SettingsProps> = ({ onSetColor, onSetLineWidth, onSetOpacity }) => {
+export const Settings: React.FC = ({ }) => {
+  const dispatch = useDispatch();
+  const color = useSelector((state: RootState) => state.settings.color);
+
+  console.log('color', color);
+
   return (
     <div className="settings">
       <div className="settings__block">
         <div className="settings__title">Color</div>
         <div className="settings__colors">
-
+          {Object.values(PALETTE_COLORS).map((color) => (
+            <ColorPicker key={color} color={color} />
+          ))}
+          <input className="settings__choose-many-colors" type="color" value={convertRgbaToHex(color)} onChange={(e) => dispatch(setColor(e.target.value))} />
         </div>
       </div>
       
       <div className="settings__block">
         <div className="settings__title">Толщина штриха</div>
-        <Slider type='range' min='0' max='20' step='2' defaultValue='5' onChangeValue={onSetLineWidth} />
+        <Slider type='range' min='0' max='20' step='2' defaultValue='5' purpose='lineWidth' />
       </div>
     
       <div className="settings__block">
         <div className="settings__title">Непрозрачность</div>
-        <Slider type={'range'} min={'0.1'} max={'1'} step='0.1' defaultValue={'1'} onChangeValue={ onSetOpacity } />
+        <Slider type={'range'} min={'0.1'} max={'1'} step='0.1' defaultValue={'1'} purpose='opacity' />
       </div>
 
       <div className="settings__block">
