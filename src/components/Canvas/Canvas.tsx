@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Drawing from "../Drawing/Drawing";
+import { Drawing } from "../Drawing/Drawing";
 import Toolbar from "../Toolbar/Toolbar";
 import { Settings } from "../Settings/Settings";
 import "./Canvas.scss";
@@ -11,8 +11,6 @@ const Canvas = () => {
   const [color, setColor] = useState("black");
   const [lineWidth, setLineWidth] = useState(5);
   const [opacity, setOpacity] = useState(1)
-
-  console.log('@@@@@@@@@@ opacity CANVAS', opacity)
 
   return (
     <div className="canvas-wrapper">

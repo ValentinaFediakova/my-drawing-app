@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import "./Drawing.scss";
 
 interface DrawingProps {
@@ -11,7 +11,7 @@ interface DrawingProps {
 
 type contextColor = string
 
-const Drawing = ({ color, lineWidth, opacity }: DrawingProps) => {
+export const Drawing = ({ color, lineWidth, opacity }: DrawingProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const points = useRef<{ x: number; y: number }[]>([]);
@@ -110,5 +110,3 @@ const Drawing = ({ color, lineWidth, opacity }: DrawingProps) => {
 
   return <canvas ref={canvasRef} className="drawing-canvas"></canvas>;
 };
-
-export default Drawing;

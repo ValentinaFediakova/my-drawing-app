@@ -23,7 +23,6 @@ export const Slider: React.FC<SliderProps> = ({ type = 'range', min, max, step, 
         max={max}
         step={step}
         defaultValue={defaultValue}
-        // onChange={(e) => a(e)}
         onChange={(e) => onChangeValue(Number(e.target.value))}
       />
   )
