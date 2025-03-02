@@ -1,0 +1,71 @@
+.settings {
+  position: absolute;
+  border: 2px solid black;
+  width: 270px;
+  right: 20px;
+  top: 20px;
+  background-color: #1e1e21;
+  border: 2px solid #43444c;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.settings__block {
+  margin-bottom: 25px;
+}
+
+.settings__title {
+  font-size: 16px;
+  font-weight: 500;
+  font-family: "Manrope", serif;
+  color: aliceblue;
+  margin-bottom: 12px;
+}
+
+.settings__colors {
+  display: flex;
+  justify-content: space-between;
+}
+.settings__color {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &_black {
+    background-color: black;
+  }
+  &_brown {
+    background-color: brown;
+  }
+  &_blue {
+    background-color: blue;
+  }
+  &_green {
+    background-color: limegreen;
+  }
+  &_coral {
+    background-color: coral;
+  }
+  &_violet {
+    background-color: darkviolet;
+  }
+}
+
+.settings__choose-many-colors {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  outline: none;
+  border: none;
+}
+
+.settings__action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #2e2f34;
+}

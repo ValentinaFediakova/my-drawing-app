@@ -1,4 +1,36 @@
 .toolbar {
   position: absolute;
   border: 2px solid black;
+  width: 56px;
+  height: 420px;
+  left: 20px;
+  top: 20px;
+  background-color: #1e1e21;
+  border: 2px solid #43444c;
+  border-radius: 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 10px 0;
+}
+
+.toolbar-item {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+
+  &_active {
+    background-color: #2e2f34;
+  }
+}
+
+.toolbar-item__pen {
+  background-image: url("../../../public/pen.svg");
+  width: 24px;
+  height: 24px;
 }

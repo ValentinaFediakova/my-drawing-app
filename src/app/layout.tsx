@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import '../styles/index.scss';
+import '../styles/base.scss'
 
 export const metadata: Metadata = {
   title: "canvas drawing",
