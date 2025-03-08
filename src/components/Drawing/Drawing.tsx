@@ -17,6 +17,8 @@ export const Drawing = ({}) => {
   const lineWidth = useSelector((state: RootState) => state.settings.lineWidth);
   const opacity = useSelector((state: RootState) => state.settings.opacity);
 
+  // console.log
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
