@@ -2,10 +2,10 @@
 
 import "./Toolbar.scss";
 
-interface ToolbarProps {
-}
+// interface ToolbarProps {
+// }
 
-const Toolbar: React.FC<ToolbarProps> = ({ }) => {
+const Toolbar: React.FC = ({ }) => {
   return (
     <div className="toolbar">
       <button className="toolbar-item toolbar-item_active">
