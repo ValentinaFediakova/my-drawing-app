@@ -1,7 +1,5 @@
 export const convertColorToRgba = (color: string, opacity: string) => {
   if (color.startsWith("rgba")) {
-    console.log("1 finalColor", color);
-
     return color.replace(/, [0-9.]+\)$/, `, ${opacity})`);
   }
 
@@ -17,7 +15,6 @@ export const convertColorToRgba = (color: string, opacity: string) => {
   const finalColor = rgbaColor
     .replace("rgb(", "rgba(")
     .replace(")", `, ${opacity})`);
-  console.log("2finalColor", finalColor);
   return finalColor;
 };
 

@@ -6,7 +6,7 @@ import { PALETTE_COLORS } from '@/constants'
 import { useSelector, useDispatch } from "react-redux";
 import { setColor } from "@/store/slices/settingsSlice";
 import { RootState } from "@/store/index";
-import { convertRgbaToHex } from "@/utils";
+import { convertRgbaToHex } from "@/utils/ColorConvertations";
 
 import "./Settings.scss";
 
@@ -14,8 +14,6 @@ import "./Settings.scss";
 export const Settings: React.FC = ({ }) => {
   const dispatch = useDispatch();
   const color = useSelector((state: RootState) => state.settings.color);
-
-  console.log('color', color);
 
   return (
     <div className="settings">

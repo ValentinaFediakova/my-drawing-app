@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { convertColorToRgba } from "../../utils";
+import { convertColorToRgba } from "../../utils/ColorConvertations";
 
 interface SettingsState {
   color: string;

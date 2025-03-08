@@ -30,14 +30,14 @@ export const Slider: React.FC<SliderProps> = ({ type = 'range', min, max, step, 
 	}
 
   return (
-	<input
-		className="slider__input-range"
-		type={type}
-		min={min}
-		max={max}
-		step={step}
-		defaultValue={defaultValue}
-		onChange={(e) => changeValue(Number(e.target.value))}
-	/>
+    <input
+      className="slider__input-range"
+      type={type}
+      min={min}
+      max={max}
+      step={step}
+      defaultValue={defaultValue}
+      onChange={(e) => changeValue(Number(e.target.value))}
+    />
   )
 }
