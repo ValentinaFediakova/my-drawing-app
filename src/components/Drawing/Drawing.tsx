@@ -8,9 +8,12 @@ import { DrawingManager } from "@/utils/DrawingManager";
 
 import "./Drawing.scss";
 
-export const Drawing = ({}) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawingManagerRef = useRef<DrawingManager | null>(null);
+interface DrawingProps {
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  drawingManagerRef: React.RefObject<DrawingManager | null>;
+}
+
+export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef}) => {
 
   const color = useSelector((state: RootState) => state.settings.color);
   const lineWidth = useSelector((state: RootState) => state.settings.lineWidth);

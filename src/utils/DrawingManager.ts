@@ -97,4 +97,15 @@ export class DrawingManager {
       this.canvas.height
     );
   }
+
+  clearCanvas(): void {
+    this.savedImageData = this.ctx.getImageData(
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+    );
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.savedImageData = null;
+  }
 }

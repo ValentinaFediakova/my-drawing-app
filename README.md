@@ -7,7 +7,7 @@ My Drawing App is a web application for drawing with support for various colors,
 - ✏️ Draw lines with different thickness and color.
 - 🎨 Choose color and opacity.
 - 🧽 Eraser mode.
-- 🗑️ Clear the canvas (planned).
+- 🗑️ Clear the canvas.
 - 🔄 Undo and redo actions (planned).
 - 📂 Save images (planned).
 - 🌐 WebSocket support for real-time collaborative drawing (planned).

@@ -1,0 +1,32 @@
+.action-bar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+
+.action-bar__item {
+  height: 48px;
+  background-color: #1e1e21;
+  border: 1px solid #43444c;
+  border-radius: 12px;
+  padding: 12px 16px 12px 16px;
+  display: flex;
+  align-items: center;
+}
+
+.action-bar__clear-img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+
+  &_trash {
+    background-image: url("../../../public/trashIcon.svg");
+  }
+}
+
+.action-bar__clear-title {
+  font-family: Manrope, serif;
+  color: #f0f8ff;
+  font-size: 16px;
+  font-weight: 500;
+}

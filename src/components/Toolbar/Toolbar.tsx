@@ -5,7 +5,7 @@ import { RootState } from "@/store";
 import "./Toolbar.scss";
 import { setTool } from "@/store/slices/settingsSlice";
 
-const Toolbar: React.FC = ({ }) => {
+export const Toolbar: React.FC = ({ }) => {
   const tool = useSelector((state: RootState) => state.settings.tool);
   const dispatch = useDispatch();
   
@@ -26,5 +26,3 @@ const Toolbar: React.FC = ({ }) => {
     </div>
   );
 };
-
-export default Toolbar;
