@@ -1,9 +1,9 @@
 "use client";
 import { PencilTool } from "@/utils/tools/Pencil";
+import { EraserTool } from "@/utils/tools/Eraser";
+import { Tool } from "@/types";
 
 // main controller for tools
-
-type tool = "pencil" | "eraser";
 
 export class DrawingManager {
   private canvas: HTMLCanvasElement;
@@ -12,7 +12,8 @@ export class DrawingManager {
   private points: { x: number; y: number }[];
   private savedImageData: ImageData | null;
   private PencilTool: PencilTool;
-  private tool: tool = "pencil";
+  private EraserTool: EraserTool;
+  private tool: Tool = "pencil";
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -25,15 +26,24 @@ export class DrawingManager {
     this.points = [];
     this.savedImageData = null;
     this.PencilTool = new PencilTool(this.ctx);
+    this.EraserTool = new EraserTool(this.ctx);
   }
 
-  setTool(tool: tool): void {
+  setTool(tool: Tool): void {
     this.tool = tool;
   }
 
-  setBrushSettings(lineWidth: number, color: string, opacity: number) {
+  setBrushSettings(
+    lineWidth: number,
+    eraserLineWidth: number,
+    color: string,
+    opacity: number
+  ): void {
     if (this.tool === "pencil") {
       this.PencilTool.setPencil(lineWidth, color, opacity);
+    }
+    if (this.tool === "eraser") {
+      this.EraserTool.setEraser(eraserLineWidth);
     }
   }
 
@@ -45,6 +55,10 @@ export class DrawingManager {
       this.PencilTool.startDraw(this.points);
     }
 
+    if (this.tool === "eraser") {
+      this.EraserTool.startDraw(this.points);
+    }
+
     this.savedImageData = this.ctx.getImageData(
       0,
       0,
@@ -54,12 +68,23 @@ export class DrawingManager {
   }
 
   draw(e: MouseEvent): void {
-    if (!this.isDrawing) return;
-    if (this.savedImageData) {
-      this.ctx.putImageData(this.savedImageData, 0, 0);
+    if (!this.isDrawing) {
+      if (this.savedImageData) {
+        this.ctx.putImageData(this.savedImageData, 0, 0); // return saved state without circle
+      }
+
+      if (this.tool === "eraser") {
+        this.EraserTool.drawEraserCursor(e.clientX, e.clientY);
+      }
+
+      return;
     }
+
     if (this.tool === "pencil") {
       this.PencilTool.draw(e);
+    }
+    if (this.tool === "eraser") {
+      this.EraserTool.draw(e);
     }
   }
 

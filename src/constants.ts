@@ -6,3 +6,5 @@ export const PALETTE_COLORS = {
   CORAL: "coral",
   VIOLET: "violet",
 };
+
+export const DEFAULT_BG_COLOR = "antiquewhite";

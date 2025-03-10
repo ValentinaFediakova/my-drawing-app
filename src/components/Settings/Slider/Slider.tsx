@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { useDispatch } from "react-redux";
-import { setLineWidth, setOpacity } from "@/store/slices/settingsSlice";
+import { setLineWidth, setEraserLineWidth, setOpacity } from "@/store/slices/settingsSlice";
 
 import './Slider.scss'
 
@@ -13,7 +13,7 @@ interface SliderProps {
   max: string;
   step: string;
   defaultValue: string;
-	purpose: "opacity" | "lineWidth";
+	purpose: "opacity" | "lineWidth" | 'eraserLieneWidth';
 }
 
 export const Slider: React.FC<SliderProps> = ({ type = 'range', min, max, step, defaultValue, purpose }) => {
@@ -26,6 +26,9 @@ export const Slider: React.FC<SliderProps> = ({ type = 'range', min, max, step, 
 			case "lineWidth":
 				dispatch(setLineWidth(value));
 				break;
+      case 'eraserLieneWidth':
+        dispatch(setEraserLineWidth(value))
+        break;
 		}
 	}
 

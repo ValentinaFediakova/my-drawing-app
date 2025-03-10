@@ -6,7 +6,6 @@ import { RootState } from "@/store";
 import { DrawingManager } from "@/utils/DrawingManager";
 
 
-
 import "./Drawing.scss";
 
 export const Drawing = ({}) => {
@@ -15,7 +14,9 @@ export const Drawing = ({}) => {
 
   const color = useSelector((state: RootState) => state.settings.color);
   const lineWidth = useSelector((state: RootState) => state.settings.lineWidth);
+  const eraserLineWidth = useSelector((state: RootState) => state.settings.eraserLineWidth);
   const opacity = useSelector((state: RootState) => state.settings.opacity);
+  const tool = useSelector((state: RootState) => state.settings.tool);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,8 +32,9 @@ export const Drawing = ({}) => {
     if (!canvas) return;
     if (!drawingManagerRef.current) return;
     
-    drawingManagerRef.current.setBrushSettings(lineWidth, color, opacity);
-  }, [color, lineWidth, opacity]);
+    drawingManagerRef.current.setTool(tool);
+    drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
+  }, [color, lineWidth, eraserLineWidth, opacity, tool]);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const points = { x: e.clientX, y: e.clientY };
