@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { DrawingManager } from "@/utils/DrawingManager";
