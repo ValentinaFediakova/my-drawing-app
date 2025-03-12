@@ -1,6 +1,8 @@
 export class TextTool {
   private ctx: CanvasRenderingContext2D;
+  private prevFontSize: number = 24;
   private fontSize: number = 24;
+  private outline: string = "normal";
   private widthStartArea: number = 20;
   private prevPoints: { x: number; y: number }[] = [];
   private currentPoints: { x: number; y: number }[] = [];
@@ -11,15 +13,20 @@ export class TextTool {
   private currentText: string = "";
   private color: string = "";
   private prevCursorPositionX: number = 0;
+  private textData: { char: string; fontSize: number }[] = [];
+  private textWidth: number = 0;
+  private chartPlaceX: number = 0;
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
   }
 
   setText(fontSize: number, outline: string, color: string): void {
-    this.ctx.fillStyle = color;
+    const a = 0;
     this.color = color;
     this.fontSize = fontSize;
+    this.outline = outline;
+    this.ctx.fillStyle = color;
     this.ctx.font = `${outline} ${fontSize}px Arial`;
   }
 
@@ -31,29 +38,47 @@ export class TextTool {
       this.isCoursorVisible = !this.isCoursorVisible;
     }
 
+    const prevFontSize =
+      this.textData.length > 1
+        ? this.textData[this.textData.length - 2].fontSize
+        : 24;
+
+    const cursorY =
+      this.prevPoints.length > 0
+        ? this.prevPoints[0].y
+        : this.currentPoints[0].y;
+
     this.ctx.clearRect(
-      this.currentPoints[0].x +
-        this.ctx.measureText(this.currentText).width +
-        8,
-      this.currentPoints[0].y - this.fontSize + 5,
+      this.prevCursorPositionX ?? this.currentPoints[0].x,
+      cursorY,
       4,
-      this.fontSize
+      prevFontSize
     );
 
+    let textWidth = 0;
+
     if (this.isCoursorVisible) {
+      this.textData.forEach(({ char, fontSize }) => {
+        this.ctx.font = `${this.outline} ${fontSize}px Arial`;
+        textWidth += this.ctx.measureText(char).width;
+      });
+
+      const currentFontSize =
+        this.textData.length > 0
+          ? this.textData[this.textData.length - 1].fontSize
+          : 24;
+
+      this.ctx.font = `${this.outline} ${currentFontSize}px Arial`;
+      this.ctx.lineWidth = 1;
       this.ctx.fillText(
         "|",
-        this.currentPoints[0].x +
-          this.ctx.measureText(this.currentText).width +
-          7,
-        this.currentPoints[0].y - 2
+        this.currentPoints[0].x + textWidth,
+        this.currentPoints[0].y
       );
-
-      this.prevCursorPositionX =
-        this.currentPoints[0].x +
-        this.ctx.measureText(this.currentText).width +
-        7;
     }
+
+    this.prevCursorPositionX = this.currentPoints[0].x + textWidth;
+    this.textWidth = textWidth;
 
     this.animationFrameId = requestAnimationFrame(() => {
       setTimeout(() => this.coursorBlinking(), this.coursorTimeout);
@@ -68,12 +93,10 @@ export class TextTool {
   }
 
   startWrite(points: { x: number; y: number }[]): void {
-    // if already use this method and jump to other place
-    const isAlreadyUseThisMethod =
-      this.prevPoints.length == 1 && this.currentText === "";
-
-    this.currentText = "";
     this.currentPoints = points;
+    this.textData = [];
+    this.currentText = "";
+    this.chartPlaceX = this.currentPoints[0].x;
 
     this.stopCursorBlinking();
     this.coursorBlinking();
@@ -82,9 +105,12 @@ export class TextTool {
 
   writingText(e: KeyboardEvent): void {
     if (e.key === "Backspace") {
-      this.currentText = this.currentText.slice(0, -1);
+      this.textData = this.textData.slice(0, -1);
     } else if (e.key.length === 1) {
-      this.currentText = `${this.currentText}${e.key}`;
+      this.textData = [
+        ...this.textData,
+        { char: e.key, fontSize: this.fontSize },
+      ];
     }
 
     this.ctx.clearRect(
@@ -94,12 +120,27 @@ export class TextTool {
       this.fontSize
     );
 
-    const padding = this.fontSize * 0.3;
-    this.ctx.fillText(
-      this.currentText,
-      this.currentPoints[0].x + padding,
-      this.currentPoints[0].y
-    );
+    this.currentText = this.textData.map(({ char }) => char).join("");
+
+    let textWidth = 0;
+
+    this.textData.forEach(({ char, fontSize }) => {
+      this.ctx.font = `${this.outline} ${fontSize}px Arial`;
+
+      this.ctx.fillText(
+        char,
+        this.currentPoints[0].x + textWidth,
+        this.currentPoints[0].y
+      );
+
+      textWidth += this.ctx.measureText(char).width;
+    });
+
+    // this.ctx.fillText(
+    //   this.currentText,
+    //   this.currentPoints[0].x + padding,
+    //   this.currentPoints[0].y
+    // );
   }
 }
 
