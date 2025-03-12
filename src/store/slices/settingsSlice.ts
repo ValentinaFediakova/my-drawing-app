@@ -8,6 +8,8 @@ interface SettingsState {
   eraserLineWidth: number;
   opacity: number;
   tool: Tool;
+  fontSize: number;
+  outline: string;
 }
 
 const initialState: SettingsState = {
@@ -16,6 +18,8 @@ const initialState: SettingsState = {
   eraserLineWidth: 25,
   opacity: 1.0,
   tool: "pencil",
+  fontSize: 24,
+  outline: "normal",
 };
 
 const settingsSlice = createSlice({
@@ -38,6 +42,12 @@ const settingsSlice = createSlice({
     setTool: (state, action: PayloadAction<Tool>) => {
       state.tool = action.payload;
     },
+    setFontSize: (state, action: PayloadAction<number>) => {
+      state.fontSize = action.payload;
+    },
+    setOutline: (state, action: PayloadAction<string>) => {
+      state.outline = action.payload;
+    },
   },
 });
 
@@ -47,5 +57,6 @@ export const {
   setEraserLineWidth,
   setOpacity,
   setTool,
+  setFontSize,
 } = settingsSlice.actions;
 export default settingsSlice.reducer;

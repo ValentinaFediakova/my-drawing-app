@@ -1,6 +1,7 @@
 "use client";
 import { PencilTool } from "@/utils/tools/Pencil";
 import { EraserTool } from "@/utils/tools/Eraser";
+import { TextTool } from "@/utils/tools/Text";
 import { Tool } from "@/types";
 
 // main controller for tools
@@ -13,6 +14,7 @@ export class DrawingManager {
   private savedImageData: ImageData | null;
   private PencilTool: PencilTool;
   private EraserTool: EraserTool;
+  private TextTool: TextTool;
   private tool: Tool = "pencil";
 
   constructor(canvas: HTMLCanvasElement) {
@@ -27,6 +29,7 @@ export class DrawingManager {
     this.savedImageData = null;
     this.PencilTool = new PencilTool(this.ctx);
     this.EraserTool = new EraserTool(this.ctx);
+    this.TextTool = new TextTool(this.ctx);
   }
 
   setTool(tool: Tool): void {
@@ -45,6 +48,12 @@ export class DrawingManager {
     if (this.tool === "eraser") {
       this.EraserTool.setEraser(eraserLineWidth);
     }
+  }
+
+  setTextSettings(color: string, fontSize: number, outline: string): void {
+    this.isDrawing = false;
+    this.canvas.focus();
+    this.TextTool.setText(fontSize, outline, color);
   }
 
   startDraw(points: { x: number; y: number }): void {
@@ -67,7 +76,14 @@ export class DrawingManager {
     );
   }
 
+  startWriteText(points: { x: number; y: number }): void {
+    this.ctx.globalCompositeOperation = "source-over";
+    this.points = [points];
+    this.TextTool.startWrite(this.points);
+  }
+
   draw(e: MouseEvent): void {
+    if (this.tool === "writeText") return;
     if (!this.isDrawing) {
       if (this.savedImageData) {
         this.ctx.putImageData(this.savedImageData, 0, 0); // return saved state without circle
@@ -86,6 +102,10 @@ export class DrawingManager {
     if (this.tool === "eraser") {
       this.EraserTool.draw(e);
     }
+  }
+
+  writeText(e: KeyboardEvent): void {
+    this.TextTool.writingText(e);
   }
 
   stopDraw(): void {

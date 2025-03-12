@@ -30,10 +30,8 @@ export class EraserTool {
 
   drawEraserCursor(x: number, y: number): void {
     this.ctx.beginPath();
-    if (this.eraserLineWidth !== null) {
-      this.ctx.arc(x, y, this.eraserLineWidth / 2, 0, Math.PI * 2);
-      this.ctx.fillStyle = DEFAULT_BG_COLOR;
-      this.ctx.fill();
-    }
+    this.ctx.arc(x, y, this.eraserLineWidth / 2, 0, Math.PI * 2);
+    this.ctx.fillStyle = DEFAULT_BG_COLOR;
+    this.ctx.fill();
   }
 }

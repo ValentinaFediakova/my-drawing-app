@@ -15,13 +15,19 @@ export const Toolbar: React.FC = ({ }) => {
         className={tool === "pencil" ? "toolbar-item toolbar-item_active" : "toolbar-item"} 
         onClick={() => dispatch(setTool("pencil"))}
       >
-        <div className="toolbar-item__pen"></div>
+        <div className="toolbar-item__img toolbar-item__img_pencil"></div>
       </button>
       <button 
         className={tool === "eraser" ? "toolbar-item toolbar-item_active" : "toolbar-item"} 
         onClick={() => dispatch(setTool("eraser"))}
       >
-        <div className="toolbar-item__eraser"></div>
+        <div className="toolbar-item__img toolbar-item__img_eraser"></div>
+      </button>
+      <button 
+        className={tool === "writeText" ? "toolbar-item toolbar-item_active" : "toolbar-item"} 
+        onClick={() => dispatch(setTool("writeText"))}
+      >
+        <div className="toolbar-item__img toolbar-item__img_writeText"></div>
       </button>
     </div>
   );

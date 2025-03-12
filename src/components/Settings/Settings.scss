@@ -18,6 +18,10 @@
   &_hidden {
     display: none;
   }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .settings__title {
@@ -26,6 +30,38 @@
   font-family: "Manrope", serif;
   color: aliceblue;
   margin-bottom: 12px;
+}
+
+.settings__buttons-outline {
+  display: flex;
+}
+
+.settings__button-outline {
+  width: 32px;
+  height: 32px;
+  background-color: #2e2f34;
+  border-radius: 8px;
+  margin-right: 6px;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+
+  &_active {
+    background-color: #673be6;
+  }
+
+  &_bold {
+    background-image: url("../../../public/boldText.svg");
+  }
+
+  &_italic {
+    background-image: url("../../../public/italicText.svg");
+  }
+
+  &_underline {
+    background-image: url("../../../public/underlineText.svg");
+  }
 }
 
 .settings__colors {
