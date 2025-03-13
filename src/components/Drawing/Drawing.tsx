@@ -7,6 +7,7 @@ import { DrawingManager } from "@/utils/DrawingManager";
 
 
 import "./Drawing.scss";
+import { setOpacity } from "@/store/slices/settingsSlice";
 
 interface DrawingProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -70,8 +71,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
     if (!canvas) return;
     if (!drawingManagerRef.current) return;
+    if (tool === 'writeText') {
       drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
-  }, [color, fontSize, outline])
+    }
+  }, [color, fontSize, outline, tool])
 
   return (
     <canvas 

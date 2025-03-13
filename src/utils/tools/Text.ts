@@ -1,3 +1,5 @@
+import { convertColorToRgba } from "../ColorConvertations";
+
 export class TextTool {
   private ctx: CanvasRenderingContext2D;
   private prevFontSize: number = 24;
@@ -24,10 +26,11 @@ export class TextTool {
   }
 
   setText(fontSize: number, outline: string[], color: string): void {
-    this.color = color;
+    this.ctx.strokeStyle = convertColorToRgba(color, String(1));
+    this.color = convertColorToRgba(color, String(1));
     this.fontSize = fontSize;
     this.outline = outline;
-    this.ctx.fillStyle = color;
+    this.ctx.fillStyle = convertColorToRgba(color, String(1));
     this.ctx.font = `${outline[0]} ${fontSize}px Arial`;
   }
 
