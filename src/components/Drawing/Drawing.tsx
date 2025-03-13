@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { DrawingManager } from "@/utils/DrawingManager";
 
-
 import "./Drawing.scss";
-import { setOpacity } from "@/store/slices/settingsSlice";
 
 interface DrawingProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -16,8 +14,6 @@ interface DrawingProps {
 
 
 export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef}) => {
-
-  const dispatch = useDispatch();
   const color = useSelector((state: RootState) => state.settings.color);
   const lineWidth = useSelector((state: RootState) => state.settings.lineWidth);
   const eraserLineWidth = useSelector((state: RootState) => state.settings.eraserLineWidth);
@@ -61,7 +57,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
     if (!canvas) return;
     if (!drawingManagerRef.current) return;
-    
     drawingManagerRef.current.setTool(tool);
     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
   }, [color, lineWidth, eraserLineWidth, opacity, tool]);

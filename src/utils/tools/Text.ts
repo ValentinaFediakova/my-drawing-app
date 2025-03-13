@@ -20,6 +20,7 @@ export class TextTool {
     color: string;
   }[] = [];
   private textWidth: number = 0;
+  public isTextActive: boolean = false;
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -86,9 +87,11 @@ export class TextTool {
       this.ctx.stroke();
     }
 
-    this.animationFrameId = requestAnimationFrame(() => {
-      setTimeout(() => this.coursorBlinking(), this.coursorTimeout);
-    });
+    if (this.isTextActive) {
+      this.animationFrameId = requestAnimationFrame(() => {
+        setTimeout(() => this.coursorBlinking(), this.coursorTimeout);
+      });
+    }
   }
 
   stopCursorBlinking(): void {
@@ -101,6 +104,7 @@ export class TextTool {
   startWrite(points: { x: number; y: number }[]): void {
     this.currentPoints = points;
     this.textData = [];
+    this.isTextActive = true;
 
     this.stopCursorBlinking();
     this.coursorBlinking();

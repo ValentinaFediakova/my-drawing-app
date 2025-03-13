@@ -33,7 +33,12 @@ export class DrawingManager {
   }
 
   setTool(tool: Tool): void {
+    const a = 0;
     this.tool = tool;
+    if (tool !== `writeText`) {
+      this.TextTool.stopCursorBlinking();
+      this.TextTool.isTextActive = false;
+    }
   }
 
   setBrushSettings(
@@ -63,6 +68,7 @@ export class DrawingManager {
   startDraw(points: { x: number; y: number }): void {
     this.isDrawing = true;
     this.points = [points];
+    this.TextTool.stopCursorBlinking();
 
     if (this.tool === "pencil") {
       this.PencilTool.startDraw(this.points);

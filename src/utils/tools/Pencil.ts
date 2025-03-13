@@ -2,6 +2,7 @@ import { convertColorToRgba } from "../ColorConvertations";
 
 export class PencilTool {
   private ctx: CanvasRenderingContext2D;
+  private lineWidth: number = 5;
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -10,6 +11,7 @@ export class PencilTool {
   setPencil(lineWidth: number, color: string, opacity: number): void {
     this.ctx.globalCompositeOperation = "source-over";
     this.ctx.lineWidth = lineWidth;
+    this.lineWidth = lineWidth;
     this.ctx.strokeStyle = convertColorToRgba(color, String(opacity));
     this.ctx.lineCap = "round";
     this.ctx.lineJoin = "round";
@@ -21,6 +23,7 @@ export class PencilTool {
   }
 
   draw(e: MouseEvent): void {
+    this.ctx.lineWidth = this.lineWidth;
     this.ctx.lineTo(e.clientX, e.clientY);
     this.ctx.stroke();
   }
