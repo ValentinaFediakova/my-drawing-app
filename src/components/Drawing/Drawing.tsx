@@ -69,10 +69,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
     if (!canvas) return;
     if (!drawingManagerRef.current) return;
-
-    if (tool === "writeText") {
       drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
-    }
   }, [color, fontSize, outline])
 
   return (

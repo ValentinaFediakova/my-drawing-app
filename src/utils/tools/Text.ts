@@ -12,8 +12,12 @@ export class TextTool {
   private coursorTimeout: number = 500;
   private color: string = "";
   private prevCursorPositionX: number = 0;
-  private textData: { char: string; fontSize: number; outline: string[] }[] =
-    [];
+  private textData: {
+    char: string;
+    fontSize: number;
+    outline: string[];
+    color: string;
+  }[] = [];
   private textWidth: number = 0;
   private chartPlaceX: number = 0;
 
@@ -110,7 +114,12 @@ export class TextTool {
     } else if (e.key.length === 1) {
       this.textData = [
         ...this.textData,
-        { char: e.key, fontSize: this.fontSize, outline: this.outline },
+        {
+          char: e.key,
+          fontSize: this.fontSize,
+          outline: this.outline,
+          color: this.color,
+        },
       ];
     }
     const cursorY =
@@ -139,11 +148,10 @@ export class TextTool {
       this.prevFontSize
     );
 
-    this.textData.forEach(({ char, fontSize, outline }) => {
+    this.textData.forEach(({ char, fontSize, outline, color }) => {
       const outlineStyle = outline.map((item) => item).join(" ");
-      console.log("outlineStyle", outlineStyle);
+      this.ctx.fillStyle = color;
       this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
-
       this.ctx.fillText(
         char,
         this.currentPoints[0].x + textWidth,
