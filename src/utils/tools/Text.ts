@@ -2,7 +2,7 @@ export class TextTool {
   private ctx: CanvasRenderingContext2D;
   private prevFontSize: number = 24;
   private fontSize: number = 24;
-  private outline: string = "normal";
+  private outline: string[] = ["normal"];
   private widthStartArea: number = 20;
   private prevPoints: { x: number; y: number }[] = [];
   private currentPoints: { x: number; y: number }[] = [];
@@ -20,12 +20,13 @@ export class TextTool {
     this.ctx = ctx;
   }
 
-  setText(fontSize: number, outline: string, color: string): void {
+  setText(fontSize: number, outline: string[], color: string): void {
     this.color = color;
+    const a = 0;
     this.fontSize = fontSize;
     this.outline = outline;
     this.ctx.fillStyle = color;
-    this.ctx.font = `${outline} ${fontSize}px Arial`;
+    this.ctx.font = `${outline[0]} ${fontSize}px Arial`;
   }
 
   coursorBlinking(): void {
@@ -92,7 +93,6 @@ export class TextTool {
   }
 
   startWrite(points: { x: number; y: number }[]): void {
-    const a = 0;
     this.currentPoints = points;
     this.textData = [];
     this.chartPlaceX = this.currentPoints[0].x;
@@ -130,7 +130,6 @@ export class TextTool {
         ? this.textData[this.textData.length - 2].fontSize
         : 24;
 
-    this.ctx.strokeStyle = "red";
     this.ctx.clearRect(
       this.currentPoints[0].x,
       this.currentPoints[0].y - prevFontSize,
@@ -138,7 +137,7 @@ export class TextTool {
       this.prevFontSize
     );
 
-    this.textData.forEach(({ char, fontSize }, index) => {
+    this.textData.forEach(({ char, fontSize }) => {
       this.ctx.font = `${this.outline} ${fontSize}px Arial`;
 
       this.ctx.fillText(

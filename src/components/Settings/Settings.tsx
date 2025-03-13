@@ -6,7 +6,7 @@ import { Dropdown } from '@/components/Settings/Dropdown/Dropdown';
 import { ColorPicker } from './ColorPicker/ColorPicker';
 import { PALETTE_COLORS } from '@/constants'
 import { useSelector, useDispatch } from "react-redux";
-import { setColor } from "@/store/slices/settingsSlice";
+import { setColor, setOutline } from "@/store/slices/settingsSlice";
 import { RootState } from "@/store/index";
 import { convertRgbaToHex } from "@/utils/ColorConvertations";
 
@@ -14,15 +14,18 @@ import "./Settings.scss";
 
 
 export const Settings: React.FC = ({ }) => {
-  const [activeOutlineButton, setActiveOutlineButton] = useState('');
+  const [activeOutlineButtons, setActiveOutlineButtons] = useState<string[]>();
 
   const dispatch = useDispatch();
   const color = useSelector((state: RootState) => state.settings.color);
   const tool = useSelector((state: RootState) => state.settings.tool);
 
   const handleOutlineButton = (outline: string) => {
-    const newValueOutline = activeOutlineButton === outline ? '' : outline;
-    setActiveOutlineButton(newValueOutline);
+    const newValueOutline = activeOutlineButtons?.includes(outline) 
+      ? activeOutlineButtons.filter((item) => item !== outline)
+      : [...(activeOutlineButtons || []), outline];
+    setActiveOutlineButtons(newValueOutline);
+    dispatch(setOutline(outline))
   }
 
   return (
@@ -91,15 +94,15 @@ export const Settings: React.FC = ({ }) => {
             <div className="settings__title">Начертание</div>
             <div className='settings__buttons-outline'>
               <button 
-                className={activeOutlineButton === 'bold' ? `settings__button-outline settings__button-outline_bold settings__button-outline_active` : `settings__button-outline settings__button-outline_bold`}
+                className={activeOutlineButtons?.includes('bold') ? `settings__button-outline settings__button-outline_bold settings__button-outline_active` : `settings__button-outline settings__button-outline_bold`}
                 onClick={() => handleOutlineButton('bold')}
               ></button>
               <button 
-                className={activeOutlineButton === 'italic' ? `settings__button-outline settings__button-outline_italic settings__button-outline_active` : `settings__button-outline settings__button-outline_italic`}
+                className={activeOutlineButtons?.includes('italic') ? `settings__button-outline settings__button-outline_italic settings__button-outline_active` : `settings__button-outline settings__button-outline_italic`}
                 onClick={() => handleOutlineButton('italic')}
               ></button>
               <button 
-                className={activeOutlineButton === 'underline' ? `settings__button-outline settings__button-outline_underline settings__button-outline_active` : `settings__button-outline settings__button-outline_underline`}
+                className={activeOutlineButtons?.includes('underline') ? `settings__button-outline settings__button-outline_underline settings__button-outline_active` : `settings__button-outline settings__button-outline_underline`}
                 onClick={() => handleOutlineButton('underline')}
               ></button>
             </div>

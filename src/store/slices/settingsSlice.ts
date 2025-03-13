@@ -9,7 +9,7 @@ interface SettingsState {
   opacity: number;
   tool: Tool;
   fontSize: number;
-  outline: string;
+  outline: string[];
 }
 
 const initialState: SettingsState = {
@@ -19,7 +19,7 @@ const initialState: SettingsState = {
   opacity: 1.0,
   tool: "pencil",
   fontSize: 24,
-  outline: "normal",
+  outline: [],
 };
 
 const settingsSlice = createSlice({
@@ -46,7 +46,10 @@ const settingsSlice = createSlice({
       state.fontSize = action.payload;
     },
     setOutline: (state, action: PayloadAction<string>) => {
-      state.outline = action.payload;
+      const newStateoutline = state.outline.includes(action.payload)
+        ? state.outline.filter((item) => item !== action.payload)
+        : [...state.outline, action.payload];
+      state.outline = newStateoutline;
     },
   },
 });
@@ -58,5 +61,6 @@ export const {
   setOpacity,
   setTool,
   setFontSize,
+  setOutline,
 } = settingsSlice.actions;
 export default settingsSlice.reducer;

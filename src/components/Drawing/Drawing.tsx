@@ -25,10 +25,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const fontSize = useSelector((state: RootState) => state.settings.fontSize);
   const outline = useSelector((state: RootState) => state.settings.outline);
 
-  if (tool === "writeText") {
-    drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
-  }
-
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const points = { x: e.clientX, y: e.clientY };
     if (tool === 'eraser' || tool === 'pencil') {
@@ -68,6 +64,19 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     drawingManagerRef.current.setTool(tool);
     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
   }, [color, lineWidth, eraserLineWidth, opacity, tool]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+    if (!drawingManagerRef.current) return;
+
+    // if (tool === "writeText") {
+      drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
+      console.log('outline', outline)
+
+    // }
+  }, [color, fontSize, outline])
 
   return (
     <canvas 

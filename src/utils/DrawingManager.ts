@@ -50,7 +50,11 @@ export class DrawingManager {
     }
   }
 
-  setTextSettings(color: string, fontSize: number, outline: string): void {
+  setTextSettings(
+    color: string,
+    fontSize: number,
+    outline: string[] = ["normal"]
+  ): void {
     this.isDrawing = false;
     this.canvas.focus();
     this.TextTool.setText(fontSize, outline, color);
