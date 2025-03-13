@@ -99,7 +99,9 @@ export class DrawingManager {
 
       return;
     }
-
+    if (this.savedImageData) {
+      this.ctx.putImageData(this.savedImageData, 0, 0);
+    }
     if (this.tool === "pencil") {
       this.PencilTool.draw(e);
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { DrawingManager } from "@/utils/DrawingManager";
 
@@ -16,6 +16,7 @@ interface DrawingProps {
 
 export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef}) => {
 
+  const dispatch = useDispatch();
   const color = useSelector((state: RootState) => state.settings.color);
   const lineWidth = useSelector((state: RootState) => state.settings.lineWidth);
   const eraserLineWidth = useSelector((state: RootState) => state.settings.eraserLineWidth);

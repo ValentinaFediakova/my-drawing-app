@@ -3,7 +3,6 @@ export class TextTool {
   private prevFontSize: number = 24;
   private fontSize: number = 24;
   private outline: string[] = ["Normal"];
-  private widthStartArea: number = 20;
   private prevPoints: { x: number; y: number }[] = [];
   private currentPoints: { x: number; y: number }[] = [];
   private isCoursorVisible: boolean = false;
@@ -19,7 +18,6 @@ export class TextTool {
     color: string;
   }[] = [];
   private textWidth: number = 0;
-  private chartPlaceX: number = 0;
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -27,7 +25,6 @@ export class TextTool {
 
   setText(fontSize: number, outline: string[], color: string): void {
     this.color = color;
-    const a = 0;
     this.fontSize = fontSize;
     this.outline = outline;
     this.ctx.fillStyle = color;
@@ -101,7 +98,6 @@ export class TextTool {
   startWrite(points: { x: number; y: number }[]): void {
     this.currentPoints = points;
     this.textData = [];
-    this.chartPlaceX = this.currentPoints[0].x;
 
     this.stopCursorBlinking();
     this.coursorBlinking();
