@@ -10,7 +10,6 @@ export class TextTool {
   private animationFrameId: number | null = null;
   private blinkingTime: number = 0;
   private coursorTimeout: number = 500;
-  private currentText: string = "";
   private color: string = "";
   private prevCursorPositionX: number = 0;
   private textData: { char: string; fontSize: number }[] = [];
@@ -22,7 +21,6 @@ export class TextTool {
   }
 
   setText(fontSize: number, outline: string, color: string): void {
-    const a = 0;
     this.color = color;
     this.fontSize = fontSize;
     this.outline = outline;
@@ -32,53 +30,54 @@ export class TextTool {
 
   coursorBlinking(): void {
     const now = performance.now();
+    let textWidth = 0;
+    const padding = 5;
+    const cursorY =
+      this.prevPoints.length > 0
+        ? this.prevPoints[0].y
+        : this.currentPoints[0].y;
+    const currentFontSize =
+      this.textData.length > 0
+        ? this.textData[this.textData.length - 1].fontSize
+        : 24;
 
     if (now - this.blinkingTime >= this.coursorTimeout) {
       this.blinkingTime = now;
       this.isCoursorVisible = !this.isCoursorVisible;
     }
 
-    const prevFontSize =
+    this.prevFontSize =
       this.textData.length > 1
         ? this.textData[this.textData.length - 2].fontSize
         : 24;
 
-    const cursorY =
-      this.prevPoints.length > 0
-        ? this.prevPoints[0].y
-        : this.currentPoints[0].y;
+    this.textData.forEach(({ char, fontSize }) => {
+      this.ctx.font = `${this.outline} ${fontSize}px Arial`;
+      textWidth += this.ctx.measureText(char).width;
+    });
+
+    this.prevCursorPositionX = this.currentPoints[0].x + textWidth + padding;
 
     this.ctx.clearRect(
-      this.prevCursorPositionX ?? this.currentPoints[0].x,
-      cursorY,
+      this.prevCursorPositionX - 2,
+      cursorY - this.prevFontSize + 3,
       4,
-      prevFontSize
+      this.prevFontSize
     );
 
-    let textWidth = 0;
-
     if (this.isCoursorVisible) {
-      this.textData.forEach(({ char, fontSize }) => {
-        this.ctx.font = `${this.outline} ${fontSize}px Arial`;
-        textWidth += this.ctx.measureText(char).width;
-      });
-
-      const currentFontSize =
-        this.textData.length > 0
-          ? this.textData[this.textData.length - 1].fontSize
-          : 24;
-
-      this.ctx.font = `${this.outline} ${currentFontSize}px Arial`;
-      this.ctx.lineWidth = 1;
-      this.ctx.fillText(
-        "|",
-        this.currentPoints[0].x + textWidth,
-        this.currentPoints[0].y
+      this.ctx.lineWidth = 0.8;
+      this.ctx.beginPath();
+      this.ctx.moveTo(
+        this.currentPoints[0].x + textWidth + padding,
+        this.currentPoints[0].y - currentFontSize * 0.7
       );
+      this.ctx.lineTo(
+        this.currentPoints[0].x + textWidth + padding,
+        this.currentPoints[0].y + currentFontSize * 0.1
+      );
+      this.ctx.stroke();
     }
-
-    this.prevCursorPositionX = this.currentPoints[0].x + textWidth;
-    this.textWidth = textWidth;
 
     this.animationFrameId = requestAnimationFrame(() => {
       setTimeout(() => this.coursorBlinking(), this.coursorTimeout);
@@ -93,9 +92,9 @@ export class TextTool {
   }
 
   startWrite(points: { x: number; y: number }[]): void {
+    const a = 0;
     this.currentPoints = points;
     this.textData = [];
-    this.currentText = "";
     this.chartPlaceX = this.currentPoints[0].x;
 
     this.stopCursorBlinking();
@@ -112,19 +111,34 @@ export class TextTool {
         { char: e.key, fontSize: this.fontSize },
       ];
     }
+    const cursorY =
+      this.prevPoints.length > 0
+        ? this.prevPoints[0].y
+        : this.currentPoints[0].y;
 
     this.ctx.clearRect(
-      this.prevCursorPositionX + 1,
-      this.prevPoints[0].y - this.fontSize + 5,
+      this.prevCursorPositionX - 2,
+      cursorY - this.prevFontSize + 3,
       4,
-      this.fontSize
+      this.prevFontSize
     );
-
-    this.currentText = this.textData.map(({ char }) => char).join("");
 
     let textWidth = 0;
 
-    this.textData.forEach(({ char, fontSize }) => {
+    const prevFontSize =
+      this.textData.length > 2
+        ? this.textData[this.textData.length - 2].fontSize
+        : 24;
+
+    this.ctx.strokeStyle = "red";
+    this.ctx.clearRect(
+      this.currentPoints[0].x,
+      this.currentPoints[0].y - prevFontSize,
+      this.textWidth,
+      this.prevFontSize
+    );
+
+    this.textData.forEach(({ char, fontSize }, index) => {
       this.ctx.font = `${this.outline} ${fontSize}px Arial`;
 
       this.ctx.fillText(
@@ -136,21 +150,6 @@ export class TextTool {
       textWidth += this.ctx.measureText(char).width;
     });
 
-    // this.ctx.fillText(
-    //   this.currentText,
-    //   this.currentPoints[0].x + padding,
-    //   this.currentPoints[0].y
-    // );
+    this.textWidth = textWidth;
   }
 }
-
-// + сделать палочку мигающую
-// + если опять пользуюсь startWrite то прошлый прямоугольник и палочка убирается
-// + по набору по клавиатуре - вставляется текс
-// + если пользуюсь writingText то палочка мигает
-
-// сделать стирание - бэкспейс
-// убирать рамку, когда новый startWrite
-// чтобы не выходило за края канваса
-// * если получится, то сделать энтер
-// * вставка текста
