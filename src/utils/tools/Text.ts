@@ -2,7 +2,7 @@ export class TextTool {
   private ctx: CanvasRenderingContext2D;
   private prevFontSize: number = 24;
   private fontSize: number = 24;
-  private outline: string[] = ["normal"];
+  private outline: string[] = ["Normal"];
   private widthStartArea: number = 20;
   private prevPoints: { x: number; y: number }[] = [];
   private currentPoints: { x: number; y: number }[] = [];
@@ -12,7 +12,8 @@ export class TextTool {
   private coursorTimeout: number = 500;
   private color: string = "";
   private prevCursorPositionX: number = 0;
-  private textData: { char: string; fontSize: number }[] = [];
+  private textData: { char: string; fontSize: number; outline: string[] }[] =
+    [];
   private textWidth: number = 0;
   private chartPlaceX: number = 0;
 
@@ -52,8 +53,9 @@ export class TextTool {
         ? this.textData[this.textData.length - 2].fontSize
         : 24;
 
-    this.textData.forEach(({ char, fontSize }) => {
-      this.ctx.font = `${this.outline} ${fontSize}px Arial`;
+    this.textData.forEach(({ char, fontSize, outline }) => {
+      const outlineStyle = outline.map((item) => item).join(" ");
+      this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
       textWidth += this.ctx.measureText(char).width;
     });
 
@@ -108,7 +110,7 @@ export class TextTool {
     } else if (e.key.length === 1) {
       this.textData = [
         ...this.textData,
-        { char: e.key, fontSize: this.fontSize },
+        { char: e.key, fontSize: this.fontSize, outline: this.outline },
       ];
     }
     const cursorY =
@@ -137,8 +139,10 @@ export class TextTool {
       this.prevFontSize
     );
 
-    this.textData.forEach(({ char, fontSize }) => {
-      this.ctx.font = `${this.outline} ${fontSize}px Arial`;
+    this.textData.forEach(({ char, fontSize, outline }) => {
+      const outlineStyle = outline.map((item) => item).join(" ");
+      console.log("outlineStyle", outlineStyle);
+      this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
 
       this.ctx.fillText(
         char,

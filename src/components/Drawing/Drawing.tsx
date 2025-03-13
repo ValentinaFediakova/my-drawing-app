@@ -14,7 +14,6 @@ interface DrawingProps {
 }
 
 
-
 export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef}) => {
 
   const color = useSelector((state: RootState) => state.settings.color);
@@ -71,11 +70,9 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     if (!canvas) return;
     if (!drawingManagerRef.current) return;
 
-    // if (tool === "writeText") {
+    if (tool === "writeText") {
       drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
-      console.log('outline', outline)
-
-    // }
+    }
   }, [color, fontSize, outline])
 
   return (

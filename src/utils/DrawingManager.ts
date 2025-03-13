@@ -53,7 +53,7 @@ export class DrawingManager {
   setTextSettings(
     color: string,
     fontSize: number,
-    outline: string[] = ["normal"]
+    outline: string[] = ["Normal"]
   ): void {
     this.isDrawing = false;
     this.canvas.focus();

@@ -94,17 +94,17 @@ export const Settings: React.FC = ({ }) => {
             <div className="settings__title">Начертание</div>
             <div className='settings__buttons-outline'>
               <button 
-                className={activeOutlineButtons?.includes('bold') ? `settings__button-outline settings__button-outline_bold settings__button-outline_active` : `settings__button-outline settings__button-outline_bold`}
-                onClick={() => handleOutlineButton('bold')}
+                className={activeOutlineButtons?.includes('Bold') ? `settings__button-outline settings__button-outline_bold settings__button-outline_active` : `settings__button-outline settings__button-outline_bold`}
+                onClick={() => handleOutlineButton('Bold')}
               ></button>
               <button 
-                className={activeOutlineButtons?.includes('italic') ? `settings__button-outline settings__button-outline_italic settings__button-outline_active` : `settings__button-outline settings__button-outline_italic`}
-                onClick={() => handleOutlineButton('italic')}
+                className={activeOutlineButtons?.includes('Italic') ? `settings__button-outline settings__button-outline_italic settings__button-outline_active` : `settings__button-outline settings__button-outline_italic`}
+                onClick={() => handleOutlineButton('Italic')}
               ></button>
-              <button 
-                className={activeOutlineButtons?.includes('underline') ? `settings__button-outline settings__button-outline_underline settings__button-outline_active` : `settings__button-outline settings__button-outline_underline`}
-                onClick={() => handleOutlineButton('underline')}
-              ></button>
+              {/* <button 
+                className={activeOutlineButtons?.includes('Underline') ? `settings__button-outline settings__button-outline_underline settings__button-outline_active` : `settings__button-outline settings__button-outline_underline`}
+                onClick={() => handleOutlineButton('Underline')}
+              ></button> */}
             </div>
           </div>
         </>
