@@ -117,13 +117,13 @@ export class DrawingManager {
   }
 
   writeText(e: KeyboardEvent): void {
+    this.TextTool.writingText(e);
     this.savedImageData = this.ctx.getImageData(
       0,
       0,
       this.canvas.width,
       this.canvas.height
     );
-    this.TextTool.writingText(e);
   }
 
   stopDraw(): void {
