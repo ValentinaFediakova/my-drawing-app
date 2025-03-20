@@ -33,7 +33,6 @@ export class DrawingManager {
   }
 
   setTool(tool: Tool): void {
-    const a = 0;
     this.tool = tool;
     if (tool !== `writeText`) {
       this.TextTool.stopCursorBlinking();
@@ -106,6 +105,7 @@ export class DrawingManager {
       return;
     }
     if (this.savedImageData) {
+      console.log("savedImageData draw");
       this.ctx.putImageData(this.savedImageData, 0, 0);
     }
     if (this.tool === "pencil") {
@@ -117,6 +117,12 @@ export class DrawingManager {
   }
 
   writeText(e: KeyboardEvent): void {
+    this.savedImageData = this.ctx.getImageData(
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+    );
     this.TextTool.writingText(e);
   }
 
