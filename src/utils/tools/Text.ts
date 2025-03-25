@@ -2,9 +2,10 @@ import { convertColorToRgba } from "../ColorConvertations";
 
 export class TextTool {
   private ctx: CanvasRenderingContext2D;
+  private canvas: HTMLCanvasElement;
   private prevFontSize: number = 24;
   private fontSize: number = 24;
-  private outline: string[] = ["Normal"];
+  private outline: Array<string> = ["Normal"];
   private prevPoints: { x: number; y: number }[] = [];
   private currentPoints: { x: number; y: number }[] = [];
   private isCoursorVisible: boolean = false;
@@ -13,17 +14,21 @@ export class TextTool {
   private coursorTimeout: number = 500;
   private color: string = "";
   private prevCursorPositionX: number = 0;
+  private lineNumber: number = 0;
   private textData: {
     char: string;
     fontSize: number;
     outline: string[];
     color: string;
+    lineNumber: number;
   }[] = [];
   private textWidth: number = 0;
+  private sumAllMaxFontSizeForClearReactByY: number = 0;
   public isTextActive: boolean = false;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
     this.ctx = ctx;
+    this.canvas = canvas;
   }
 
   setText(fontSize: number, outline: string[], color: string): void {
@@ -115,6 +120,29 @@ export class TextTool {
     if (e.key === "Backspace") {
       this.textData = this.textData.slice(0, -1);
     } else if (e.key.length === 1) {
+      let currentLineWidth = 0;
+      let lastLetterWidth = 0;
+
+      this.textData.forEach(
+        ({ char, fontSize, outline, color, lineNumber }) => {
+          if (lineNumber === this.lineNumber) {
+            const outlineStyle = outline.map((item) => item).join(" ");
+            this.ctx.fillStyle = color;
+            this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
+
+            currentLineWidth += this.ctx.measureText(char).width;
+            lastLetterWidth = this.ctx.measureText(char).width;
+          }
+        }
+      );
+
+      if (
+        this.currentPoints[0].x + currentLineWidth + lastLetterWidth >=
+        this.canvas.width
+      ) {
+        this.lineNumber += 1;
+      }
+
       this.textData = [
         ...this.textData,
         {
@@ -122,6 +150,7 @@ export class TextTool {
           fontSize: this.fontSize,
           outline: this.outline,
           color: this.color,
+          lineNumber: this.lineNumber,
         },
       ];
     }
@@ -139,6 +168,26 @@ export class TextTool {
 
     let textWidth = 0;
 
+    const textDataByLine = new Map<
+      number,
+      {
+        char: string;
+        fontSize: number;
+        outline: string[];
+        color: string;
+        lineNumber: number;
+      }[]
+    >();
+
+    for (let i = 0; i < this.textData.length; i++) {
+      const key = this.textData[i].lineNumber;
+      const value = textDataByLine.get(key) || [];
+      textDataByLine.set(key, [...value, this.textData[i]]);
+    }
+
+    let prevLineNumber = 0;
+    let sumAllMaxFontSize = 0;
+
     const prevFontSize =
       this.textData.length > 2
         ? this.textData[this.textData.length - 2].fontSize
@@ -148,22 +197,38 @@ export class TextTool {
       this.currentPoints[0].x,
       this.currentPoints[0].y - prevFontSize,
       this.textWidth,
-      this.prevFontSize
+      this.sumAllMaxFontSizeForClearReactByY === 0
+        ? this.prevFontSize
+        : this.sumAllMaxFontSizeForClearReactByY + this.prevFontSize
     );
 
-    this.textData.forEach(({ char, fontSize, outline, color }) => {
-      const outlineStyle = outline.map((item) => item).join(" ");
-      this.ctx.fillStyle = color;
-      this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
-      this.ctx.fillText(
-        char,
-        this.currentPoints[0].x + textWidth,
-        this.currentPoints[0].y
-      );
+    Array.from(textDataByLine).forEach((items) => {
+      const maxFontSizeInThis = items[1]
+        .map(({ fontSize }: { fontSize: number }) => fontSize)
+        .sort((a, b) => b - a)[0];
 
-      textWidth += this.ctx.measureText(char).width;
+      items[1].forEach(({ char, fontSize, outline, color, lineNumber }) => {
+        const outlineStyle = outline
+          .map((outlineItem: string) => outlineItem)
+          .join(" ");
+        this.ctx.fillStyle = color;
+        this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
+        if (prevLineNumber < lineNumber) {
+          textWidth = 0;
+          prevLineNumber = lineNumber;
+          sumAllMaxFontSize += maxFontSizeInThis;
+          this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
+        }
+
+        this.ctx.fillText(
+          char,
+          this.currentPoints[0].x + textWidth,
+          this.currentPoints[0].y + sumAllMaxFontSize
+        );
+
+        textWidth += this.ctx.measureText(char).width;
+        this.textWidth = textWidth;
+      });
     });
-
-    this.textWidth = textWidth;
   }
 }

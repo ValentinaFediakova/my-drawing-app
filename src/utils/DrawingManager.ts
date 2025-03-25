@@ -29,7 +29,7 @@ export class DrawingManager {
     this.savedImageData = null;
     this.PencilTool = new PencilTool(this.ctx);
     this.EraserTool = new EraserTool(this.ctx);
-    this.TextTool = new TextTool(this.ctx);
+    this.TextTool = new TextTool(this.ctx, canvas);
   }
 
   setTool(tool: Tool): void {
@@ -105,7 +105,6 @@ export class DrawingManager {
       return;
     }
     if (this.savedImageData) {
-      console.log("savedImageData draw");
       this.ctx.putImageData(this.savedImageData, 0, 0);
     }
     if (this.tool === "pencil") {
