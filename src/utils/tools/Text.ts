@@ -1,5 +1,16 @@
 import { convertColorToRgba } from "../ColorConvertations";
 
+type TextDataByLine = Map<
+  number,
+  {
+    char: string;
+    fontSize: number;
+    outline: string[];
+    color: string;
+    lineNumber: number;
+  }[]
+>;
+
 export class TextTool {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
@@ -63,17 +74,29 @@ export class TextTool {
         ? this.textData[this.textData.length - 2].fontSize
         : 24;
 
-    this.textData.forEach(({ char, fontSize, outline }) => {
-      const outlineStyle = outline.map((item) => item).join(" ");
-      this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
-      textWidth += this.ctx.measureText(char).width;
+    const textDataByLine: TextDataByLine = this.getTextDataByLine();
+    let prevLineNumber = 0;
+    let positionY = 0;
+
+    Array.from(textDataByLine).forEach((items) => {
+      const maxFontSize = this.getMaxFontSizeByLine(items[1]);
+      items[1].forEach(({ char, fontSize, outline, lineNumber }) => {
+        const outlineStyle = outline.map((item) => item).join(" ");
+        this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
+        if (prevLineNumber < lineNumber) {
+          textWidth = 0;
+          prevLineNumber = lineNumber;
+          positionY += maxFontSize;
+        }
+        textWidth += this.ctx.measureText(char).width;
+      });
     });
 
     this.prevCursorPositionX = this.currentPoints[0].x + textWidth + padding;
 
     this.ctx.clearRect(
       this.prevCursorPositionX - 2,
-      cursorY - this.prevFontSize + 3,
+      cursorY - this.prevFontSize + 3 + positionY,
       4,
       this.prevFontSize
     );
@@ -83,11 +106,11 @@ export class TextTool {
       this.ctx.beginPath();
       this.ctx.moveTo(
         this.currentPoints[0].x + textWidth + padding,
-        this.currentPoints[0].y - currentFontSize * 0.7
+        this.currentPoints[0].y - currentFontSize * 0.7 + positionY
       );
       this.ctx.lineTo(
         this.currentPoints[0].x + textWidth + padding,
-        this.currentPoints[0].y + currentFontSize * 0.1
+        this.currentPoints[0].y + currentFontSize * 0.1 + positionY
       );
       this.ctx.stroke();
     }
@@ -114,6 +137,26 @@ export class TextTool {
     this.stopCursorBlinking();
     this.coursorBlinking();
     this.prevPoints = this.currentPoints;
+  }
+
+  getTextDataByLine(): TextDataByLine {
+    const textDataByLine: TextDataByLine = new Map();
+
+    for (let i = 0; i < this.textData.length; i++) {
+      const key = this.textData[i].lineNumber;
+      const value = textDataByLine.get(key) || [];
+      textDataByLine.set(key, [...value, this.textData[i]]);
+    }
+
+    return textDataByLine;
+  }
+
+  getMaxFontSizeByLine(items: { fontSize: number }[]): number {
+    const maxFontSizeInThis = items
+      .map(({ fontSize }: { fontSize: number }) => fontSize)
+      .sort((a, b) => b - a)[0];
+
+    return maxFontSizeInThis;
   }
 
   writingText(e: KeyboardEvent): void {
@@ -168,22 +211,7 @@ export class TextTool {
 
     let textWidth = 0;
 
-    const textDataByLine = new Map<
-      number,
-      {
-        char: string;
-        fontSize: number;
-        outline: string[];
-        color: string;
-        lineNumber: number;
-      }[]
-    >();
-
-    for (let i = 0; i < this.textData.length; i++) {
-      const key = this.textData[i].lineNumber;
-      const value = textDataByLine.get(key) || [];
-      textDataByLine.set(key, [...value, this.textData[i]]);
-    }
+    const textDataByLine: TextDataByLine = this.getTextDataByLine();
 
     let prevLineNumber = 0;
     let sumAllMaxFontSize = 0;
@@ -203,22 +231,22 @@ export class TextTool {
     );
 
     Array.from(textDataByLine).forEach((items) => {
-      const maxFontSizeInThis = items[1]
-        .map(({ fontSize }: { fontSize: number }) => fontSize)
-        .sort((a, b) => b - a)[0];
-
+      const maxFontSizeInThis = this.getMaxFontSizeByLine(items[1]);
+      sumAllMaxFontSize += maxFontSizeInThis;
+      this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
+      textWidth = 0;
       items[1].forEach(({ char, fontSize, outline, color, lineNumber }) => {
         const outlineStyle = outline
           .map((outlineItem: string) => outlineItem)
           .join(" ");
         this.ctx.fillStyle = color;
         this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
-        if (prevLineNumber < lineNumber) {
-          textWidth = 0;
-          prevLineNumber = lineNumber;
-          sumAllMaxFontSize += maxFontSizeInThis;
-          this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
-        }
+        // if (prevLineNumber < lineNumber) {
+        //   textWidth = 0;
+        //   prevLineNumber = lineNumber;
+        //   sumAllMaxFontSize += maxFontSizeInThis;
+        //   this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
+        // }
 
         this.ctx.fillText(
           char,
