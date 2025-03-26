@@ -159,6 +159,47 @@ export class TextTool {
     return maxFontSizeInThis;
   }
 
+  private renderTextData(): void {
+    let textWidth = 0;
+    let prevLineNumber = 0;
+    let sumAllMaxFontSize = 0;
+    let maximumOfWidthLine = 0;
+
+    const textDataByLine: TextDataByLine = this.getTextDataByLine();
+
+    Array.from(textDataByLine).forEach((items) => {
+      const maxFontSizeInThis = this.getMaxFontSizeByLine(items[1]);
+      textWidth = 0;
+      items[1].forEach(({ char, fontSize, outline, color, lineNumber }) => {
+        const outlineStyle = outline
+          .map((outlineItem: string) => outlineItem)
+          .join(" ");
+        this.ctx.fillStyle = color;
+        this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
+
+        if (prevLineNumber < lineNumber) {
+          textWidth = 0;
+          prevLineNumber = lineNumber;
+          sumAllMaxFontSize += maxFontSizeInThis;
+          this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
+        }
+
+        if (prevLineNumber === 0 && lineNumber === 0) {
+          maximumOfWidthLine += this.ctx.measureText(char).width;
+          this.textWidth = maximumOfWidthLine;
+        }
+
+        this.ctx.fillText(
+          char,
+          this.currentPoints[0].x + textWidth,
+          this.currentPoints[0].y + sumAllMaxFontSize
+        );
+
+        textWidth += this.ctx.measureText(char).width;
+      });
+    });
+  }
+
   writingText(e: KeyboardEvent): void {
     if (e.key === "Backspace") {
       this.textData = this.textData.slice(0, -1);
@@ -209,13 +250,6 @@ export class TextTool {
       this.prevFontSize
     );
 
-    let textWidth = 0;
-
-    const textDataByLine: TextDataByLine = this.getTextDataByLine();
-
-    let prevLineNumber = 0;
-    let sumAllMaxFontSize = 0;
-
     const prevFontSize =
       this.textData.length > 2
         ? this.textData[this.textData.length - 2].fontSize
@@ -230,33 +264,6 @@ export class TextTool {
         : this.sumAllMaxFontSizeForClearReactByY + this.prevFontSize
     );
 
-    Array.from(textDataByLine).forEach((items) => {
-      const maxFontSizeInThis = this.getMaxFontSizeByLine(items[1]);
-      sumAllMaxFontSize += maxFontSizeInThis;
-      this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
-      textWidth = 0;
-      items[1].forEach(({ char, fontSize, outline, color, lineNumber }) => {
-        const outlineStyle = outline
-          .map((outlineItem: string) => outlineItem)
-          .join(" ");
-        this.ctx.fillStyle = color;
-        this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
-        // if (prevLineNumber < lineNumber) {
-        //   textWidth = 0;
-        //   prevLineNumber = lineNumber;
-        //   sumAllMaxFontSize += maxFontSizeInThis;
-        //   this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
-        // }
-
-        this.ctx.fillText(
-          char,
-          this.currentPoints[0].x + textWidth,
-          this.currentPoints[0].y + sumAllMaxFontSize
-        );
-
-        textWidth += this.ctx.measureText(char).width;
-        this.textWidth = textWidth;
-      });
-    });
+    this.renderTextData();
   }
 }
