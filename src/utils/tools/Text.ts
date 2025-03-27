@@ -62,7 +62,7 @@ export class TextTool {
     const currentFontSize =
       this.textData.length > 0
         ? this.textData[this.textData.length - 1].fontSize
-        : 24;
+        : this.fontSize;
 
     if (now - this.blinkingTime >= this.coursorTimeout) {
       this.blinkingTime = now;
@@ -72,7 +72,7 @@ export class TextTool {
     this.prevFontSize =
       this.textData.length > 1
         ? this.textData[this.textData.length - 2].fontSize
-        : 24;
+        : this.fontSize;
 
     const textDataByLine: TextDataByLine = this.getTextDataByLine();
     let prevLineNumber = 0;
@@ -96,11 +96,10 @@ export class TextTool {
 
     this.ctx.clearRect(
       this.prevCursorPositionX - 2,
-      cursorY - this.prevFontSize + 3 + positionY,
+      cursorY - this.prevFontSize + 5 + positionY,
       4,
-      this.prevFontSize
+      this.prevFontSize + 2
     );
-
     if (this.isCoursorVisible) {
       this.ctx.lineWidth = 0.8;
       this.ctx.beginPath();
@@ -159,7 +158,7 @@ export class TextTool {
     return maxFontSizeInThis;
   }
 
-  private renderTextData(): void {
+  renderTextData(): void {
     let textWidth = 0;
     let prevLineNumber = 0;
     let sumAllMaxFontSize = 0;
@@ -238,17 +237,6 @@ export class TextTool {
         },
       ];
     }
-    const cursorY =
-      this.prevPoints.length > 0
-        ? this.prevPoints[0].y
-        : this.currentPoints[0].y;
-
-    this.ctx.clearRect(
-      this.prevCursorPositionX - 2,
-      cursorY - this.prevFontSize + 3,
-      4,
-      this.prevFontSize
-    );
 
     const prevFontSize =
       this.textData.length > 2
@@ -262,6 +250,17 @@ export class TextTool {
       this.sumAllMaxFontSizeForClearReactByY === 0
         ? this.prevFontSize
         : this.sumAllMaxFontSizeForClearReactByY + this.prevFontSize
+    );
+
+    const cursorY =
+      this.prevPoints.length > 0
+        ? this.prevPoints[0].y
+        : this.currentPoints[0].y;
+    this.ctx.clearRect(
+      this.prevCursorPositionX - 2,
+      cursorY - this.fontSize + this.sumAllMaxFontSizeForClearReactByY,
+      4,
+      this.fontSize + 5
     );
 
     this.renderTextData();

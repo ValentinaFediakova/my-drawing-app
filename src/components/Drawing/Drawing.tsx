@@ -59,7 +59,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     if (!drawingManagerRef.current) return;
     drawingManagerRef.current.setTool(tool);
     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
-  }, [color, lineWidth, eraserLineWidth, opacity, tool]);
+  }, [color, lineWidth, eraserLineWidth, opacity, tool, fontSize]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
