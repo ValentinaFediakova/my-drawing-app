@@ -1,14 +1,18 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const WebSocket = require("ws");
 
-const server = new WebSocket.Server({ port: process.env.PORT || 3001 });
+const port = process.env.PORT || 3001;
+
+const server = new WebSocket.Server({ port });
 
 const clients = new Set();
 
 server.on("connection", (ws) => {
+  console.log("New client connected");
   clients.add(ws);
 
   ws.on("message", (message) => {
+    console.log("Received message:", message);
     for (const client of clients) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
         client.send(message);
@@ -17,8 +21,9 @@ server.on("connection", (ws) => {
   });
 
   ws.on("close", () => {
+    console.log("Client disconnected");
     clients.delete(ws);
   });
 });
 
-console.log("WebSocket server is running on port 3001");
+console.log(`WebSocket server is running on port ${port}`);
