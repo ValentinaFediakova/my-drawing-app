@@ -23,8 +23,8 @@ export class TextTool {
   private animationFrameId: number | null = null;
   private blinkingTime: number = 0;
   private coursorTimeout: number = 500;
-  private color: string = "";
   private prevCursorPositionX: number = 0;
+  private color: string = "";
   private lineNumber: number = 0;
   private textData: {
     char: string;
@@ -43,82 +43,119 @@ export class TextTool {
   }
 
   setText(fontSize: number, outline: string[], color: string): void {
-    this.ctx.strokeStyle = convertColorToRgba(color, String(1));
-    this.color = convertColorToRgba(color, String(1));
+    const finalColor = convertColorToRgba(color, "1");
+
+    this.ctx.strokeStyle = finalColor;
+    this.color = finalColor;
     this.fontSize = fontSize;
     this.outline = outline;
-    this.ctx.fillStyle = convertColorToRgba(color, String(1));
+    this.ctx.fillStyle = finalColor;
     this.ctx.font = `${outline[0]} ${fontSize}px Arial`;
   }
 
   coursorBlinking(): void {
-    const now = performance.now();
-    let textWidth = 0;
-    const padding = 5;
-    const cursorY =
+    // Toggle cursor visibility if needed
+    const currentTime = performance.now();
+    if (currentTime - this.blinkingTime >= this.coursorTimeout) {
+      this.blinkingTime = currentTime;
+      this.isCoursorVisible = !this.isCoursorVisible;
+    }
+
+    // Calculate total vertical offset for all lines
+    const totalOffsetY = this.calcOffsetYUpToLine(this.lineNumber);
+
+    // Determine base Y position for text
+    const baseY =
       this.prevPoints.length > 0
         ? this.prevPoints[0].y
         : this.currentPoints[0].y;
+
+    // Y position to clear previous cursor
+    const clearY = baseY - this.prevFontSize + 5 + totalOffsetY;
+
+    // Get current font size or default
     const currentFontSize =
       this.textData.length > 0
         ? this.textData[this.textData.length - 1].fontSize
         : this.fontSize;
 
-    if (now - this.blinkingTime >= this.coursorTimeout) {
-      this.blinkingTime = now;
-      this.isCoursorVisible = !this.isCoursorVisible;
-    }
-
+    // Update previous font size if available
     this.prevFontSize =
       this.textData.length > 1
         ? this.textData[this.textData.length - 2].fontSize
         : this.fontSize;
 
-    const textDataByLine: TextDataByLine = this.getTextDataByLine();
+    // Calculate total text width
+    let lineWidth = 0;
     let prevLineNumber = 0;
-    let positionY = 0;
+    const lineMap = this.getTextDataByLine();
 
-    Array.from(textDataByLine).forEach((items) => {
-      const maxFontSize = this.getMaxFontSizeByLine(items[1]);
-      items[1].forEach(({ char, fontSize, outline, lineNumber }) => {
-        const outlineStyle = outline.map((item) => item).join(" ");
-        this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
+    for (const [, chars] of lineMap) {
+      for (const { char, fontSize, outline, lineNumber } of chars) {
         if (prevLineNumber < lineNumber) {
-          textWidth = 0;
+          lineWidth = 0;
           prevLineNumber = lineNumber;
-          positionY += maxFontSize;
         }
-        textWidth += this.ctx.measureText(char).width;
-      });
-    });
+        this.ctx.font = `${outline.join(" ")} ${fontSize}px Arial`;
+        lineWidth += this.ctx.measureText(char).width;
+      }
+    }
 
-    this.prevCursorPositionX = this.currentPoints[0].x + textWidth + padding;
+    // Store cursor X position
+    this.prevCursorPositionX = this.currentPoints[0].x + lineWidth + 5;
 
+    // Clear previous cursor area
     this.ctx.clearRect(
       this.prevCursorPositionX - 2,
-      cursorY - this.prevFontSize + 5 + positionY,
+      clearY,
       4,
       this.prevFontSize + 2
     );
+
+    // Draw new cursor if visible
     if (this.isCoursorVisible) {
+      const cursorX = this.currentPoints[0].x + lineWidth + 5;
+      const cursorYtop = baseY - currentFontSize * 0.7 + totalOffsetY;
+      const cursorYbot = baseY + currentFontSize * 0.1 + totalOffsetY;
+
       this.ctx.lineWidth = 0.8;
       this.ctx.beginPath();
-      this.ctx.moveTo(
-        this.currentPoints[0].x + textWidth + padding,
-        this.currentPoints[0].y - currentFontSize * 0.7 + positionY
-      );
-      this.ctx.lineTo(
-        this.currentPoints[0].x + textWidth + padding,
-        this.currentPoints[0].y + currentFontSize * 0.1 + positionY
-      );
+      this.ctx.moveTo(cursorX, cursorYtop);
+      this.ctx.lineTo(cursorX, cursorYbot);
       this.ctx.stroke();
     }
 
+    // Schedule next frame
     if (this.isTextActive) {
       this.animationFrameId = requestAnimationFrame(() => {
         setTimeout(() => this.coursorBlinking(), this.coursorTimeout);
       });
     }
+  }
+
+  calcOffsetYUpToLine(lineNum: number): number {
+    let offset = 0;
+    const textDataByLine = this.getTextDataByLine();
+
+    for (let i = 0; i < lineNum; i++) {
+      const itemsInLine = textDataByLine.get(i);
+      if (!itemsInLine) continue;
+      const maxFontSize = this.getMaxFontSizeByLine(itemsInLine);
+      offset += maxFontSize;
+    }
+    return offset;
+  }
+
+  getTextDataByLine(): TextDataByLine {
+    const textDataByLine: TextDataByLine = new Map();
+
+    for (let i = 0; i < this.textData.length; i++) {
+      const key = this.textData[i].lineNumber;
+      const value = textDataByLine.get(key) || [];
+      textDataByLine.set(key, [...value, this.textData[i]]);
+    }
+
+    return textDataByLine;
   }
 
   stopCursorBlinking(): void {
@@ -138,24 +175,8 @@ export class TextTool {
     this.prevPoints = this.currentPoints;
   }
 
-  getTextDataByLine(): TextDataByLine {
-    const textDataByLine: TextDataByLine = new Map();
-
-    for (let i = 0; i < this.textData.length; i++) {
-      const key = this.textData[i].lineNumber;
-      const value = textDataByLine.get(key) || [];
-      textDataByLine.set(key, [...value, this.textData[i]]);
-    }
-
-    return textDataByLine;
-  }
-
   getMaxFontSizeByLine(items: { fontSize: number }[]): number {
-    const maxFontSizeInThis = items
-      .map(({ fontSize }: { fontSize: number }) => fontSize)
-      .sort((a, b) => b - a)[0];
-
-    return maxFontSizeInThis;
+    return Math.max(...items.map((i) => i.fontSize));
   }
 
   renderTextData(): void {
@@ -166,22 +187,33 @@ export class TextTool {
 
     const textDataByLine: TextDataByLine = this.getTextDataByLine();
 
-    Array.from(textDataByLine).forEach((items) => {
-      const maxFontSizeInThis = this.getMaxFontSizeByLine(items[1]);
+    const cursorY =
+      this.prevPoints.length > 0
+        ? this.prevPoints[0].y
+        : this.currentPoints[0].y;
+
+    const sumAllMaxFontSizeForCursor =
+      this.sumAllMaxFontSizeForClearReactByY === 0
+        ? this.fontSize
+        : this.sumAllMaxFontSizeForClearReactByY;
+
+    this.ctx.clearRect(
+      this.prevCursorPositionX - 2,
+      cursorY - this.prevFontSize + sumAllMaxFontSizeForCursor - this.fontSize,
+      4,
+      this.fontSize + 5
+    );
+
+    for (const [lineNumber, chars] of textDataByLine) {
+      const maxFontSizeInThis = this.getMaxFontSizeByLine(chars);
       textWidth = 0;
-      items[1].forEach(({ char, fontSize, outline, color, lineNumber }) => {
+
+      for (const { char, fontSize, outline, color } of chars) {
         const outlineStyle = outline
           .map((outlineItem: string) => outlineItem)
           .join(" ");
         this.ctx.fillStyle = color;
         this.ctx.font = `${outlineStyle} ${fontSize}px Arial`;
-
-        if (prevLineNumber < lineNumber) {
-          textWidth = 0;
-          prevLineNumber = lineNumber;
-          sumAllMaxFontSize += maxFontSizeInThis;
-          this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
-        }
 
         if (prevLineNumber === 0 && lineNumber === 0) {
           maximumOfWidthLine += this.ctx.measureText(char).width;
@@ -195,8 +227,13 @@ export class TextTool {
         );
 
         textWidth += this.ctx.measureText(char).width;
-      });
-    });
+      }
+
+      textWidth = 0;
+      prevLineNumber = lineNumber;
+      sumAllMaxFontSize += maxFontSizeInThis;
+      this.sumAllMaxFontSizeForClearReactByY = sumAllMaxFontSize;
+    }
   }
 
   writingText(e: KeyboardEvent): void {
@@ -250,17 +287,6 @@ export class TextTool {
       this.sumAllMaxFontSizeForClearReactByY === 0
         ? this.prevFontSize
         : this.sumAllMaxFontSizeForClearReactByY + this.prevFontSize
-    );
-
-    const cursorY =
-      this.prevPoints.length > 0
-        ? this.prevPoints[0].y
-        : this.currentPoints[0].y;
-    this.ctx.clearRect(
-      this.prevCursorPositionX - 2,
-      cursorY - this.fontSize + this.sumAllMaxFontSizeForClearReactByY,
-      4,
-      this.fontSize + 5
     );
 
     this.renderTextData();
