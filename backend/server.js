@@ -11,13 +11,11 @@ server.on("connection", (ws) => {
   clients.add(ws);
 
   ws.on("message", (message) => {
-    console.log("Received message:", message);
-
-    const data = message.toString();
-
+    console.log(`Received message: ${message}`);
     for (const client of clients) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(data);
+        console.log(`Sending message to client: ${message}`);
+        client.send(message);
       }
     }
   });
