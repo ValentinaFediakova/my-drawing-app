@@ -2,7 +2,6 @@
 const WebSocket = require("ws");
 
 const port = process.env.PORT || 3001;
-
 const server = new WebSocket.Server({ port });
 
 const clients = new Set();
@@ -13,9 +12,12 @@ server.on("connection", (ws) => {
 
   ws.on("message", (message) => {
     console.log("Received message:", message);
+
+    const data = message.toString();
+
     for (const client of clients) {
       if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(message);
+        client.send(data);
       }
     }
   });
@@ -23,6 +25,10 @@ server.on("connection", (ws) => {
   ws.on("close", () => {
     console.log("Client disconnected");
     clients.delete(ws);
+  });
+
+  ws.on("error", (err) => {
+    console.error("WebSocket error:", err);
   });
 });
 
