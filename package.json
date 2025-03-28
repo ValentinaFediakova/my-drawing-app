@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "server": "node backend/server.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.0",
