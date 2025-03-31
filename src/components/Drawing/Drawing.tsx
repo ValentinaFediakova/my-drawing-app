@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { DrawingManager } from "@/utils/DrawingManager";
+import { WebSocketClient } from "@/utils/websocket";
+import { WS_URL } from "@/constants";
 
 import "./Drawing.scss";
 
@@ -12,6 +14,13 @@ interface DrawingProps {
   drawingManagerRef: React.RefObject<DrawingManager | null>;
 }
 
+interface WsData {
+  type: string;
+  tool: string;
+  color: string;
+  size: number;
+  points: { x: number; y: number }[];
+}
 
 export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef}) => {
   const color = useSelector((state: RootState) => state.settings.color);
@@ -21,8 +30,18 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const tool = useSelector((state: RootState) => state.settings.tool);
   const fontSize = useSelector((state: RootState) => state.settings.fontSize);
   const outline = useSelector((state: RootState) => state.settings.outline);
+  const ws = new WebSocketClient(WS_URL);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    sendWsData({
+      type: "start",
+      tool: tool,
+      color: color,
+      size: lineWidth,
+      points: [{ x: e.clientX, y: e.clientY }]
+    })
+
+
     const points = { x: e.clientX, y: e.clientY };
     if (tool === 'eraser' || tool === 'pencil') {
       drawingManagerRef.current?.startDraw(points);
@@ -43,6 +62,20 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     drawingManagerRef.current?.writeText(e.nativeEvent as KeyboardEvent);
   }
+
+  const sendWsData = (data: WsData): void => {
+    ws.send(JSON.stringify(data));
+  };
+
+  useEffect(() => {
+    ws.connect((data) => {
+      console.log("📨 Received:", data);
+    });
+
+    return () => {
+      ws.close();
+    }
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
