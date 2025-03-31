@@ -70,6 +70,15 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   useEffect(() => {
     ws.connect((data) => {
       console.log("📨 Received:", data);
+      if (data.type === 'start') {
+        const { tool, points } = data;
+        if (tool === 'eraser' || tool === 'pencil') {
+          drawingManagerRef.current?.startDraw(points[0]);
+        }
+        if (tool === 'writeText') {
+          drawingManagerRef.current?.startWriteText(points[0])
+        }
+      }
     });
 
     return () => {

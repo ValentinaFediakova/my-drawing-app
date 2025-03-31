@@ -1,5 +1,8 @@
-type MessageHandler = (msg: MessageEvent) => void;
-
+type WsData = {
+  type: "start";
+  tool: "pencil" | "eraser" | "writeText";
+  points: { x: number; y: number }[];
+};
 export class WebSocketClient {
   private socket: WebSocket | null = null;
   private url: string;
@@ -10,16 +13,16 @@ export class WebSocketClient {
     this.url = url;
   }
 
-  connect(onMessage: MessageHandler): void {
+  connect(onMessage: (data: WsData) => void): void {
     this.socket = new WebSocket(this.url);
 
-    this.socket.onopen = () => {
+    this.socket.onopen = (): void => {
       console.log("✅ WebSocket connected");
     };
 
-    this.socket.onmessage = async (event) => {
+    this.socket.onmessage = async (event: MessageEvent): Promise<void> => {
       try {
-        const text =
+        const text: string =
           event.data instanceof Blob ? await event.data.text() : event.data;
         const parsedData = JSON.parse(text);
         onMessage(parsedData);
@@ -28,11 +31,11 @@ export class WebSocketClient {
       }
     };
 
-    this.socket.onerror = (err) => {
+    this.socket.onerror = (err: Event): void => {
       console.error("❌ WebSocket error:", err);
     };
 
-    this.socket.onclose = () => {
+    this.socket.onclose = (): void => {
       console.log("🔌 WebSocket closed");
       if (!this.isManuallyClosed) {
         setTimeout(() => this.connect(onMessage), this.reconnectInterval);
