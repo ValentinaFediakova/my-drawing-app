@@ -91,7 +91,7 @@ export class DrawingManager {
     this.TextTool.startWrite(this.points);
   }
 
-  draw(e: MouseEvent): void {
+  draw(points: { x: number; y: number }): void {
     if (this.tool === "writeText") return;
     if (!this.isDrawing) {
       if (this.savedImageData) {
@@ -99,7 +99,7 @@ export class DrawingManager {
       }
 
       if (this.tool === "eraser") {
-        this.EraserTool.drawEraserCursor(e.clientX, e.clientY);
+        this.EraserTool.drawEraserCursor(points.x, points.y);
       }
 
       return;
@@ -108,10 +108,10 @@ export class DrawingManager {
       this.ctx.putImageData(this.savedImageData, 0, 0);
     }
     if (this.tool === "pencil") {
-      this.PencilTool.draw(e);
+      this.PencilTool.draw(points);
     }
     if (this.tool === "eraser") {
-      this.EraserTool.draw(e);
+      this.EraserTool.draw(points);
     }
   }
 

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { convertColorToRgba } from "../../utils/ColorConvertations";
 import { Tool } from "@/types";
+import { PALETTE_COLORS } from "@/constants";
 
 interface SettingsState {
   color: string;
@@ -13,7 +14,7 @@ interface SettingsState {
 }
 
 const initialState: SettingsState = {
-  color: "#000000",
+  color: PALETTE_COLORS.BLACK,
   lineWidth: 5,
   eraserLineWidth: 25,
   opacity: 1.0,

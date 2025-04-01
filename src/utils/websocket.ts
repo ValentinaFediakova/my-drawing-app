@@ -46,7 +46,7 @@ export class WebSocketClient {
   send(data: string): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(data);
-      console.log("📤 Sent:", data);
+      // console.log("📤 Sent:", data);
     } else {
       console.warn("⏳ WebSocket is not ready yet. Message not sent.");
     }

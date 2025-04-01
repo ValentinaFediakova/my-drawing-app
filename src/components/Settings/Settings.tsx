@@ -49,7 +49,7 @@ export const Settings: React.FC = ({ }) => {
 
           <div className={"settings__block"}>
             <div className="settings__title">Толщина штриха</div>
-            <Slider type='range' min='0' max='20' step='2' defaultValue='5' purpose='lineWidth' />
+            <Slider type='range' min='1' max='21' step='2' defaultValue='5' purpose='lineWidth' />
           </div>
 
 
@@ -64,7 +64,7 @@ export const Settings: React.FC = ({ }) => {
       {tool === 'eraser' && (
         <div className={"settings__block"}>
           <div className="settings__title">Толщина ластика</div>
-          <Slider type='range' min='0' max='50' step='2' defaultValue={'25'} purpose='eraserLieneWidth' />
+          <Slider type='range' min='1' max='51' step='2' defaultValue={'25'} purpose='eraserLieneWidth' />
         </div>
       )}
 

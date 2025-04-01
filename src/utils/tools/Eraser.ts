@@ -23,8 +23,8 @@ export class EraserTool {
     this.ctx.moveTo(points[0].x, points[0].y);
   }
 
-  draw(e: MouseEvent): void {
-    this.ctx.lineTo(e.clientX, e.clientY);
+  draw(points: { x: number; y: number }): void {
+    this.ctx.lineTo(points.x, points.y);
     this.ctx.stroke();
   }
 
