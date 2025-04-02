@@ -43,6 +43,26 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     wsRef.current?.send(JSON.stringify(data));
   }, []);
 
+  const initSync = () => {
+    sendWsData({
+      type: "setTool",
+      tool,
+      lineWidth,
+      eraserLineWidth,
+      color,
+      opacity,
+    });
+
+    if (tool === "writeText") {
+      sendWsData({
+        type: "setTextSettings",
+        color,
+        fontSize,
+        outline,
+      });
+    }
+  };
+
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDrawing.current = true;
     sendWsData({
@@ -101,14 +121,20 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
     wsRef.current?.connect((data: WsData) => {
 
+
       const { tool='pencil', lineWidth=5, eraserLineWidth=25, color=PALETTE_COLORS.BLACK, fontSize=24, outline=["Normal"], opacity=1, type, points, key } = data;
 
-      if (tool) {
-        if (drawingManagerRef.current) {
-          drawingManagerRef.current.setTool(tool);
-          drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
-        }
+      if (type === "requestCurrentSettings") {
+        initSync();
+        return;
       }
+
+      // if (tool) {
+      //   if (drawingManagerRef.current) {
+      //     drawingManagerRef.current.setTool(tool);
+      //     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
+      //   }
+      // }
 
       if (type === 'setTool') {
         if (drawingManagerRef.current) {
@@ -152,6 +178,8 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       }
       
     });
+
+    sendWsData({ type: "requestCurrentSettings" });
 
     return () => {
       wsRef.current?.close();
