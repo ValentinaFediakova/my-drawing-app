@@ -114,7 +114,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     drawingManagerRef.current?.writeText(key);
   }
 
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -128,13 +127,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         initSync();
         return;
       }
-
-      // if (tool) {
-      //   if (drawingManagerRef.current) {
-      //     drawingManagerRef.current.setTool(tool);
-      //     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
-      //   }
-      // }
 
       if (type === 'setTool') {
         if (drawingManagerRef.current) {
