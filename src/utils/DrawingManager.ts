@@ -115,8 +115,8 @@ export class DrawingManager {
     }
   }
 
-  writeText(e: KeyboardEvent): void {
-    this.TextTool.writingText(e);
+  writeText(key: string): void {
+    this.TextTool.writingText(key);
     this.savedImageData = this.ctx.getImageData(
       0,
       0,

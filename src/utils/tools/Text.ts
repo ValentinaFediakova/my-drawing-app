@@ -236,10 +236,10 @@ export class TextTool {
     }
   }
 
-  writingText(e: KeyboardEvent): void {
-    if (e.key === "Backspace") {
+  writingText(key: string): void {
+    if (key === "Backspace") {
       this.textData = this.textData.slice(0, -1);
-    } else if (e.key.length === 1) {
+    } else if (key.length === 1) {
       let currentLineWidth = 0;
       let lastLetterWidth = 0;
 
@@ -266,7 +266,7 @@ export class TextTool {
       this.textData = [
         ...this.textData,
         {
-          char: e.key,
+          char: key,
           fontSize: this.fontSize,
           outline: this.outline,
           color: this.color,

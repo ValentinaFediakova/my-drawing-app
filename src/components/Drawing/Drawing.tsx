@@ -16,12 +16,16 @@ interface DrawingProps {
 }
 
 interface WsData {
-  type: 'start' | 'inDrawProgress' | 'end';
-  tool?: string;
+  type: string;
+  tool?: Tool;
   color?: string;
+  fontSize?: number;
+  outline?: string[];
   opacity?: number;
-  size?: number;
+  lineWidth?: number;
+  eraserLineWidth?: number;
   points?: { x: number; y: number }[];
+  key?: string;
 }
 
 export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef}) => {
@@ -42,15 +46,15 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDrawing.current = true;
     sendWsData({
-      type: "start",
+      type: 'startDraw',
       tool,
       color,
       opacity,
-      size: tool === "eraser" ? eraserLineWidth : lineWidth,
+      lineWidth,
+      eraserLineWidth,
       points: [{ x: e.clientX, y: e.clientY }]
     })
 
-console.log('handleMouseDown lineWidth >>>>>>>>>>>>>>>>>>', lineWidth);
     const points = { x: e.clientX, y: e.clientY };
     if (tool === 'eraser' || tool === 'pencil') {
       drawingManagerRef.current?.startDraw(points);
@@ -66,7 +70,7 @@ console.log('handleMouseDown lineWidth >>>>>>>>>>>>>>>>>>', lineWidth);
     const point = { x: e.clientX, y: e.clientY };
   
     sendWsData({
-      type: "inDrawProgress",
+      type: 'inDrawProgress',
       points: [point]
     });
 
@@ -81,7 +85,13 @@ console.log('handleMouseDown lineWidth >>>>>>>>>>>>>>>>>>', lineWidth);
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
-    drawingManagerRef.current?.writeText(e.nativeEvent as KeyboardEvent);
+    const key = e.key;
+    sendWsData({
+      type: "writeText",
+      tool: "writeText",
+      key,
+    })
+    drawingManagerRef.current?.writeText(key);
   }
 
 
@@ -91,16 +101,30 @@ console.log('handleMouseDown lineWidth >>>>>>>>>>>>>>>>>>', lineWidth);
 
     wsRef.current?.connect((data: WsData) => {
 
-      const { tool, size, color, opacity, type, points } = data;
+      const { tool='pencil', lineWidth=5, eraserLineWidth=25, color=PALETTE_COLORS.BLACK, fontSize=24, outline=["Normal"], opacity=1, type, points, key } = data;
 
       if (tool) {
         if (drawingManagerRef.current) {
-          drawingManagerRef.current.setTool(tool as Tool);
-          drawingManagerRef.current.setBrushSettings(size ?? 5, size ?? 25, color ?? PALETTE_COLORS.BLACK, opacity ?? 1);
+          drawingManagerRef.current.setTool(tool);
+          drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
         }
       }
 
-      if (type === 'start') {
+      if (type === 'setTool') {
+        if (drawingManagerRef.current) {
+          drawingManagerRef.current.setTool(tool);
+          drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
+        }
+      }
+
+      if (type === 'setTextSettings') {
+        if (drawingManagerRef.current) {
+          drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
+        }
+
+      }
+
+      if (type === 'startDraw') {
         if (tool === 'eraser' || tool === 'pencil') {
           if (points && points[0]) {
             drawingManagerRef.current?.startDraw(points[0]);
@@ -116,6 +140,14 @@ console.log('handleMouseDown lineWidth >>>>>>>>>>>>>>>>>>', lineWidth);
       if (type === 'inDrawProgress') {
         if (drawingManagerRef.current && points && points[0]) {
           drawingManagerRef.current.draw(points[0]);
+        }
+      }
+
+      if (type === 'writeText') {
+        if (tool === 'writeText') {
+          if (key) {
+            drawingManagerRef.current?.writeText(key);
+          }
         }
       }
       
@@ -140,10 +172,17 @@ console.log('handleMouseDown lineWidth >>>>>>>>>>>>>>>>>>', lineWidth);
     if (!canvas) return;
     if (!drawingManagerRef.current) return;
 
-
+    sendWsData({
+      type: "setTool",
+      tool,
+      lineWidth,
+      eraserLineWidth,
+      color,
+      opacity,
+    })
     drawingManagerRef.current.setTool(tool);
     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
-  }, [color, lineWidth, eraserLineWidth, opacity, tool, fontSize]);
+  }, [color, lineWidth, eraserLineWidth, opacity, tool]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -151,6 +190,12 @@ console.log('handleMouseDown lineWidth >>>>>>>>>>>>>>>>>>', lineWidth);
     if (!canvas) return;
     if (!drawingManagerRef.current) return;
     if (tool === 'writeText') {
+      sendWsData({
+        type: "setTextSettings",
+        color,
+        fontSize,
+        outline,
+      })
       drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
     }
   }, [color, fontSize, outline, tool])
