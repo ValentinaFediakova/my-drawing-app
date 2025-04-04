@@ -6,6 +6,7 @@ import { RootState } from "@/store";
 import { DrawingManager } from "@/utils/DrawingManager";
 import { WebSocketClient } from "@/utils/websocket";
 import { PALETTE_COLORS, WS_URL } from "@/constants";
+import { v4 as uuidv4 } from 'uuid';
 
 import "./Drawing.scss";
 import { Tool } from "@/types";
@@ -26,6 +27,7 @@ interface WsData {
   eraserLineWidth?: number;
   points?: { x: number; y: number }[];
   key?: string;
+  userId?: string;
 }
 
 export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef}) => {
@@ -39,9 +41,11 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const outline = useSelector((state: RootState) => state.settings.outline);
   const wsRef = useRef<WebSocketClient>(new WebSocketClient(WS_URL));
 
+  const userId = useRef(uuidv4()).current;
+
   const sendWsData = useCallback((data: WsData): void => {
-    wsRef.current?.send(JSON.stringify(data));
-  }, []);
+    wsRef.current?.send(JSON.stringify({...data, userId}));
+  }, [userId]);
 
   const initSync = () => {
     sendWsData({
@@ -72,7 +76,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       opacity,
       lineWidth,
       eraserLineWidth,
-      points: [{ x: e.clientX, y: e.clientY }]
+      points: [{ x: e.clientX, y: e.clientY }],
     })
 
     const points = { x: e.clientX, y: e.clientY };
@@ -91,7 +95,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   
     sendWsData({
       type: 'inDrawProgress',
-      points: [point]
+      points: [point],
     });
 
     drawingManagerRef.current?.draw(point);
