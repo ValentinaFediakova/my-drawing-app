@@ -40,12 +40,17 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const fontSize = useSelector((state: RootState) => state.settings.fontSize);
   const outline = useSelector((state: RootState) => state.settings.outline);
   const wsRef = useRef<WebSocketClient>(new WebSocketClient(WS_URL));
+  const userIdRef = useRef<string | null>(null)
 
-  const userId = useRef(uuidv4()).current;
+  if (!userIdRef.current) {
+    userIdRef.current = uuidv4()
+  }
 
   const sendWsData = useCallback((data: WsData): void => {
-    wsRef.current?.send(JSON.stringify({...data, userId}));
-  }, [userId]);
+    if (userIdRef.current) {
+      wsRef.current?.send(JSON.stringify({ ...data, userId: userIdRef.current }));
+    }
+  }, []);
 
   const initSync = () => {
     sendWsData({
