@@ -48,6 +48,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
   const sendWsData = useCallback((data: WsData): void => {
     if (userIdRef.current) {
+      console.log('userIdRef.current', userIdRef.current)
       wsRef.current?.send(JSON.stringify({ ...data, userId: userIdRef.current }));
     }
   }, []);

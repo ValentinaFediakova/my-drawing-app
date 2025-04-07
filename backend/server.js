@@ -16,6 +16,7 @@ server.on("connection", (ws) => {
 
     if (data.userId) {
       userId = data.userId;
+      console.log("userId", userId);
     } else {
       userId = `user-${Math.random().toString(36).substr(2, 9)}`;
     }
