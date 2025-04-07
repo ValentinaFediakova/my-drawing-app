@@ -130,7 +130,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     wsRef.current?.connect((data: WsData) => {
 
 
-      const { tool='pencil', lineWidth=5, eraserLineWidth=25, color=PALETTE_COLORS.BLACK, fontSize=24, outline=["Normal"], opacity=1, type, points, key } = data;
+      const { tool='pencil', lineWidth=5, eraserLineWidth=25, color=PALETTE_COLORS.BLACK, fontSize=24, outline=["Normal"], opacity=1, type, points, key, userId } = data;
 
       if (type === "requestCurrentSettings") {
         initSync();
@@ -151,13 +151,13 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
       }
 
-      if (type === 'startDraw') {
+      if (type === 'startDraw' && userId !== userIdRef.current) {
         if (tool === 'eraser' || tool === 'pencil') {
           if (points && points[0]) {
             drawingManagerRef.current?.startDraw(points[0]);
           }
         }
-        if (tool === 'writeText') {
+        if (tool === 'writeText' && userId !== userIdRef.current) {
           if (points && points[0]) {
             drawingManagerRef.current?.startWriteText(points[0]);
           }
@@ -170,7 +170,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         }
       }
 
-      if (type === 'writeText') {
+      if (type === 'writeText' && userId !== userIdRef.current) {
         if (tool === 'writeText') {
           if (key) {
             drawingManagerRef.current?.writeText(key);
