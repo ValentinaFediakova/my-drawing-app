@@ -53,30 +53,11 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
   const sendWsData = useCallback((data: WsData): void => {
     if (userIdRef.current) {
-      console.log('userIdRef.current', userIdRef.current)
+      console.log("📤 sending:", { ...data, userId: userIdRef.current });
       wsRef.current?.send(JSON.stringify({ ...data, userId: userIdRef.current }));
     }
   }, []);
-
-  const initSync = () => {
-    sendWsData({
-      type: "setTool",
-      tool,
-      lineWidth,
-      eraserLineWidth,
-      color,
-      opacity,
-    });
-
-    if (tool === "writeText") {
-      sendWsData({
-        type: "setTextSettings",
-        color,
-        fontSize,
-        outline,
-      });
-    }
-  };
+  
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     isDrawing.current = true;
@@ -129,35 +110,59 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     drawingManagerRef.current?.writeText(key);
   }
 
+  const ensureUserInitialized = (userId: string) => {
+    if (!userCanvases.current.has(userId) && containerCanvasesRef.current) {
+      const newCanvas = document.createElement("canvas");
+      newCanvas.width = window.innerWidth;
+      newCanvas.height = window.innerHeight;
+      newCanvas.style.position = "absolute";
+      newCanvas.style.left = "0";
+      newCanvas.style.top = "0";
+      newCanvas.style.pointerEvents = "none";
+      newCanvas.style.zIndex = "1";
+  
+      containerCanvasesRef.current.appendChild(newCanvas);
+      userCanvases.current.set(userId, newCanvas);
+  
+      const manager = new DrawingManager(newCanvas);
+      usersDrawingManagers.current.set(userId, manager);
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     wsRef.current?.connect((data: WsData) => {
       const { tool='pencil', lineWidth=5, eraserLineWidth=25, color=PALETTE_COLORS.BLACK, fontSize=24, outline=["Normal"], opacity=1, type, points, key, userId } = data;
-
-      if (containerCanvasesRef.current && userId && !userCanvases.current.has(userId)) {
-        const newCanvas = document.createElement("canvas");
-        newCanvas.width = window.innerWidth;
-        newCanvas.height = window.innerHeight;
-        newCanvas.style.position = "absolute";
-        newCanvas.style.left = "0";
-        newCanvas.style.top = "0";
-        newCanvas.style.pointerEvents = "none";
-        newCanvas.style.zIndex = "1";
-
-        containerCanvasesRef.current?.appendChild(newCanvas);
-        userCanvases.current.set(userId, newCanvas)
-
-        const manager = new DrawingManager(newCanvas);
-        usersDrawingManagers.current.set(userId, manager);
-      }
+      console.log("📥 received WS message:", data);
+      if (!userId || userId === userIdRef.current) return;
+      ensureUserInitialized(userId);
 
       if (type === "requestCurrentSettings") {
-        initSync();
+        console.log('userId !== userIdRef.current', userId, userIdRef.current)
+        if (userId !== userIdRef.current) {
+          sendWsData({
+            type: "setTool",
+            tool,
+            lineWidth,
+            eraserLineWidth,
+            color,
+            opacity,
+          });
+      
+          if (tool === "writeText") {
+            sendWsData({
+              type: "setTextSettings",
+              color,
+              fontSize,
+              outline,
+            });
+          }
+        }
         return;
       }
-
+      
       if (type === 'setTool' && userId) {
         usersSettings.current.set(userId, { tool, color, lineWidth, eraserLineWidth, opacity });
 
@@ -169,19 +174,18 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       }
 
       if (type === 'startDraw' && userId && userId !== userIdRef.current) {
-        const existing = usersSettings.current.get(userId);
+        const currentSettings = usersSettings.current.get(userId) || {};
 
-        if (!existing) {
-          usersSettings.current.set(userId, {
-            tool,
-            color,
-            opacity,
-            lineWidth,
-            eraserLineWidth,
-            fontSize,
-            outline,
-          });
-        }
+        usersSettings.current.set(userId, {
+          ...currentSettings,
+          tool,
+          color,
+          opacity,
+          lineWidth,
+          eraserLineWidth,
+          fontSize,
+          outline,
+        });
         
 
         const manager = usersDrawingManagers.current.get(userId);
@@ -199,7 +203,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         }
 
         if (tool === 'eraser' || tool === 'pencil') {
-          console.log('WS startDraw pencil settings.lineWidth', settings?.lineWidth ?? 5)
           manager.startDraw(points[0]);
         }
 
@@ -222,7 +225,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
             settings.opacity ?? 1
           );
         }
-        console.log('WS inDrawProgress pencil settings.lineWidth', settings?.lineWidth)
 
         manager.draw(points[0]);
       }
@@ -243,8 +245,14 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         manager.writeText(key);
       }
       
-    });
+    },
+    () => {
+      console.log("✅ WS ready → отправляю requestCurrentSettings");
+      sendWsData({ type: "requestCurrentSettings" });
+    }
+  );
 
+    console.log("👋 sending requestCurrentSettings");
     sendWsData({ type: "requestCurrentSettings" });
 
     return () => {

@@ -13,11 +13,14 @@ export class WebSocketClient {
     this.url = url;
   }
 
-  connect(onMessage: (data: WsData) => void): void {
+  connect(onMessage: (data: WsData) => void, onOpen?: () => void): void {
     this.socket = new WebSocket(this.url);
 
     this.socket.onopen = (): void => {
       console.log("✅ WebSocket connected");
+      if (onOpen) {
+        onOpen();
+      }
     };
 
     this.socket.onmessage = async (event: MessageEvent): Promise<void> => {
@@ -38,7 +41,10 @@ export class WebSocketClient {
     this.socket.onclose = (): void => {
       console.log("🔌 WebSocket closed");
       if (!this.isManuallyClosed) {
-        setTimeout(() => this.connect(onMessage), this.reconnectInterval);
+        setTimeout(
+          () => this.connect(onMessage, onOpen),
+          this.reconnectInterval
+        );
       }
     };
   }
