@@ -90,11 +90,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       points: [{ x: e.clientX, y: e.clientY }],
     })
 
-      sendWsData({
-        type: 'startDraw',
-        points: [{ x: e.clientX, y: e.clientY }],
-      });
-
     const points = { x: e.clientX, y: e.clientY };
     if (tool === 'eraser' || tool === 'pencil') {
       drawingManagerRef.current?.startDraw(points);
