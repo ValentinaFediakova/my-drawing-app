@@ -90,6 +90,11 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       points: [{ x: e.clientX, y: e.clientY }],
     })
 
+    sendWsData({
+      type: 'startDraw',
+      points: [{ x: e.clientX, y: e.clientY }],
+    });
+
     const points = { x: e.clientX, y: e.clientY };
     if (tool === 'eraser' || tool === 'pencil') {
       drawingManagerRef.current?.startDraw(points);
@@ -181,14 +186,12 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
             settings.color ?? PALETTE_COLORS.BLACK,
             settings.opacity ?? 1
           );
-        }
 
-        if (tool === 'eraser' || tool === 'pencil') {
-          manager.startDraw(points[0]);
-        }
-
-        if (tool === 'writeText') {
-          manager.startWriteText(points[0]);
+          if (settings.tool === 'eraser' || settings.tool === 'pencil') {
+            manager.startDraw(points[0]);
+          } else if (settings.tool === 'writeText') {
+            manager.startWriteText(points[0]);
+          }
         }
       }
 
