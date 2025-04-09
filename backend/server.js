@@ -12,7 +12,6 @@ server.on("connection", (ws) => {
   let userId = "";
 
   ws.on("message", (message) => {
-    console.log("📨 MESSAGE:", data.type, "from", data.userId);
     const data = JSON.parse(message);
 
     if (data.userId) {
