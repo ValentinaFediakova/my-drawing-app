@@ -168,11 +168,26 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         usersSettings.current.set(userId, { ...prev, color, fontSize, outline });
       }
 
-      if (type === 'startDraw' && userId !== userIdRef.current) {
-        const manager = userId ? usersDrawingManagers.current.get(userId) : undefined;
+      if (type === 'startDraw' && userId && userId !== userIdRef.current) {
+        const existing = usersSettings.current.get(userId);
+
+        if (!existing) {
+          usersSettings.current.set(userId, {
+            tool,
+            color,
+            opacity,
+            lineWidth,
+            eraserLineWidth,
+            fontSize,
+            outline,
+          });
+        }
+        
+
+        const manager = usersDrawingManagers.current.get(userId);
         if (!manager || !points || !points[0]) return;
 
-        const settings = userId ? usersSettings.current.get(userId) : undefined;
+        const settings = usersSettings.current.get(userId);
         if (settings) {
           manager.setTool(settings.tool || 'pencil');
           manager.setBrushSettings(
@@ -184,6 +199,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         }
 
         if (tool === 'eraser' || tool === 'pencil') {
+          console.log('WS startDraw pencil settings.lineWidth', settings?.lineWidth ?? 5)
           manager.startDraw(points[0]);
         }
 
@@ -206,7 +222,8 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
             settings.opacity ?? 1
           );
         }
-      
+        console.log('WS inDrawProgress pencil settings.lineWidth', settings?.lineWidth)
+
         manager.draw(points[0]);
       }
 
