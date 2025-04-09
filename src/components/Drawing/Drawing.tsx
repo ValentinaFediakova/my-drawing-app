@@ -41,6 +41,11 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const outline = useSelector((state: RootState) => state.settings.outline);
   const wsRef = useRef<WebSocketClient>(new WebSocketClient(WS_URL));
   const userIdRef = useRef<string | null>(null)
+  const containerCanvasesRef = useRef<HTMLDivElement>(null);
+  const userCanvases = useRef<Map<string, HTMLCanvasElement>>(new Map());
+  const userDrawingManagers = useRef<Map<string, DrawingManager>>(new Map());
+
+
 
   if (!userIdRef.current) {
     userIdRef.current = uuidv4()
@@ -129,9 +134,26 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     if (!canvas) return;
 
     wsRef.current?.connect((data: WsData) => {
-
-
       const { tool='pencil', lineWidth=5, eraserLineWidth=25, color=PALETTE_COLORS.BLACK, fontSize=24, outline=["Normal"], opacity=1, type, points, key, userId } = data;
+
+      if (containerCanvasesRef.current && userId && !userCanvases.current.has(userId)) {
+        const newCanvas = document.createElement("canvas");
+        newCanvas.width = window.innerWidth;
+        newCanvas.height = window.innerHeight;
+        newCanvas.style.position = "absolute";
+        newCanvas.style.left = "0";
+        newCanvas.style.top = "0";
+        newCanvas.style.pointerEvents = "none";
+        newCanvas.style.zIndex = "1";
+
+        containerCanvasesRef.current?.appendChild(newCanvas);
+        userCanvases.current.set(userId, newCanvas)
+
+        const manager = new DrawingManager(newCanvas);
+        userDrawingManagers.current.set(userId, manager);
+      }
+
+
 
       if (type === "requestCurrentSettings") {
         initSync();
@@ -153,21 +175,33 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       }
 
       if (type === 'startDraw' && userId !== userIdRef.current) {
+        const manager = userId ? userDrawingManagers.current.get(userId) : undefined;
+        if (!manager) return;
         if (tool === 'eraser' || tool === 'pencil') {
           if (points && points[0]) {
-            drawingManagerRef.current?.startDraw(points[0]);
+            // drawingManagerRef.current?.startDraw(points[0]);
+            manager.startDraw(points[0]);
           }
         }
-        if (tool === 'writeText' && userId !== userIdRef.current) {
-          if (points && points[0]) {
-            drawingManagerRef.current?.startWriteText(points[0]);
-          }
+        // if (tool === 'writeText' && userId !== userIdRef.current) {
+        //   if (points && points[0]) {
+        //     drawingManagerRef.current?.startWriteText(points[0]);
+        //   }
+        // }
+
+        if (tool === 'writeText' && points && points[0]) {
+          manager.startWriteText(points[0]);
         }
       }
 
-      if (type === 'inDrawProgress') {
-        if (drawingManagerRef.current && points && points[0]) {
-          drawingManagerRef.current.draw(points[0]);
+      if (type === 'inDrawProgress' && userId !== userIdRef.current) {
+        // if (drawingManagerRef.current && points && points[0]) {
+        //   drawingManagerRef.current.draw(points[0]);
+        // }
+
+        const manager = userId ? userDrawingManagers.current.get(userId) : undefined;
+        if (manager && points && points[0]) {
+          manager.draw(points[0]);
         }
       }
 
@@ -231,15 +265,18 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   }, [color, fontSize, outline, tool])
 
   return (
-    <canvas 
-      ref={canvasRef} 
-      className="drawing-canvas" 
-      onMouseDown={handleMouseDown} 
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
-    </canvas>
+    <div className="canvases-container" ref={containerCanvasesRef}>
+      <canvas 
+        ref={canvasRef} 
+        className="drawing-canvas" 
+        onMouseDown={handleMouseDown} 
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+      >
+      </canvas>
+    </div>
+    
   );
 };
