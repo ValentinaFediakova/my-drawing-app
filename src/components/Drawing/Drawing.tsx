@@ -17,7 +17,7 @@ interface DrawingProps {
 }
 
 interface WsData {
-  type: string;
+  type?: string;
   tool?: Tool;
   color?: string;
   fontSize?: number;
@@ -43,8 +43,8 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const userIdRef = useRef<string | null>(null)
   const containerCanvasesRef = useRef<HTMLDivElement>(null);
   const userCanvases = useRef<Map<string, HTMLCanvasElement>>(new Map());
-  const userDrawingManagers = useRef<Map<string, DrawingManager>>(new Map());
-
+  const usersDrawingManagers = useRef<Map<string, DrawingManager>>(new Map());
+  const usersSettings = useRef<Map<string, WsData>>(new Map());
 
 
   if (!userIdRef.current) {
@@ -150,67 +150,80 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         userCanvases.current.set(userId, newCanvas)
 
         const manager = new DrawingManager(newCanvas);
-        userDrawingManagers.current.set(userId, manager);
+        usersDrawingManagers.current.set(userId, manager);
       }
-
-
 
       if (type === "requestCurrentSettings") {
         initSync();
         return;
       }
 
-      if (type === 'setTool') {
-        if (drawingManagerRef.current) {
-          drawingManagerRef.current.setTool(tool);
-          drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
-        }
+      if (type === 'setTool' && userId) {
+        usersSettings.current.set(userId, { tool, color, lineWidth, eraserLineWidth, opacity });
+
       }
 
-      if (type === 'setTextSettings') {
-        if (drawingManagerRef.current) {
-          drawingManagerRef.current?.setTextSettings(color, fontSize, outline)
-        }
-
+      if (type === 'setTextSettings' && userId) {
+        const prev = usersSettings.current.get(userId) || {};
+        usersSettings.current.set(userId, { ...prev, color, fontSize, outline });
       }
 
       if (type === 'startDraw' && userId !== userIdRef.current) {
-        const manager = userId ? userDrawingManagers.current.get(userId) : undefined;
-        if (!manager) return;
-        if (tool === 'eraser' || tool === 'pencil') {
-          if (points && points[0]) {
-            // drawingManagerRef.current?.startDraw(points[0]);
-            manager.startDraw(points[0]);
-          }
-        }
-        // if (tool === 'writeText' && userId !== userIdRef.current) {
-        //   if (points && points[0]) {
-        //     drawingManagerRef.current?.startWriteText(points[0]);
-        //   }
-        // }
+        const manager = userId ? usersDrawingManagers.current.get(userId) : undefined;
+        if (!manager || !points || !points[0]) return;
 
-        if (tool === 'writeText' && points && points[0]) {
+        const settings = userId ? usersSettings.current.get(userId) : undefined;
+        if (settings) {
+          manager.setTool(settings.tool || 'pencil');
+          manager.setBrushSettings(
+            settings.lineWidth ?? 5,
+            settings.eraserLineWidth ?? 25,
+            settings.color ?? PALETTE_COLORS.BLACK,
+            settings.opacity ?? 1
+          );
+        }
+
+        if (tool === 'eraser' || tool === 'pencil') {
+          manager.startDraw(points[0]);
+        }
+
+        if (tool === 'writeText') {
           manager.startWriteText(points[0]);
         }
       }
 
       if (type === 'inDrawProgress' && userId !== userIdRef.current) {
-        // if (drawingManagerRef.current && points && points[0]) {
-        //   drawingManagerRef.current.draw(points[0]);
-        // }
+        const manager = userId ? usersDrawingManagers.current.get(userId) : undefined;
+        if (!manager || !points || !points[0]) return;
 
-        const manager = userId ? userDrawingManagers.current.get(userId) : undefined;
-        if (manager && points && points[0]) {
-          manager.draw(points[0]);
+        const settings = usersSettings.current.get(userId ?? "");
+        if (settings) {
+          manager.setTool(settings.tool || 'pencil');
+          manager.setBrushSettings(
+            settings.lineWidth ?? 5,
+            settings.eraserLineWidth ?? 25,
+            settings.color ?? PALETTE_COLORS.BLACK,
+            settings.opacity ?? 1
+          );
         }
+      
+        manager.draw(points[0]);
       }
 
       if (type === 'writeText' && userId !== userIdRef.current) {
-        if (tool === 'writeText') {
-          if (key) {
-            drawingManagerRef.current?.writeText(key);
-          }
+        const manager = usersDrawingManagers.current.get(userId ?? "");
+        if (!manager || !key) return;
+      
+        const settings = usersSettings.current.get(userId ?? "");
+        if (settings) {
+          manager.setTextSettings(
+            settings.color ?? PALETTE_COLORS.BLACK,
+            settings.fontSize ?? 24,
+            settings.outline ?? ["Normal"]
+          );
         }
+      
+        manager.writeText(key);
       }
       
     });
