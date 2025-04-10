@@ -1,18 +1,18 @@
+import { MutableRefObject, RefObject } from "react";
 import { useEffect } from "react";
 import { PALETTE_COLORS } from "@/constants";
 import { DrawingManager } from "@/utils/DrawingManager";
 import { WebSocketClient } from "@/utils/websocket";
-import { Tool } from "@/types";
 import { WsData } from "@/types";
 
 interface UseDrawingSyncParams {
-  canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  userIdRef: React.MutableRefObject<string | null>;
-  wsRef: React.MutableRefObject<WebSocketClient>;
-  userCanvases: React.MutableRefObject<Map<string, HTMLCanvasElement>>;
-  usersDrawingManagers: React.MutableRefObject<Map<string, DrawingManager>>;
-  usersSettings: React.MutableRefObject<Map<string, WsData>>;
-  containerCanvasesRef: React.RefObject<HTMLDivElement | null>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  userIdRef: MutableRefObject<string | null>;
+  wsRef: MutableRefObject<WebSocketClient>;
+  userCanvases: MutableRefObject<Map<string, HTMLCanvasElement>>;
+  usersDrawingManagers: MutableRefObject<Map<string, DrawingManager>>;
+  usersSettings: MutableRefObject<Map<string, WsData>>;
+  containerCanvasesRef: RefObject<HTMLDivElement | null>;
   sendWsData: (data: WsData) => void;
 }
 
