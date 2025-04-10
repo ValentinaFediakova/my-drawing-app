@@ -1,0 +1,194 @@
+import { useEffect } from "react";
+import { PALETTE_COLORS } from "@/constants";
+import { DrawingManager } from "@/utils/DrawingManager";
+import { WebSocketClient } from "@/utils/websocket";
+import { Tool } from "@/types";
+import { WsData } from "@/types";
+
+interface UseDrawingSyncParams {
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  userIdRef: React.MutableRefObject<string | null>;
+  wsRef: React.MutableRefObject<WebSocketClient>;
+  userCanvases: React.MutableRefObject<Map<string, HTMLCanvasElement>>;
+  usersDrawingManagers: React.MutableRefObject<Map<string, DrawingManager>>;
+  usersSettings: React.MutableRefObject<Map<string, WsData>>;
+  containerCanvasesRef: React.RefObject<HTMLDivElement | null>;
+  sendWsData: (data: WsData) => void;
+}
+
+export const useDrawingSync = ({
+  canvasRef,
+  userIdRef,
+  wsRef,
+  userCanvases,
+  usersDrawingManagers,
+  usersSettings,
+  containerCanvasesRef,
+  sendWsData,
+}: UseDrawingSyncParams) => {
+  const ensureUserInitialized = (userId: string) => {
+    if (!userCanvases.current.has(userId) && containerCanvasesRef.current) {
+      const newCanvas = document.createElement("canvas");
+      newCanvas.width = window.innerWidth;
+      newCanvas.height = window.innerHeight;
+      newCanvas.style.position = "absolute";
+      newCanvas.style.left = "0";
+      newCanvas.style.top = "0";
+      newCanvas.style.pointerEvents = "none";
+      newCanvas.style.zIndex = "1";
+
+      containerCanvasesRef.current.appendChild(newCanvas);
+      userCanvases.current.set(userId, newCanvas);
+
+      const manager = new DrawingManager(newCanvas);
+      usersDrawingManagers.current.set(userId, manager);
+    }
+  };
+
+  const applyBrushSettings = (manager: DrawingManager, settings: WsData) => {
+    manager.setTool(settings.tool || "pencil");
+    manager.setBrushSettings(
+      settings.lineWidth ?? 5,
+      settings.eraserLineWidth ?? 25,
+      settings.color ?? PALETTE_COLORS.BLACK,
+      settings.opacity ?? 1
+    );
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    wsRef.current?.connect(
+      (data: WsData) => {
+        const {
+          tool = "pencil",
+          lineWidth = 5,
+          eraserLineWidth = 25,
+          color = PALETTE_COLORS.BLACK,
+          fontSize = 24,
+          outline = ["Normal"],
+          opacity = 1,
+          type,
+          points,
+          key,
+          userId,
+        } = data;
+
+        if (!userId || userId === userIdRef.current) return;
+        ensureUserInitialized(userId);
+
+        if (type === "requestCurrentSettings") {
+          if (userId !== userIdRef.current) {
+            sendWsData({
+              type: "setTool",
+              tool,
+              lineWidth,
+              eraserLineWidth,
+              color,
+              opacity,
+            });
+
+            if (tool === "writeText") {
+              sendWsData({
+                type: "setTextSettings",
+                color,
+                fontSize,
+                outline,
+              });
+            }
+          }
+          return;
+        }
+
+        if (type === "setTool" && userId) {
+          usersSettings.current.set(userId, {
+            tool,
+            color,
+            lineWidth,
+            eraserLineWidth,
+            opacity,
+          });
+        }
+
+        if (type === "setTextSettings" && userId) {
+          const prev = usersSettings.current.get(userId) || {};
+          usersSettings.current.set(userId, {
+            ...prev,
+            color,
+            fontSize,
+            outline,
+          });
+        }
+
+        if (type === "startDraw" && userId && userId !== userIdRef.current) {
+          const currentSettings = usersSettings.current.get(userId) || {};
+
+          usersSettings.current.set(userId, {
+            ...currentSettings,
+            tool,
+            color,
+            opacity,
+            lineWidth,
+            eraserLineWidth,
+            fontSize,
+            outline,
+          });
+
+          const manager = usersDrawingManagers.current.get(userId);
+          if (!manager || !points || !points[0]) return;
+
+          const settings = usersSettings.current.get(userId);
+          if (settings) {
+            applyBrushSettings(manager, settings);
+          }
+
+          if (tool === "eraser" || tool === "pencil") {
+            manager.startDraw(points[0]);
+          }
+
+          if (tool === "writeText") {
+            manager.startWriteText(points[0]);
+          }
+        }
+
+        if (type === "inDrawProgress" && userId !== userIdRef.current) {
+          const manager = userId
+            ? usersDrawingManagers.current.get(userId)
+            : undefined;
+          if (!manager || !points || !points[0]) return;
+
+          const settings = usersSettings.current.get(userId ?? "");
+          if (settings) {
+            applyBrushSettings(manager, settings);
+          }
+
+          manager.draw(points[0]);
+        }
+
+        if (type === "writeText" && userId !== userIdRef.current) {
+          const manager = usersDrawingManagers.current.get(userId ?? "");
+          if (!manager || !key) return;
+
+          const settings = usersSettings.current.get(userId ?? "");
+          if (settings) {
+            manager.setTextSettings(
+              settings.color ?? PALETTE_COLORS.BLACK,
+              settings.fontSize ?? 24,
+              settings.outline ?? ["Normal"]
+            );
+          }
+
+          manager.writeText(key);
+        }
+      },
+      () => {
+        sendWsData({ type: "requestCurrentSettings" });
+      }
+    );
+
+    return () => {
+      wsRef.current?.close();
+    };
+  }, []);
+};
