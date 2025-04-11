@@ -143,6 +143,7 @@ export class TextTool {
       const maxFontSize = this.getMaxFontSizeByLine(itemsInLine);
       offset += maxFontSize;
     }
+
     return offset;
   }
 
@@ -290,5 +291,12 @@ export class TextTool {
     );
 
     this.renderTextData();
+  }
+
+  getWidthAndHeightOfText(): { width: number; height: number } {
+    return {
+      width: this.textWidth,
+      height: this.sumAllMaxFontSizeForClearReactByY,
+    };
   }
 }

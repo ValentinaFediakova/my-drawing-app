@@ -28,14 +28,16 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const outline = useSelector((state: RootState) => state.settings.outline);
   const wsRef = useRef<WebSocketClient>(new WebSocketClient(WS_URL));
   const userIdRef = useRef<string | null>(null)
+  const usersNameElements = useRef<Map<string, HTMLDivElement>>(new Map());
   const containerCanvasesRef = useRef<HTMLDivElement | null>(null);
   const userCanvases = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const usersDrawingManagers = useRef<Map<string, DrawingManager>>(new Map());
   const usersSettings = useRef<Map<string, WsData>>(new Map());
+  const userName = useSelector((state: RootState) => state.authorization.name);
 
   const sendWsData = useCallback((data: WsData): void => {
     if (userIdRef.current) {
-      wsRef.current?.send(JSON.stringify({ ...data, userId: userIdRef.current }));
+      wsRef.current?.send(JSON.stringify({ ...data, userId: userIdRef.current, name: userName }));
     }
   }, []);
 
@@ -47,6 +49,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     usersDrawingManagers,
     usersSettings,
     containerCanvasesRef,
+    usersNameElements,
     sendWsData,
   });
   

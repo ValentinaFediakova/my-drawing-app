@@ -13,6 +13,7 @@ interface UseDrawingSyncParams {
   usersDrawingManagers: MutableRefObject<Map<string, DrawingManager>>;
   usersSettings: MutableRefObject<Map<string, WsData>>;
   containerCanvasesRef: RefObject<HTMLDivElement | null>;
+  usersNameElements: MutableRefObject<Map<string, HTMLDivElement>>;
   sendWsData: (data: WsData) => void;
 }
 
@@ -24,6 +25,7 @@ export const useDrawingSync = ({
   usersDrawingManagers,
   usersSettings,
   containerCanvasesRef,
+  usersNameElements,
   sendWsData,
 }: UseDrawingSyncParams) => {
   const ensureUserInitialized = (userId: string) => {
@@ -73,6 +75,7 @@ export const useDrawingSync = ({
           points,
           key,
           userId,
+          name,
         } = data;
 
         if (!userId || userId === userIdRef.current) return;
@@ -108,6 +111,7 @@ export const useDrawingSync = ({
             lineWidth,
             eraserLineWidth,
             opacity,
+            name,
           });
         }
 
@@ -118,6 +122,7 @@ export const useDrawingSync = ({
             color,
             fontSize,
             outline,
+            name,
           });
         }
 
@@ -133,6 +138,8 @@ export const useDrawingSync = ({
             eraserLineWidth,
             fontSize,
             outline,
+            name,
+            lastPoint: points?.[0],
           });
 
           const manager = usersDrawingManagers.current.get(userId);
@@ -164,6 +171,12 @@ export const useDrawingSync = ({
           }
 
           manager.draw(points[0]);
+
+          const nameEl = usersNameElements.current.get(userId);
+          if (nameEl) {
+            nameEl.style.left = `${points[0].x}px`;
+            nameEl.style.top = `${points[0].y - 20}px`;
+          }
         }
 
         if (type === "writeText" && userId !== userIdRef.current) {
@@ -180,6 +193,27 @@ export const useDrawingSync = ({
           }
 
           manager.writeText(key);
+
+          const { width, height } = manager.getWidthAndHeightOfText();
+          console.log("width", width, "height", height);
+
+          const nameEl = usersNameElements.current.get(userId);
+          if (nameEl && settings?.lastPoint) {
+            nameEl.style.left = `${settings.lastPoint.x - width / 2}px`;
+            nameEl.style.top = `${settings.lastPoint.y + height - 20}px`;
+          }
+        }
+
+        if (!points || !points[0]) return;
+        const existingEl = usersNameElements.current.get(userId);
+        if (!existingEl) {
+          const nameEl = document.createElement("div");
+          nameEl.innerText = name || "Anonymous";
+          nameEl.className = "user-name-cursor";
+          nameEl.style.left = `${points[0].x}px`;
+          nameEl.style.top = `${points[0].y - 20}px`;
+          containerCanvasesRef.current?.appendChild(nameEl);
+          usersNameElements.current.set(userId, nameEl);
         }
       },
       () => {

@@ -12,4 +12,6 @@ export interface WsData {
   points?: { x: number; y: number }[];
   key?: string;
   userId?: string;
+  name?: string;
+  lastPoint?: { x: number; y: number };
 }
