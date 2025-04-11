@@ -127,10 +127,6 @@ export class DrawingManager {
 
   getWidthAndHeightOfText(): { width: number; height: number } {
     return this.TextTool.getWidthAndHeightOfText();
-    // return {
-    //   width: this.textWidth,
-    //   height: this.sumAllMaxFontSizeForClearReactByY,
-    // };
   }
 
   stopDraw(): void {
