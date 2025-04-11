@@ -10,7 +10,7 @@ import { DrawingManager } from "@/utils/DrawingManager";
 
 import "./Canvas.scss";
 
-export const Canvas: React.FC = () => {
+export const CanvasPage: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingManagerRef = useRef<DrawingManager | null>(null);
 
