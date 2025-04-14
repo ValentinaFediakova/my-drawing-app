@@ -1,8 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 
-export const setupWebSocket = () => {
-  const port = process.env.PORT || 3001;
-  const wss = new WebSocketServer({ port });
+export const setupWebSocket = (server) => {
+  const wss = new WebSocketServer({ server });
 
   const clients = new Map();
 
@@ -44,5 +43,5 @@ export const setupWebSocket = () => {
     ws.send(JSON.stringify({ type: "welcome", userId }));
   });
 
-  console.log(`✅ WebSocket server is running on port ${port}`);
+  console.log(`✅ WebSocket server is running on port ${server}`);
 };
