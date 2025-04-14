@@ -18,9 +18,9 @@ export const SignUp: React.FC<SignUpProps> = ({ onSetAuthStep }) => {
     <div className='signUp-container'>
       <div className='inner-wrap'>
         <h1 className='signUp__title'>Create Account</h1>
-        <Input placeholder='Enter your name'/>
-        <Input placeholder='Enter your e-mail'/>
-        <Input placeholder='Enter your password' />
+        <Input placeholder='Enter your name' onHandleChange={(event) => console.log(event.target.value)} />
+        <Input placeholder='Enter your e-mail' onHandleChange={(event) => console.log(event.target.value)}/>
+        <Input placeholder='Enter your password' onHandleChange={(event) => console.log(event.target.value)}/>
         <button className="signUp__button" onClick={handleSignUp}>SIGN UP</button>
       </div>
 
