@@ -1,4 +1,4 @@
-.rightPanel-container {
+.leftPanel-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,7 +11,7 @@
   align-items: center;
 }
 
-.rightPanel__title {
+.leftPanel__title {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", sans-serif;
   margin: 0 0 35px 0;
@@ -21,7 +21,7 @@
   font-weight: 600;
 }
 
-.rightPanel__subtitle {
+.leftPanel__subtitle {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", sans-serif;
   margin: 0 0 35px 0;
@@ -29,4 +29,26 @@
   text-align: center;
   line-height: 1.5;
   font-weight: 500;
+}
+
+.leftPanel__button {
+  background-color: #ef2004;
+  width: fit-content;
+  height: 50px;
+  border-radius: 30px;
+  outline: none;
+  border: none;
+  margin: 35px 0 0 0;
+  color: #fbfdff;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", sans-serif;
+  font-weight: 600;
+  padding: 0 30px;
+
+  &_transparent-bg {
+    background-color: transparent;
+    color: #fbfdff;
+    border: 1px solid #fbfdff;
+  }
 }

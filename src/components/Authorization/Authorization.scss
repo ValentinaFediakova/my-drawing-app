@@ -1,14 +1,44 @@
-.authorization-container {
+.auth-container {
   display: flex;
-  background-image: url("../../../public/bg-paint.jpg");
+  background-image: url("../../../public/bg-paint.png");
   width: 100%;
   height: 100%;
   background-repeat: no-repeat;
   background-size: cover;
+  position: relative;
+}
+
+.auth__inner-wrap {
+  width: 100%;
+  background-color: #fbfdff;
+  transition: all 2s;
+  position: relative;
+  z-index: 1;
+
+  &_right {
+    transform: translate(0px, 0px);
+  }
+
+  &_left {
+    transform: translate(50vw, 0px);
+  }
+
+  &_animate-left {
+    transform: translate(-50vw, 0px);
+    transition: all 2s;
+  }
+
+  &_animate-right {
+    transform: translate(0vw, 0px);
+    transition: all 2s;
+  }
 }
 
 .clmn {
-  width: 50%;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
 }
 
 .clmn_left {
@@ -16,17 +46,58 @@
   transition: all 2s;
 }
 
-.clmn_left_animate {
-  transform: translate(-50vw, 0px);
-  transition: all 2s;
-}
-
 .clmn_right {
-  transform: translate(50vw, 0px);
-  transition: all 2s;
+  // transform: translate(0px, 0px);
+  // transition: all 2s;
 }
 
-.clmn_right_animate {
-  transform: translate(0vw, 0px);
-  transition: all 2s;
+.auth__signIn-wrap {
+  &_animate-left {
+    transform: translate(100vw, 0px);
+    transition: all 2s;
+  }
+
+  &_animate-right {
+    transform: translate(0px, 0px);
+    transition: all 2s;
+  }
+}
+
+.auth__signUp-wrap {
+  &_animate-left {
+    transform: translate(-100vw, 0px);
+    transition: all 2s;
+  }
+
+  &_animate-right {
+    transform: translate(0vw, 0px);
+    transition: all 2s;
+  }
+}
+
+.auth__panel-wrap {
+  position: absolute;
+  z-index: 0;
+  width: 50%;
+  color: #fbfdff;
+
+  &_right {
+    right: 0;
+  }
+
+  &_left {
+    left: 0;
+  }
+}
+
+.auth__signUp {
+  &_animate-left {
+    transform: translate(-50vw, 0px);
+    transition: all 2s;
+  }
+
+  &_animate-right {
+    transform: translate(0px, 0px);
+    transition: all 2s;
+  }
 }

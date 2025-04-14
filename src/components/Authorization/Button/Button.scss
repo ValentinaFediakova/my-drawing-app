@@ -1,0 +1,24 @@
+.button {
+  width: fit-content;
+  height: 50px;
+  border-radius: 30px;
+  outline: none;
+  border: none;
+  margin: 35px 0 0 0;
+  color: #fbfdff;
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", sans-serif;
+  font-weight: 600;
+  padding: 0 30px;
+
+  &_main {
+    background-color: #ef2004;
+  }
+
+  &_secondary {
+    background-color: transparent;
+    color: #fbfdff;
+    border: 1px solid #fbfdff;
+  }
+}
