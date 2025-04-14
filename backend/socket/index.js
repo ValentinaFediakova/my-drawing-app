@@ -1,9 +1,8 @@
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const WebSocket = require("ws");
+import { WebSocketServer, WebSocket } from "ws";
 
 export const setupWebSocket = () => {
   const port = process.env.PORT || 3001;
-  const wss = new WebSocket.Server({ port });
+  const wss = new WebSocketServer({ port });
 
   const clients = new Map();
 

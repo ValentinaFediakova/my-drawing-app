@@ -9,8 +9,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
     "ws": "^8.18.1"
   },
   "description": ""
