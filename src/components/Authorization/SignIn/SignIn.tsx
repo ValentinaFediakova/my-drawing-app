@@ -1,5 +1,4 @@
 import { useDispatch } from "react-redux";
-import { setName, setPassword } from "@/store/slices/authorizationSlice";
 import { Input } from "@/components/Authorization/Input/Input";
 import { Button } from "@/components/Authorization/Button/Button";
 
@@ -14,13 +13,9 @@ export const SignIn: React.FC<SignInProps> = ({ onSetAuthStep }) => {
   const dispatch = useDispatch();
 
   const handleInputName = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = event.target.value;
-    dispatch(setName(newName));
   }
 
   const handleInputPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newPassword = event.target.value;
-    dispatch(setPassword(newPassword));
   }
 
   const handleSignIn = () => {
