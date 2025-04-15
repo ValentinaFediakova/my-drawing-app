@@ -1,6 +1,48 @@
-export const registerUser = (req, res) => {
-  const { name, password } = req.body;
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
-  console.log("👤 Зарегистрирован:", name);
-  res.status(200).json({ message: "User registered!" });
+const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
+
+const users = new Map();
+
+export const signUp = async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password)
+    return res.status(400).json({ error: "Missing fields" });
+  if (users.has(username))
+    return res.status(409).json({ error: "User already exists" });
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users.set(username, { username, password: hashedPassword });
+
+  const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "7d" });
+  res.status(201).json({ user: { username }, accessToken: token });
+};
+
+export const login = async (req, res) => {
+  const { username, password } = req.body;
+  const user = users.get(username);
+  if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
+
+  const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "7d" });
+  res.status(200).json({ user: { username }, accessToken: token });
+};
+
+export const getMe = (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer "))
+    return res.status(401).json({ error: "No token" });
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const user = users.get(decoded.username);
+    if (!user) return res.status(401).json({ error: "User not found" });
+    res.json({ user: { username: user.username } });
+  } catch {
+    res.status(401).json({ error: "Invalid token" });
+  }
 };
