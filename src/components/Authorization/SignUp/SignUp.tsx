@@ -9,11 +9,7 @@ import { Input } from "@/components/Authorization/Input/Input";
 import './SignUp.scss';
 import { useState } from "react";
 
-interface SignUpProps {
-  onSetAuthStep: (step: "signIn" | "signUp") => void
-}
-
-export const SignUp: React.FC<SignUpProps> = ({ onSetAuthStep }) => {
+export const SignUp: React.FC = ({ }) => {
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const dispatch = useDispatch<AppDispatch>()
@@ -30,7 +26,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onSetAuthStep }) => {
   }
 
   const handleSignUp = async () => {
-    onSetAuthStep('signUp')
+
 
     const result = await dispatch(signUpThunk({ username, password }))
 

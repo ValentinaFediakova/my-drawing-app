@@ -1,9 +1,25 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import fs from "fs";
 
 const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
+const USERS_FILE = "users.json";
 
 const users = new Map();
+
+if (fs.existsSync(USERS_FILE)) {
+  const data = JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
+  data.forEach(([username, userData]) => {
+    users.set(username, userData);
+  });
+  console.log("✅ Users loaded from file");
+}
+
+const saveUsersToFile = () => {
+  const data = Array.from(users.entries());
+  fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
+  console.log("💾 Users saved to file");
+};
 
 export const signUp = async (req, res) => {
   const { username, password } = req.body;
@@ -14,6 +30,7 @@ export const signUp = async (req, res) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
   users.set(username, { username, password: hashedPassword });
+  saveUsersToFile();
 
   const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: "7d" });
   res.status(201).json({ user: { username }, accessToken: token });

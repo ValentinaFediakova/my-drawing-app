@@ -36,6 +36,24 @@ export const signUpThunk = createAsyncThunk(
   }
 );
 
+export const signInThunk = createAsyncThunk(
+  "auth/signIn",
+  async (formData: { username: string; password: string }) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signin`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      }
+    );
+    if (!res.ok) {
+      throw new Error("Login failed");
+    }
+    return await res.json();
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -57,6 +75,21 @@ export const authSlice = createSlice({
         localStorage.setItem("token", action.payload.accessToken);
       })
       .addCase(signUpThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || "Something went wrong";
+        state.user = null;
+        localStorage.removeItem("token");
+      })
+      .addCase(signInThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signInThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        localStorage.setItem("token", action.payload.accessToken);
+      })
+      .addCase(signInThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || "Something went wrong";
         state.user = null;

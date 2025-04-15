@@ -1,33 +1,48 @@
-// import { useDispatch } from "react-redux";
-// import { Input } from "@/components/Authorization/Input/Input";
+import { useDispatch } from "react-redux";
+import { useState } from "react";
+import { AppDispatch } from "@/store";
+import { signInThunk } from "@/features/auth/authSlice";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/Authorization/Input/Input";
 import { Button } from "@/components/Authorization/Button/Button";
 
 import './SignIn.scss';
 
-interface SignInProps {
-  onSetAuthStep: (step: "signIn" | "signUp") => void
-}
 
-export const SignIn: React.FC<SignInProps> = ({ onSetAuthStep }) => {
+export const SignIn: React.FC = ({ }) => {
+  const [username, setUsername] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>(); 
+  const router = useRouter();
 
-  // const handleInputName = (event: React.ChangeEvent<HTMLInputElement>) => {
-  // }
 
-  // const handleInputPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-  // }
+  const handleInputName = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const name = event.target.value;
+    setUsername(name)
+  }
 
-  const handleSignIn = () => {
-    onSetAuthStep('signIn')
+  const handleInputPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const password = event.target.value;
+    setPassword(password)
+  }
+
+  const handleSignIn = async () => {
+    const result = await dispatch(signInThunk({ username, password }))
+
+    if (result.meta.requestStatus === "fulfilled") {
+      router.push("/canvas");
+    } else {
+      console.error("Login failed:", result);
+    }
   }
 
   return (
     <div className='signIn-container'>
       <div className='inner-wrap'>
         <h1 className='signIn__title'>Please enter the name or nickname you want other members to see you by</h1>
-        {/* <Input placeholder='Enter your name' onHandleChange={handleInputName} /> */}
-        {/* <Input placeholder='Enter your password' onHandleChange={handleInputPassword} /> */}
+        <Input placeholder='Enter your name' onHandleChange={handleInputName} />
+        <Input placeholder='Enter your password' onHandleChange={handleInputPassword} />
         <Button text="Sign In" onHandleClick={handleSignIn} type="main"/>
       </div>
 
