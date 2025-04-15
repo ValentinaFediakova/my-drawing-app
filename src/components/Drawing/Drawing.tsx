@@ -33,7 +33,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const userCanvases = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const usersDrawingManagers = useRef<Map<string, DrawingManager>>(new Map());
   const usersSettings = useRef<Map<string, WsData>>(new Map());
-  const userName = useSelector((state: RootState) => state.authorization.name);
+  const userName = useSelector((state: RootState) => state.auth.user?.username);
 
   const sendWsData = useCallback((data: WsData): void => {
     if (userIdRef.current) {

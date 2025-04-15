@@ -1,6 +1,9 @@
+"use client";
+
 import { useDispatch } from "react-redux";
 import { signUpThunk } from "@/features/auth/authSlice";
 import { AppDispatch } from "@/store/index";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/Authorization/Input/Input";
 
 import './SignUp.scss';
@@ -14,6 +17,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onSetAuthStep }) => {
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const dispatch = useDispatch<AppDispatch>()
+  const router = useRouter();
 
   const handleInputName = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newName = event.target.value;
@@ -25,9 +29,16 @@ export const SignUp: React.FC<SignUpProps> = ({ onSetAuthStep }) => {
     setPassword(newPassword)
   }
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     onSetAuthStep('signUp')
-    dispatch(signUpThunk({ username, password }))
+
+    const result = await dispatch(signUpThunk({ username, password }))
+
+    if (result.meta.requestStatus === "fulfilled") {
+      router.push("/canvas");
+    } else {
+      console.error("Registration failed:", result);
+    }
   }
 
   return (
