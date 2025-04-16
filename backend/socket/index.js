@@ -43,5 +43,5 @@ export const setupWebSocket = (server) => {
     ws.send(JSON.stringify({ type: "welcome", userId }));
   });
 
-  console.log(`✅ WebSocket server is running on port ${server}`);
+  console.log("✅ WebSocket server is attached to existing HTTP server");
 };

@@ -14,3 +14,6 @@ export const FONT_SIZE = [
 ];
 
 export const WS_URL = "wss://my-drawing-app-production.up.railway.app";
+
+//"ws://localhost:3001"
+//"wss://my-drawing-app-production.up.railway.app"
