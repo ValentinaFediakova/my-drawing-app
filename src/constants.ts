@@ -13,7 +13,4 @@ export const FONT_SIZE = [
   10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
 ];
 
-export const WS_URL = "wss://my-drawing-app-production.up.railway.app";
-
-//"ws://localhost:3001"
-//"wss://my-drawing-app-production.up.railway.app"
+export const WS_URL = process.env.WS_URL;
