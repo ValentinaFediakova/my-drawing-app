@@ -35,7 +35,7 @@ export class WebSocketClient {
     };
 
     this.socket.onerror = (err: Event): void => {
-      console.error("❌ WebSocket error:", err);
+      console.warn("❌ WebSocket error:", err);
     };
 
     this.socket.onclose = (): void => {

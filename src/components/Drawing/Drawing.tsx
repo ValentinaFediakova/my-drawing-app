@@ -26,7 +26,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const tool = useSelector((state: RootState) => state.settings.tool);
   const fontSize = useSelector((state: RootState) => state.settings.fontSize);
   const outline = useSelector((state: RootState) => state.settings.outline);
-  const wsRef = useRef<WebSocketClient | null>(null);
+  const wsRef = useRef<WebSocketClient>(new WebSocketClient(WS_URL));
   const userIdRef = useRef<string | null>(null)
   const usersNameElements = useRef<Map<string, HTMLDivElement>>(new Map());
   const containerCanvasesRef = useRef<HTMLDivElement | null>(null);
@@ -104,11 +104,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     })
     drawingManagerRef.current?.writeText(key);
   }
-
-  useEffect(() => {
-    const wsClient = new WebSocketClient(WS_URL);
-    wsRef.current = wsClient;
-  }, []);
 
   useEffect(() => {
     if (!userIdRef.current) {
