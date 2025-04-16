@@ -9,6 +9,7 @@
   cursor: pointer;
   border-radius: 6px;
   padding: 0;
+  z-index: 1;
 }
 
 .action-bar__button-open-img {
@@ -27,11 +28,8 @@
   position: absolute;
   top: 16px;
   right: 62px;
-  display: none;
-
-  &_open {
-    display: block;
-  }
+  display: flex;
+  z-index: 1;
 }
 
 .action-bar__item {
@@ -43,6 +41,10 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+
+  &_margin {
+    margin-right: 16px;
+  }
 }
 
 .action-bar__clear-img {
@@ -55,7 +57,17 @@
   }
 }
 
-.action-bar__clear-title {
+.action-bar__logout-img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+
+  &_exit {
+    background-image: url("../../../public/exit.svg");
+  }
+}
+
+.action-bar__item-title {
   font-family: Manrope, serif;
   color: #f0f8ff;
   font-size: 16px;

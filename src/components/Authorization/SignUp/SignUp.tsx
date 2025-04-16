@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { signUpThunk } from "@/features/auth/authSlice";
 import { AppDispatch } from "@/store/index";
@@ -7,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/Authorization/Input/Input";
 
 import './SignUp.scss';
-import { useState } from "react";
+
 
 export const SignUp: React.FC = ({ }) => {
   const [username, setUsername] = useState<string>('')
