@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface User {
   username: string;
@@ -6,14 +6,25 @@ interface User {
 
 interface AuthState {
   user: User | null;
-  isLoading: boolean;
-  error: string | null;
+  signIn: {
+    status: "idle" | "loading" | "success" | "error";
+    error: string | null;
+  };
+  signUp: {
+    status: "idle" | "loading" | "success" | "error";
+    error: string | null;
+  };
+  checkAuth: {
+    status: "idle" | "loading" | "success" | "error";
+    error: string | null;
+  };
 }
 
 const initialState: AuthState = {
   user: null,
-  isLoading: false,
-  error: null,
+  signIn: { status: "idle", error: null },
+  signUp: { status: "idle", error: null },
+  checkAuth: { status: "idle", error: null },
 };
 
 export const signUpThunk = createAsyncThunk(
@@ -54,6 +65,20 @@ export const signInThunk = createAsyncThunk(
   }
 );
 
+export const checkAuthThunk = createAsyncThunk("auth/checkAuth", async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/check`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error("Authentication failed");
+  }
+  const data = await res.json();
+  return data.user;
+});
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -62,39 +87,58 @@ export const authSlice = createSlice({
       state.user = null;
       localStorage.removeItem("token");
     },
-    clearError(state) {
-      state.error = null;
+    clearError(
+      state,
+      action: PayloadAction<"signIn" | "signUp" | "checkAuth">
+    ) {
+      const key = action.payload;
+      state[key].error = null;
+      state[key].status = "idle";
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(signUpThunk.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+        state.signUp.status = "loading";
+        state.signUp.error = null;
       })
       .addCase(signUpThunk.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.signUp.status = "success";
         state.user = action.payload.user;
         localStorage.setItem("token", action.payload.accessToken);
       })
       .addCase(signUpThunk.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || "Something went wrong";
+        state.signUp.status = "error";
+        state.signUp.error = action.error.message || "Something went wrong";
         state.user = null;
         localStorage.removeItem("token");
       })
       .addCase(signInThunk.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+        state.signIn.status = "loading";
+        state.signIn.error = null;
       })
       .addCase(signInThunk.fulfilled, (state, action) => {
-        state.isLoading = false;
+        state.signIn.status = "success";
         state.user = action.payload.user;
         localStorage.setItem("token", action.payload.accessToken);
       })
       .addCase(signInThunk.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.error.message || "Something went wrong";
+        state.signIn.status = "error";
+        state.signIn.error = action.error.message || "Login failed";
+        state.user = null;
+        localStorage.removeItem("token");
+      })
+      .addCase(checkAuthThunk.pending, (state) => {
+        state.checkAuth.status = "loading";
+        state.checkAuth.error = null;
+      })
+      .addCase(checkAuthThunk.fulfilled, (state, action) => {
+        state.checkAuth.status = "success";
+        state.user = action.payload;
+      })
+      .addCase(checkAuthThunk.rejected, (state, action) => {
+        state.checkAuth.status = "error";
+        state.checkAuth.error = action.error.message || "Something went wrong";
         state.user = null;
         localStorage.removeItem("token");
       });

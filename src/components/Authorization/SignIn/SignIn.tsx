@@ -22,13 +22,13 @@ export const SignIn: React.FC = ({ }) => {
   const handleInputName = (event: React.ChangeEvent<HTMLInputElement>) => {
     const name = event.target.value;
     setUsername(name)
-    dispatch(clearError())
+    dispatch(clearError('signIn'))
   }
 
   const handleInputPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     const password = event.target.value;
     setPassword(password)
-    dispatch(clearError())
+    dispatch(clearError("signIn"))
   }
 
   const handleSignIn = async () => {

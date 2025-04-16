@@ -48,7 +48,7 @@ export const login = async (req, res) => {
   res.status(200).json({ user: { username }, accessToken: token });
 };
 
-export const getMe = (req, res) => {
+export const checkAuth = (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer "))
     return res.status(401).json({ error: "No token" });
