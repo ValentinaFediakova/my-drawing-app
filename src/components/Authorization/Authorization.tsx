@@ -15,7 +15,7 @@ export const AuthorizationPage = () => {
       <div className={`auth__inner-wrap auth__inner-wrap_right  ${authStep === 'signUp' ? 'auth__inner-wrap_animate-left' : ''}`}>
         <div className='clmn clmn_left'>
           <div className={`${authStep === 'signUp' ? 'auth__signIn-wrap_animate-left' : 'auth__signIn-wrap_animate-right'}`}>
-            <SignIn onSetAuthStep={setAuthStep}/>
+            <SignIn/>
           </div>
         </div>
       </div>
@@ -27,7 +27,7 @@ export const AuthorizationPage = () => {
       <div className={`auth__inner-wrap auth__inner-wrap_left ${authStep === 'signUp' ? 'auth__inner-wrap_animate-right' : ''}`}>
         <div className={`clmn clmn_right`}>
           <div className={`${authStep === 'signUp' ? 'auth__signUp-wrap_animate-right' : 'auth__signUp-wrap_animate-left'}`}>
-            <SignUp onSetAuthStep={setAuthStep}/>
+            <SignUp/>
           </div>
         </div>
       </div>
