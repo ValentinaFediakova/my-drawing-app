@@ -11,6 +11,7 @@
     "Helvetica Neue", sans-serif;
   font-weight: 600;
   padding: 0 30px;
+  position: relative;
 
   &_main {
     background-color: #ef2004;
@@ -21,4 +22,17 @@
     color: #fbfdff;
     border: 1px solid #fbfdff;
   }
+}
+
+.button__loader {
+  background-image: url("../../../../public/loading.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 160px;
+  height: 160px;
+  background-size: contain;
+  position: absolute;
+  top: 50%;
+  right: -32px;
+  transform: translate(50%, -50%);
 }

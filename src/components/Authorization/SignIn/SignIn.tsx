@@ -16,6 +16,7 @@ export const SignIn: React.FC = ({ }) => {
 
   const dispatch = useDispatch<AppDispatch>(); 
   const error = useSelector((state: RootState) => state.auth.signIn.error);
+  const signInStatus = useSelector((state: RootState) => state.auth.signIn.status);
   const router = useRouter();
 
 
@@ -48,7 +49,7 @@ export const SignIn: React.FC = ({ }) => {
         {error &&  <div className="error-text">Incorrect login or password</div>}
         <Input placeholder='Enter your name' onHandleChange={handleInputName} />
         <Input placeholder='Enter your password' onHandleChange={handleInputPassword} />
-        <Button text="Sign In" onHandleClick={handleSignIn} type="main"/>
+        <Button text="Sign In" onHandleClick={handleSignIn} type="main" isLoading={signInStatus==='loading'}/>
       </div>
 
     </div>

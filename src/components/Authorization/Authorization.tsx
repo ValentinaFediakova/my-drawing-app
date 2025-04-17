@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SignIn } from './SignIn/SignIn'
 import { RightPanel } from './RightPanel/RightPanel'
 import { LeftPanel } from './LeftPanel/LeftPanel'
@@ -8,7 +8,6 @@ import './Authorization.scss'
 
 export const AuthorizationPage = () => {
   const [authStep, setAuthStep] = useState<"signIn" | "signUp">("signIn");
-
   
   return (
     <div className='auth-container'>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="293" height="293" style="shape-rendering: auto; display: block; background: transparent;" xmlns:xlink="http://www.w3.org/1999/xlink"><g><circle stroke-linecap="round" fill="none" stroke-dasharray="14.137166941154069 14.137166941154069" stroke="#bea1a3" stroke-width="1" r="9" cy="50" cx="50">
+  <animateTransform values="0 50 50;360 50 50" keyTimes="0;1" repeatCount="indefinite" dur="0.8620689655172413s" type="rotate" attributeName="transform"></animateTransform>
+</circle>
+<circle stroke-linecap="round" fill="none" stroke-dashoffset="10.995574287564276" stroke-dasharray="10.995574287564276 10.995574287564276" stroke="#a66e35" stroke-width="1" r="7" cy="50" cx="50">
+  <animateTransform values="0 50 50;-360 50 50" keyTimes="0;1" repeatCount="indefinite" dur="0.8620689655172413s" type="rotate" attributeName="transform"></animateTransform>
+</circle><g></g></g></svg>
