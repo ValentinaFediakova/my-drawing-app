@@ -15,7 +15,7 @@ export const SignIn: React.FC = ({ }) => {
   const [password, setPassword] = useState<string>('')
 
   const dispatch = useDispatch<AppDispatch>(); 
-  const error = useSelector((state: RootState) => state.auth.error);
+  const error = useSelector((state: RootState) => state.auth.signIn.error);
   const router = useRouter();
 
 
