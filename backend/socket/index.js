@@ -30,7 +30,7 @@ export const setupWebSocket = (server) => {
 
       clients.set(userId, ws);
 
-      for (const [clientUserId, clientWs] of clients.entries()) {
+      for (const [, clientWs] of clients.entries()) {
         if (clientWs !== ws && clientWs.readyState === WebSocket.OPEN) {
           clientWs.send(message);
         }
@@ -39,6 +39,10 @@ export const setupWebSocket = (server) => {
 
     ws.on("close", () => {
       clients.delete(userId);
+
+      if (clients.size === 0) {
+        history.length = 0;
+      }
     });
 
     ws.on("error", (err) => {
