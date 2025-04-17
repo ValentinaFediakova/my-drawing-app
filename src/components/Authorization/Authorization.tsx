@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SignIn } from './SignIn/SignIn'
 import { RightPanel } from './RightPanel/RightPanel'
 import { LeftPanel } from './LeftPanel/LeftPanel'
