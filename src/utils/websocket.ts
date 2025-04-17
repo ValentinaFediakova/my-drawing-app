@@ -1,13 +1,10 @@
-type WsData = {
-  type: "start";
-  tool: "pencil" | "eraser" | "writeText";
-  points: { x: number; y: number }[];
-};
+import { WsData } from "@/types";
 export class WebSocketClient {
   private socket: WebSocket | null = null;
   private url: string;
   private reconnectInterval = 3000;
   private isManuallyClosed = false;
+  private onMessageCallback?: (data: WsData) => void;
 
   constructor(url: string) {
     this.url = url;
@@ -15,6 +12,7 @@ export class WebSocketClient {
 
   connect(onMessage: (data: WsData) => void, onOpen?: () => void): void {
     this.socket = new WebSocket(this.url);
+    this.onMessageCallback = onMessage;
 
     this.socket.onopen = (): void => {
       console.log("✅ WebSocket connected");
@@ -61,5 +59,9 @@ export class WebSocketClient {
   close(): void {
     this.isManuallyClosed = true;
     this.socket?.close();
+  }
+
+  handleIncomingEvent(data: WsData): void {
+    this.onMessageCallback?.(data);
   }
 }

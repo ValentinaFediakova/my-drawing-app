@@ -2,16 +2,25 @@ import { WebSocketServer, WebSocket } from "ws";
 
 export const setupWebSocket = (server) => {
   const wss = new WebSocketServer({ server });
+  const history = [];
 
   const clients = new Map();
 
   wss.on("connection", (ws) => {
-    console.log("New client connected");
+    ws.send(JSON.stringify({ type: "history", events: history }));
+    console.log("📦 Отправляю history. Событий:", history.length);
 
     let userId = "";
 
     ws.on("message", (message) => {
       const data = JSON.parse(message);
+      if (
+        data.type === "startDraw" ||
+        data.type === "inDrawProgress" ||
+        data.type === "writeText"
+      ) {
+        history.push(data);
+      }
 
       if (data.userId) {
         userId = data.userId;
@@ -21,18 +30,14 @@ export const setupWebSocket = (server) => {
 
       clients.set(userId, ws);
 
-      console.log(`Received message from ${userId}: ${message}`);
-
       for (const [clientUserId, clientWs] of clients.entries()) {
         if (clientWs !== ws && clientWs.readyState === WebSocket.OPEN) {
-          console.log(`Sending message to ${clientUserId}`);
           clientWs.send(message);
         }
       }
     });
 
     ws.on("close", () => {
-      console.log(`Client ${userId} disconnected`);
       clients.delete(userId);
     });
 

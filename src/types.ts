@@ -1,7 +1,16 @@
 export type Tool = "pencil" | "eraser" | "writeText";
 
+export type WsEventType =
+  | "startDraw"
+  | "inDrawProgress"
+  | "writeText"
+  | "end"
+  | "setTool"
+  | "setTextSettings"
+  | "requestCurrentSettings";
+
 export interface WsData {
-  type?: string;
+  type?: WsEventType;
   tool?: Tool;
   color?: string;
   fontSize?: number;
@@ -15,3 +24,10 @@ export interface WsData {
   name?: string;
   lastPoint?: { x: number; y: number };
 }
+
+export type HistoryMessage = {
+  type: "history";
+  events: WsData[];
+};
+
+export type WebSocketMessage = WsData | HistoryMessage;

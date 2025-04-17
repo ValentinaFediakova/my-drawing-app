@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { PALETTE_COLORS } from "@/constants";
 import { DrawingManager } from "@/utils/DrawingManager";
 import { WebSocketClient } from "@/utils/websocket";
-import { WsData } from "@/types";
+import { WsData, HistoryMessage, WebSocketMessage } from "@/types";
 
 interface UseDrawingSyncParams {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -15,6 +15,17 @@ interface UseDrawingSyncParams {
   containerCanvasesRef: RefObject<HTMLDivElement | null>;
   usersNameElements: MutableRefObject<Map<string, HTMLDivElement>>;
   sendWsData: (data: WsData) => void;
+}
+
+function isHistoryMessage(data: unknown): data is HistoryMessage {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "type" in data &&
+    (data as { type?: string }).type === "history" &&
+    "events" in data &&
+    Array.isArray((data as { events?: unknown }).events)
+  );
 }
 
 export const useDrawingSync = ({
@@ -62,7 +73,29 @@ export const useDrawingSync = ({
     if (!canvas) return;
 
     wsRef.current?.connect(
-      (data: WsData) => {
+      (data: WebSocketMessage) => {
+        if (isHistoryMessage(data)) {
+          data.events.forEach((event) => {
+            const type = event.type ?? "startDraw";
+
+            if (
+              type === "startDraw" ||
+              type === "inDrawProgress" ||
+              type === "writeText"
+            ) {
+              const safeEvent: WsData = {
+                ...event,
+                type,
+                tool: event.tool ?? "pencil",
+                points: event.points ?? [],
+              };
+
+              wsRef.current?.handleIncomingEvent(safeEvent);
+            }
+          });
+          return;
+        }
+
         const {
           tool = "pencil",
           lineWidth = 5,
@@ -143,6 +176,7 @@ export const useDrawingSync = ({
           });
 
           const manager = usersDrawingManagers.current.get(userId);
+
           if (!manager || !points || !points[0]) return;
 
           const settings = usersSettings.current.get(userId);

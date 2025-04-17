@@ -12,13 +12,11 @@ if (fs.existsSync(USERS_FILE)) {
   data.forEach(([username, userData]) => {
     users.set(username, userData);
   });
-  console.log("✅ Users loaded from file");
 }
 
 const saveUsersToFile = () => {
   const data = Array.from(users.entries());
   fs.writeFileSync(USERS_FILE, JSON.stringify(data, null, 2));
-  console.log("💾 Users saved to file");
 };
 
 export const signUp = async (req, res) => {
