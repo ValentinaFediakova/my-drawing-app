@@ -11,7 +11,7 @@ My Drawing App is a web application for drawing with support for various colors,
 - 🔤 Text mode.
 - 🔄 Undo and redo actions (planned).
 - 📂 Save images (planned).
-- 🌐 WebSocket support for real-time collaborative drawing (planned).
+- 🌐 WebSocket support for real-time collaborative drawing.
 
 ## 🛠️ **Technologies:**
 
