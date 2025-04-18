@@ -1,0 +1,37 @@
+.style-button {
+  width: 32px;
+  height: 32px;
+  background-color: #2e2f34;
+  border-radius: 8px;
+  margin-right: 6px;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &_active {
+    background-color: #673be6;
+  }
+}
+
+.style-button__img {
+  width: 24px;
+  height: 24px;
+  background-size: cover;
+
+  &_cube {
+    background-image: url("/cube.svg");
+  }
+
+  &_circle {
+    background-image: url("/circle.svg");
+  }
+
+  &_line {
+    background-image: url("/line.svg");
+  }
+}

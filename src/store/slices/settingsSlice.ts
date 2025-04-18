@@ -11,6 +11,7 @@ interface SettingsState {
   tool: Tool;
   fontSize: number;
   outline: string[];
+  shape: string;
 }
 
 const initialState: SettingsState = {
@@ -21,6 +22,7 @@ const initialState: SettingsState = {
   tool: "pencil",
   fontSize: 24,
   outline: [],
+  shape: "cube",
 };
 
 const settingsSlice = createSlice({
@@ -52,6 +54,9 @@ const settingsSlice = createSlice({
         : [...state.outline, action.payload];
       state.outline = newStateoutline;
     },
+    setShape: (state, action: PayloadAction<string>) => {
+      state.shape = action.payload;
+    },
   },
 });
 
@@ -63,5 +68,6 @@ export const {
   setTool,
   setFontSize,
   setOutline,
+  setShape,
 } = settingsSlice.actions;
 export default settingsSlice.reducer;

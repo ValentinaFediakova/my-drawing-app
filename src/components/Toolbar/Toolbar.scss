@@ -2,7 +2,6 @@
   position: absolute;
   border: 2px solid black;
   width: 56px;
-  height: 420px;
   left: 20px;
   top: 20px;
   background-color: #1e1e21;
@@ -45,5 +44,9 @@
 
   &_writeText {
     background-image: url("../../../public/writeText.svg");
+  }
+
+  &_shape {
+    background-image: url("../../../public/shape.svg");
   }
 }

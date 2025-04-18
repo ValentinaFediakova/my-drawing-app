@@ -29,6 +29,12 @@ export const Toolbar: React.FC = ({ }) => {
       >
         <div className="toolbar-item__img toolbar-item__img_writeText"></div>
       </button>
+      <button 
+        className={tool === "shape" ? "toolbar-item toolbar-item_active" : "toolbar-item"} 
+        onClick={() => dispatch(setTool("shape"))}
+      >
+        <div className="toolbar-item__img toolbar-item__img_shape"></div>
+      </button>
     </div>
   );
 };
