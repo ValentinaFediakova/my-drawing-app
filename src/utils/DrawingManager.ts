@@ -4,7 +4,7 @@ import { EraserTool } from "@/utils/tools/Eraser";
 import { TextTool } from "@/utils/tools/Text";
 import { ShapesTool } from "@/utils/tools/Shapes";
 import { Tool } from "@/types";
-import { Point, ShapeType, ShapeConfig } from "@/types";
+import { Point, ShapeConfig } from "@/types";
 
 // main controller for tools
 
