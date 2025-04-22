@@ -8,7 +8,7 @@ import { WebSocketClient } from "@/utils/websocket";
 import { WS_URL } from "@/constants";
 import { v4 as uuidv4 } from 'uuid';
 import { useDrawingSync } from '@/hooks/useDrawingSync'
-import { WsData } from '@/types'
+import { WsData, Point, ShapeConfig } from '@/types'
 
 import "./Drawing.scss";
 
@@ -26,6 +26,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const tool = useSelector((state: RootState) => state.settings.tool);
   const fontSize = useSelector((state: RootState) => state.settings.fontSize);
   const outline = useSelector((state: RootState) => state.settings.outline);
+  const shapeType = useSelector((state: RootState) => state.settings.shapeType);
   const wsRef = useRef<WebSocketClient>(new WebSocketClient(WS_URL));
   const userIdRef = useRef<string | null>(null)
   const usersNameElements = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -34,6 +35,9 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const usersDrawingManagers = useRef<Map<string, DrawingManager>>(new Map());
   const usersSettings = useRef<Map<string, WsData>>(new Map());
   const userName = useSelector((state: RootState) => state.auth.user?.username);
+  const startPointRef = useRef<Point | null>(null);
+  const endPointRef = useRef<Point | null>(null);
+
 
   const sendWsData = useCallback((data: WsData): void => {
     if (userIdRef.current) {
@@ -59,6 +63,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     sendWsData({
       type: 'startDraw',
       tool,
+      shapeType,
       color,
       opacity,
       lineWidth,
@@ -67,11 +72,39 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     })
 
     const points = { x: e.clientX, y: e.clientY };
+
+    startPointRef.current = points
+
     if (tool === 'eraser' || tool === 'pencil') {
       drawingManagerRef.current?.startDraw(points);
     }
     if (tool === 'writeText') {
       drawingManagerRef.current?.startWriteText(points)
+    }
+    if (tool === 'shape') {
+      const previewCanvas = document.createElement("canvas");
+      previewCanvas.width = window.innerWidth;
+      previewCanvas.height = window.innerHeight;
+      previewCanvas.style.position = "absolute";
+      previewCanvas.style.top = "0";
+      previewCanvas.style.left = "0";
+      previewCanvas.style.zIndex = "2";
+      previewCanvas.style.pointerEvents = "none";
+      containerCanvasesRef.current?.appendChild(previewCanvas);
+      const previewCtx = previewCanvas.getContext("2d");
+
+      if (!previewCtx) return
+
+      const shape: ShapeConfig = {
+        shapeType: shapeType,
+        startShapePoint: points,
+        color: color,
+        lineWidth: lineWidth,
+        opacity: opacity,
+        previewCtx: previewCtx
+      }
+
+      drawingManagerRef.current?.setPreviewSettings(shape);
     }
   };
 
@@ -79,20 +112,39 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     if (!isDrawing.current) return;
   
     const point = { x: e.clientX, y: e.clientY };
-  
+
+    endPointRef.current = point
+
     sendWsData({
       type: 'inDrawProgress',
       points: [point],
     });
 
-    drawingManagerRef.current?.draw(point);
+    if (tool === 'eraser' || tool === 'pencil') {
+      drawingManagerRef.current?.draw(point);
+    }
+    if (tool === 'shape') {
+      drawingManagerRef.current?.drawShapePreview(point);
+    }
   };
   
-
   const handleMouseUp = () => {
     isDrawing.current = false;
-    sendWsData({ type: "end" });
-    drawingManagerRef.current?.stopDraw();
+
+    if (startPointRef.current && endPointRef.current) {
+      sendWsData({ type: "end", tool, shapeType, points: [startPointRef.current, endPointRef.current], color, lineWidth, opacity});
+    }
+
+    if (tool === 'eraser' || tool === 'pencil') {
+      drawingManagerRef.current?.stopDraw();
+    }
+
+    if (tool === 'shape') {
+      drawingManagerRef.current?.finalizeDrawShape();
+    }
+
+    startPointRef.current = null;
+    endPointRef.current = null;
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
@@ -102,6 +154,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       tool: "writeText",
       key,
     })
+    
     drawingManagerRef.current?.writeText(key);
   }
 

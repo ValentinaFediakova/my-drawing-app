@@ -8,7 +8,6 @@ export const setupWebSocket = (server) => {
 
   wss.on("connection", (ws) => {
     ws.send(JSON.stringify({ type: "history", events: history }));
-    console.log("📦 Отправляю history. Событий:", history.length);
 
     let userId = "";
 
@@ -17,7 +16,8 @@ export const setupWebSocket = (server) => {
       if (
         data.type === "startDraw" ||
         data.type === "inDrawProgress" ||
-        data.type === "writeText"
+        data.type === "writeText" ||
+        data.type === "end"
       ) {
         history.push(data);
       }

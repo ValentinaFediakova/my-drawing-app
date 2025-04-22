@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { convertColorToRgba } from "../../utils/ColorConvertations";
-import { Tool } from "@/types";
-import { PALETTE_COLORS } from "@/constants";
+import { Tool, ShapeType } from "@/types";
+import { PALETTE_COLORS, SHAPES } from "@/constants";
 
 interface SettingsState {
   color: string;
@@ -11,7 +11,7 @@ interface SettingsState {
   tool: Tool;
   fontSize: number;
   outline: string[];
-  shape: string;
+  shapeType: ShapeType;
 }
 
 const initialState: SettingsState = {
@@ -22,7 +22,7 @@ const initialState: SettingsState = {
   tool: "pencil",
   fontSize: 24,
   outline: [],
-  shape: "cube",
+  shapeType: SHAPES.RECTANGLE as ShapeType,
 };
 
 const settingsSlice = createSlice({
@@ -55,7 +55,7 @@ const settingsSlice = createSlice({
       state.outline = newStateoutline;
     },
     setShape: (state, action: PayloadAction<string>) => {
-      state.shape = action.payload;
+      state.shapeType = action.payload as ShapeType;
     },
   },
 });

@@ -16,7 +16,7 @@ export const FONT_SIZE = [
 export const WS_URL = process.env.NEXT_PUBLIC_WS_URL!;
 
 export const SHAPES = {
-  CUBE: "cube",
+  RECTANGLE: "rectangle",
   CIRCLE: "circle",
   LINE: "line",
 };

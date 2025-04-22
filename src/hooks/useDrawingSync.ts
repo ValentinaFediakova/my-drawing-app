@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { PALETTE_COLORS } from "@/constants";
 import { DrawingManager } from "@/utils/DrawingManager";
 import { WebSocketClient } from "@/utils/websocket";
-import { WsData, HistoryMessage, WebSocketMessage } from "@/types";
+import { WsData, HistoryMessage, WebSocketMessage, ShapeType } from "@/types";
 
 interface UseDrawingSyncParams {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -109,6 +109,7 @@ export const useDrawingSync = ({
           key,
           userId,
           name,
+          shapeType,
         } = data;
 
         if (!userId || userId === userIdRef.current) return;
@@ -173,6 +174,7 @@ export const useDrawingSync = ({
             outline,
             name,
             lastPoint: points?.[0],
+            shapeType: shapeType,
           });
 
           const manager = usersDrawingManagers.current.get(userId);
@@ -235,6 +237,32 @@ export const useDrawingSync = ({
           if (nameEl && settings?.lastPoint) {
             nameEl.style.left = `${settings.lastPoint.x - width / 2}px`;
             nameEl.style.top = `${settings.lastPoint.y + height - 20}px`;
+          }
+        }
+
+        if (type === "end" && userId !== userIdRef.current) {
+          const manager = usersDrawingManagers.current.get(userId);
+          if (!manager) return;
+
+          const settings = usersSettings.current.get(userId ?? "");
+          if (!settings) return;
+
+          if (tool === "shape" && points?.length === 2) {
+            manager.finalizeDrawShape({
+              shapeType: (shapeType ??
+                settings.shapeType ??
+                "rectangle") as ShapeType,
+              startShapePoint: points[0],
+              endShapePoint: points[1],
+              color: settings.color ?? "#000000",
+              lineWidth: settings.lineWidth ?? 5,
+              opacity: settings.opacity ?? 1,
+              previewCtx: canvas.getContext("2d") as CanvasRenderingContext2D,
+            });
+          }
+
+          if (tool === "pencil" || tool === "eraser") {
+            manager.stopDraw();
           }
         }
 

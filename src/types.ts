@@ -12,6 +12,7 @@ export type WsEventType =
 export interface WsData {
   type?: WsEventType;
   tool?: Tool;
+  shapeType?: string;
   color?: string;
   fontSize?: number;
   outline?: string[];
@@ -31,3 +32,16 @@ export type HistoryMessage = {
 };
 
 export type WebSocketMessage = WsData | HistoryMessage;
+
+export type Point = { x: number; y: number };
+export type ShapeType = "rectangle" | "circle" | "line";
+
+export interface ShapeConfig {
+  shapeType: ShapeType;
+  startShapePoint: Point;
+  endShapePoint?: Point;
+  color: string;
+  lineWidth: number;
+  opacity: number;
+  previewCtx: CanvasRenderingContext2D;
+}

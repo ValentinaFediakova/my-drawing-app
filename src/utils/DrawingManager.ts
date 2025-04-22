@@ -2,7 +2,9 @@
 import { PencilTool } from "@/utils/tools/Pencil";
 import { EraserTool } from "@/utils/tools/Eraser";
 import { TextTool } from "@/utils/tools/Text";
+import { ShapesTool } from "@/utils/tools/Shapes";
 import { Tool } from "@/types";
+import { Point, ShapeType, ShapeConfig } from "@/types";
 
 // main controller for tools
 
@@ -10,11 +12,12 @@ export class DrawingManager {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private isDrawing: boolean;
-  private points: { x: number; y: number }[];
+  private points: Point[];
   private savedImageData: ImageData | null;
   private PencilTool: PencilTool;
   private EraserTool: EraserTool;
   private TextTool: TextTool;
+  private ShapesTool: ShapesTool;
   private tool: Tool = "pencil";
 
   constructor(canvas: HTMLCanvasElement) {
@@ -30,6 +33,7 @@ export class DrawingManager {
     this.PencilTool = new PencilTool(this.ctx);
     this.EraserTool = new EraserTool(this.ctx);
     this.TextTool = new TextTool(this.ctx, canvas);
+    this.ShapesTool = new ShapesTool(this.ctx);
   }
 
   setTool(tool: Tool): void {
@@ -64,7 +68,7 @@ export class DrawingManager {
     this.TextTool.setText(fontSize, outline, color);
   }
 
-  startDraw(points: { x: number; y: number }): void {
+  startDraw(points: Point): void {
     this.isDrawing = true;
     this.points = [points];
     this.TextTool.stopCursorBlinking();
@@ -85,17 +89,30 @@ export class DrawingManager {
     );
   }
 
-  startWriteText(points: { x: number; y: number }): void {
+  startWriteText(points: Point): void {
     this.ctx.globalCompositeOperation = "source-over";
     this.points = [points];
     this.TextTool.startWrite(this.points);
   }
+  setPreviewSettings(shape: ShapeConfig): void {
+    this.ShapesTool.setPreviewSettings(shape);
+  }
 
-  draw(points: { x: number; y: number }): void {
+  drawShapePreview(endShapePoint: Point | null) {
+    if (endShapePoint) {
+      this.ShapesTool.drawShapePreview(endShapePoint);
+    }
+  }
+
+  finalizeDrawShape(shape?: ShapeConfig): void {
+    this.ShapesTool.finalizeDrawShape(shape);
+  }
+
+  draw(points: Point): void {
     if (this.tool === "writeText") return;
     if (!this.isDrawing) {
       if (this.savedImageData) {
-        this.ctx.putImageData(this.savedImageData, 0, 0); // return saved state without circle
+        this.ctx.putImageData(this.savedImageData, 0, 0);
       }
 
       if (this.tool === "eraser") {
