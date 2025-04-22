@@ -17,7 +17,9 @@ export const setupWebSocket = (server) => {
         data.type === "startDraw" ||
         data.type === "inDrawProgress" ||
         data.type === "writeText" ||
-        data.type === "end"
+        data.type === "end" ||
+        data.type === "setTool" ||
+        data.type === "setTextSettings"
       ) {
         history.push(data);
       }

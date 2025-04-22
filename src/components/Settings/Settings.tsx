@@ -16,11 +16,8 @@ import "./Settings.scss";
 
 
 export const Settings: React.FC = ({ }) => {
-  const shapeType = useSelector((state: RootState) => state.settings.shapeType)
   const [activeOutlineButtons, setActiveOutlineButtons] = useState<string[]>();
-  const [activeShapeButton, setActiveShapeButton] = useState<string>(shapeType);
-
-  
+  const [activeShapeButton, setActiveShapeButton] = useState<string>(SHAPES.RECTANGLE);
 
   const dispatch = useDispatch();
   const color = useSelector((state: RootState) => state.settings.color);

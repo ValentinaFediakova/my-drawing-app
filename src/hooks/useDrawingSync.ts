@@ -75,19 +75,24 @@ export const useDrawingSync = ({
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
         if (isHistoryMessage(data)) {
+          console.log(">>>> data history", data);
           data.events.forEach((event) => {
             const type = event.type ?? "startDraw";
 
             if (
               type === "startDraw" ||
               type === "inDrawProgress" ||
-              type === "writeText"
+              type === "writeText" ||
+              type === "end" ||
+              type === "setTool" ||
+              type === "setTextSettings"
             ) {
               const safeEvent: WsData = {
                 ...event,
                 type,
                 tool: event.tool ?? "pencil",
                 points: event.points ?? [],
+                shapeType: event.shapeType,
               };
 
               wsRef.current?.handleIncomingEvent(safeEvent);
@@ -116,24 +121,23 @@ export const useDrawingSync = ({
         ensureUserInitialized(userId);
 
         if (type === "requestCurrentSettings") {
-          if (userId !== userIdRef.current) {
-            sendWsData({
-              type: "setTool",
-              tool,
-              lineWidth,
-              eraserLineWidth,
-              color,
-              opacity,
-            });
+          sendWsData({
+            type: "setTool",
+            tool,
+            lineWidth,
+            eraserLineWidth,
+            color,
+            opacity,
+            shapeType,
+          });
 
-            if (tool === "writeText") {
-              sendWsData({
-                type: "setTextSettings",
-                color,
-                fontSize,
-                outline,
-              });
-            }
+          if (tool === "writeText") {
+            sendWsData({
+              type: "setTextSettings",
+              color,
+              fontSize,
+              outline,
+            });
           }
           return;
         }
@@ -146,6 +150,7 @@ export const useDrawingSync = ({
             eraserLineWidth,
             opacity,
             name,
+            shapeType,
           });
         }
 
@@ -160,7 +165,7 @@ export const useDrawingSync = ({
           });
         }
 
-        if (type === "startDraw" && userId && userId !== userIdRef.current) {
+        if (type === "startDraw" && userId !== userIdRef.current) {
           const currentSettings = usersSettings.current.get(userId) || {};
 
           usersSettings.current.set(userId, {
@@ -196,12 +201,10 @@ export const useDrawingSync = ({
         }
 
         if (type === "inDrawProgress" && userId !== userIdRef.current) {
-          const manager = userId
-            ? usersDrawingManagers.current.get(userId)
-            : undefined;
+          const manager = usersDrawingManagers.current.get(userId);
           if (!manager || !points || !points[0]) return;
 
-          const settings = usersSettings.current.get(userId ?? "");
+          const settings = usersSettings.current.get(userId);
           if (settings) {
             applyBrushSettings(manager, settings);
           }
@@ -216,10 +219,10 @@ export const useDrawingSync = ({
         }
 
         if (type === "writeText" && userId !== userIdRef.current) {
-          const manager = usersDrawingManagers.current.get(userId ?? "");
+          const manager = usersDrawingManagers.current.get(userId);
           if (!manager || !key) return;
 
-          const settings = usersSettings.current.get(userId ?? "");
+          const settings = usersSettings.current.get(userId);
           if (settings) {
             manager.setTextSettings(
               settings.color ?? PALETTE_COLORS.BLACK,
@@ -231,8 +234,6 @@ export const useDrawingSync = ({
           manager.writeText(key);
 
           const { width, height } = manager.getWidthAndHeightOfText();
-          console.log("width", width, "height", height);
-
           const nameEl = usersNameElements.current.get(userId);
           if (nameEl && settings?.lastPoint) {
             nameEl.style.left = `${settings.lastPoint.x - width / 2}px`;
@@ -244,10 +245,13 @@ export const useDrawingSync = ({
           const manager = usersDrawingManagers.current.get(userId);
           if (!manager) return;
 
-          const settings = usersSettings.current.get(userId ?? "");
+          const settings = usersSettings.current.get(userId);
           if (!settings) return;
 
           if (tool === "shape" && points?.length === 2) {
+            const canvas = canvasRef.current;
+            if (!canvas) return;
+
             manager.finalizeDrawShape({
               shapeType: (shapeType ??
                 settings.shapeType ??

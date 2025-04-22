@@ -30,9 +30,9 @@ export class ShapesTool {
       case "rectangle":
         this.drawSquare(endShapePoint);
         break;
-      // case "circle":
-      //   this.drawCircle(endShapePoint);
-      //   break;
+      case "circle":
+        this.drawCircle(endShapePoint);
+        break;
       // case "line":
       //   this.drawLine(endShapePoint);
       //   break;
@@ -62,9 +62,28 @@ export class ShapesTool {
 
     this.previewCtx.strokeRect(x1, y1, this.widthOfShape, this.heightOfShape);
   }
-  // private drawCircle(shape: ShapeConfig) {
-  //   /* ... */
-  // }
+  private drawCircle(endShapePoint: Point) {
+    if (!this.previewCtx || !this.startShapePoint) return;
+
+    this.endShapePoint = endShapePoint;
+
+    const { x: x1, y: y1 } = this.startShapePoint;
+    const { x: x2, y: y2 } = this.endShapePoint;
+
+    const centerX = (x1 + x2) / 2;
+    const centerY = (y1 + y2) / 2;
+    const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) / 2;
+
+    this.previewCtx.clearRect(
+      0,
+      0,
+      this.previewCtx.canvas.width,
+      this.previewCtx.canvas.height
+    );
+    this.previewCtx.beginPath();
+    this.previewCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    this.previewCtx.stroke();
+  }
   // private drawLine(shape: ShapeConfig) {
   //   /* ... */
   // }
@@ -82,6 +101,19 @@ export class ShapesTool {
         const width = (shapeConfig.endShapePoint?.x ?? x) - x;
         const height = (shapeConfig.endShapePoint?.y ?? y) - y;
         this.ctx.strokeRect(x, y, width, height);
+        break;
+      }
+      case "circle": {
+        const { x: x1, y: y1 } = shapeConfig.startShapePoint;
+        const { x: x2, y: y2 } = shapeConfig.endShapePoint!;
+        const centerX = (x1 + x2) / 2;
+        const centerY = (y1 + y2) / 2;
+        const radius = Math.hypot(x2 - x1, y2 - y1) / 2;
+
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        this.ctx.stroke();
+        this.ctx.closePath();
         break;
       }
     }
