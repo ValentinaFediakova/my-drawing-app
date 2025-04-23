@@ -33,9 +33,9 @@ export class ShapesTool {
       case "circle":
         this.drawCircle(endShapePoint);
         break;
-      // case "line":
-      //   this.drawLine(endShapePoint);
-      //   break;
+      case "line":
+        this.drawLine(endShapePoint);
+        break;
     }
   }
 
@@ -87,9 +87,31 @@ export class ShapesTool {
     this.previewCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     this.previewCtx.stroke();
   }
-  // private drawLine(shape: ShapeConfig) {
-  //   /* ... */
-  // }
+
+  private drawLine(endShapePoint: Point) {
+    if (!this.previewCtx || !this.startShapePoint) return;
+
+    this.previewCtx.lineWidth = this.lineWidth ?? 5;
+    this.previewCtx.globalAlpha = this.opacity ?? 1;
+
+    this.endShapePoint = endShapePoint;
+
+    const { x: x1, y: y1 } = this.startShapePoint;
+    const { x: x2, y: y2 } = this.endShapePoint;
+
+    this.previewCtx.clearRect(
+      0,
+      0,
+      this.previewCtx.canvas.width,
+      this.previewCtx.canvas.height
+    );
+
+    this.previewCtx.beginPath();
+    this.previewCtx.moveTo(x1, y1);
+    this.previewCtx.lineTo(x2, y2);
+    this.previewCtx.stroke();
+    this.previewCtx.closePath();
+  }
 
   finalizeDrawShape(shapeConfig: ShapeConfig, isWs = false): void {
     if (!shapeConfig) return;
@@ -122,6 +144,16 @@ export class ShapesTool {
         ctx.stroke();
         ctx.closePath();
         break;
+      }
+      case "line": {
+        const { x: x1, y: y1 } = shapeConfig.startShapePoint;
+        const { x: x2, y: y2 } = shapeConfig.endShapePoint!;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.closePath();
       }
     }
   }
