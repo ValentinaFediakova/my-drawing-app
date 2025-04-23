@@ -170,6 +170,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     const key = e.key;
+    if (key.length > 1) return
     sendWsData({
       type: "writeText",
       tool: "writeText",
