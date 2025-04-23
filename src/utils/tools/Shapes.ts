@@ -65,6 +65,9 @@ export class ShapesTool {
   private drawCircle(endShapePoint: Point) {
     if (!this.previewCtx || !this.startShapePoint) return;
 
+    this.previewCtx.lineWidth = this.lineWidth ?? 5;
+    this.previewCtx.globalAlpha = this.opacity ?? 1;
+
     this.endShapePoint = endShapePoint;
 
     const { x: x1, y: y1 } = this.startShapePoint;
