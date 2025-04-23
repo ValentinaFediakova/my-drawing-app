@@ -88,11 +88,14 @@ export class ShapesTool {
   //   /* ... */
   // }
 
-  finalizeDrawShape(shapeConfig?: ShapeConfig): void {
+  finalizeDrawShape(shapeConfig: ShapeConfig): void {
     if (!shapeConfig) return;
-    this.ctx.strokeStyle = this.color ?? "black";
-    this.ctx.lineWidth = this.lineWidth ?? 5;
-    this.ctx.globalAlpha = this.opacity ?? 1;
+
+    const ctx = this.ctx;
+
+    ctx.strokeStyle = shapeConfig.color ?? "black";
+    ctx.lineWidth = shapeConfig.lineWidth ?? 5;
+    ctx.globalAlpha = shapeConfig.opacity ?? 1;
 
     switch (shapeConfig.shapeType) {
       case "rectangle": {
@@ -100,7 +103,7 @@ export class ShapesTool {
         const y = shapeConfig.startShapePoint.y;
         const width = (shapeConfig.endShapePoint?.x ?? x) - x;
         const height = (shapeConfig.endShapePoint?.y ?? y) - y;
-        this.ctx.strokeRect(x, y, width, height);
+        ctx.strokeRect(x, y, width, height);
         break;
       }
       case "circle": {
@@ -110,10 +113,10 @@ export class ShapesTool {
         const centerY = (y1 + y2) / 2;
         const radius = Math.hypot(x2 - x1, y2 - y1) / 2;
 
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        this.ctx.stroke();
-        this.ctx.closePath();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.closePath();
         break;
       }
     }

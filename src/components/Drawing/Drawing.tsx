@@ -37,6 +37,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const userName = useSelector((state: RootState) => state.auth.user?.username);
   const startPointRef = useRef<Point | null>(null);
   const endPointRef = useRef<Point | null>(null);
+  const previewCtx = useRef<CanvasRenderingContext2D | null>(null)
 
 
   const sendWsData = useCallback((data: WsData): void => {
@@ -91,17 +92,17 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       previewCanvas.style.zIndex = "2";
       previewCanvas.style.pointerEvents = "none";
       containerCanvasesRef.current?.appendChild(previewCanvas);
-      const previewCtx = previewCanvas.getContext("2d");
+      previewCtx.current = previewCanvas.getContext("2d");
 
       if (!previewCtx) return
 
       const shape: ShapeConfig = {
         shapeType: shapeType,
-        startShapePoint: points,
+        startShapePoint: startPointRef.current || { x: 0, y: 0 },
         color: color,
         lineWidth: lineWidth,
         opacity: opacity,
-        previewCtx: previewCtx
+        previewCtx: previewCtx.current as CanvasRenderingContext2D
       }
 
       drawingManagerRef.current?.setPreviewSettings(shape);
@@ -139,8 +140,17 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       drawingManagerRef.current?.stopDraw();
     }
 
+    const shape: ShapeConfig = {
+      shapeType: shapeType,
+      startShapePoint: startPointRef.current || { x: 0, y: 0 },
+      color: color,
+      lineWidth: lineWidth,
+      opacity: opacity,
+      previewCtx: previewCtx.current as CanvasRenderingContext2D
+    }
+
     if (tool === 'shape') {
-      drawingManagerRef.current?.finalizeDrawShape();
+      drawingManagerRef.current?.finalizeDrawShape(shape);
     }
 
     startPointRef.current = null;

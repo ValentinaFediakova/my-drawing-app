@@ -104,8 +104,8 @@ export class DrawingManager {
     }
   }
 
-  finalizeDrawShape(shape?: ShapeConfig): void {
-    this.ShapesTool.finalizeDrawShape(shape);
+  finalizeDrawShape(shapeConfig: ShapeConfig): void {
+    this.ShapesTool.finalizeDrawShape(shapeConfig);
   }
 
   draw(points: Point): void {

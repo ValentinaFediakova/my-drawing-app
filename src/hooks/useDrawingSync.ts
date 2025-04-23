@@ -75,29 +75,12 @@ export const useDrawingSync = ({
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
         if (isHistoryMessage(data)) {
-          console.log(">>>> data history", data);
-          data.events.forEach((event) => {
-            const type = event.type ?? "startDraw";
+          console.log("📜 Replaying history:", data.events);
 
-            if (
-              type === "startDraw" ||
-              type === "inDrawProgress" ||
-              type === "writeText" ||
-              type === "end" ||
-              type === "setTool" ||
-              type === "setTextSettings"
-            ) {
-              const safeEvent: WsData = {
-                ...event,
-                type,
-                tool: event.tool ?? "pencil",
-                points: event.points ?? [],
-                shapeType: event.shapeType,
-              };
-
-              wsRef.current?.handleIncomingEvent(safeEvent);
-            }
+          data.events.forEach((event, index) => {
+            console.log(">>> event", event, "index", index);
           });
+
           return;
         }
 
@@ -118,168 +101,178 @@ export const useDrawingSync = ({
         } = data;
 
         if (!userId || userId === userIdRef.current) return;
+
         ensureUserInitialized(userId);
 
-        if (type === "requestCurrentSettings") {
-          sendWsData({
-            type: "setTool",
-            tool,
-            lineWidth,
-            eraserLineWidth,
-            color,
-            opacity,
-            shapeType,
-          });
+        const manager = usersDrawingManagers.current.get(userId);
+        const settings = usersSettings.current.get(userId);
 
-          if (tool === "writeText") {
-            sendWsData({
-              type: "setTextSettings",
+        if (!manager || !points || !points[0]) return;
+
+        switch (type) {
+          case "setTool": {
+            usersSettings.current.set(userId, {
+              tool,
+              shapeType: tool === "shape" ? shapeType : undefined,
+              color,
+              lineWidth,
+              eraserLineWidth,
+              opacity,
+              name,
+            });
+
+            if (settings) {
+              applyBrushSettings(manager, settings);
+            }
+            break;
+          }
+          case "setTextSettings": {
+            const prev = usersSettings.current.get(userId);
+            usersSettings.current.set(userId, {
+              ...prev,
               color,
               fontSize,
               outline,
+              name,
             });
+            break;
           }
-          return;
-        }
+          case "startDraw": {
+            const prev = usersSettings.current.get(userId);
 
-        if (type === "setTool" && userId) {
-          usersSettings.current.set(userId, {
-            tool,
-            color,
-            lineWidth,
-            eraserLineWidth,
-            opacity,
-            name,
-            shapeType,
-          });
-        }
-
-        if (type === "setTextSettings" && userId) {
-          const prev = usersSettings.current.get(userId) || {};
-          usersSettings.current.set(userId, {
-            ...prev,
-            color,
-            fontSize,
-            outline,
-            name,
-          });
-        }
-
-        if (type === "startDraw" && userId !== userIdRef.current) {
-          const currentSettings = usersSettings.current.get(userId) || {};
-
-          usersSettings.current.set(userId, {
-            ...currentSettings,
-            tool,
-            color,
-            opacity,
-            lineWidth,
-            eraserLineWidth,
-            fontSize,
-            outline,
-            name,
-            lastPoint: points?.[0],
-            shapeType: shapeType,
-          });
-
-          const manager = usersDrawingManagers.current.get(userId);
-
-          if (!manager || !points || !points[0]) return;
-
-          const settings = usersSettings.current.get(userId);
-          if (settings) {
-            applyBrushSettings(manager, settings);
-          }
-
-          if (tool === "eraser" || tool === "pencil") {
-            manager.startDraw(points[0]);
-          }
-
-          if (tool === "writeText") {
-            manager.startWriteText(points[0]);
-          }
-        }
-
-        if (type === "inDrawProgress" && userId !== userIdRef.current) {
-          const manager = usersDrawingManagers.current.get(userId);
-          if (!manager || !points || !points[0]) return;
-
-          const settings = usersSettings.current.get(userId);
-          if (settings) {
-            applyBrushSettings(manager, settings);
-          }
-
-          manager.draw(points[0]);
-
-          const nameEl = usersNameElements.current.get(userId);
-          if (nameEl) {
-            nameEl.style.left = `${points[0].x}px`;
-            nameEl.style.top = `${points[0].y - 20}px`;
-          }
-        }
-
-        if (type === "writeText" && userId !== userIdRef.current) {
-          const manager = usersDrawingManagers.current.get(userId);
-          if (!manager || !key) return;
-
-          const settings = usersSettings.current.get(userId);
-          if (settings) {
-            manager.setTextSettings(
-              settings.color ?? PALETTE_COLORS.BLACK,
-              settings.fontSize ?? 24,
-              settings.outline ?? ["Normal"]
-            );
-          }
-
-          manager.writeText(key);
-
-          const { width, height } = manager.getWidthAndHeightOfText();
-          const nameEl = usersNameElements.current.get(userId);
-          if (nameEl && settings?.lastPoint) {
-            nameEl.style.left = `${settings.lastPoint.x - width / 2}px`;
-            nameEl.style.top = `${settings.lastPoint.y + height - 20}px`;
-          }
-        }
-
-        if (type === "end" && userId !== userIdRef.current) {
-          const manager = usersDrawingManagers.current.get(userId);
-          if (!manager) return;
-
-          const settings = usersSettings.current.get(userId);
-          if (!settings) return;
-
-          if (tool === "shape" && points?.length === 2) {
-            const canvas = canvasRef.current;
-            if (!canvas) return;
-
-            manager.finalizeDrawShape({
-              shapeType: (shapeType ??
-                settings.shapeType ??
-                "rectangle") as ShapeType,
-              startShapePoint: points[0],
-              endShapePoint: points[1],
-              color: settings.color ?? "#000000",
-              lineWidth: settings.lineWidth ?? 5,
-              opacity: settings.opacity ?? 1,
-              previewCtx: canvas.getContext("2d") as CanvasRenderingContext2D,
+            usersSettings.current.set(userId, {
+              ...prev,
+              tool,
+              color,
+              opacity,
+              lineWidth,
+              eraserLineWidth,
+              fontSize,
+              outline,
+              name,
+              lastPoint: points[0],
+              shapeType: tool === "shape" ? shapeType : undefined,
             });
+
+            if (tool === "eraser" || tool === "pencil") {
+              manager.startDraw(points[0]);
+            }
+
+            if (tool === "writeText") {
+              manager.startWriteText(points[0]);
+            }
+
+            break;
           }
 
-          if (tool === "pencil" || tool === "eraser") {
-            manager.stopDraw();
-          }
-        }
+          case "inDrawProgress": {
+            const manager = usersDrawingManagers.current.get(userId);
+            if (!manager || !points || !points[0]) return;
 
-        if (!points || !points[0]) return;
-        const existingEl = usersNameElements.current.get(userId);
-        if (!existingEl) {
-          const nameEl = document.createElement("div");
-          nameEl.innerText = name || "Anonymous";
-          nameEl.className = "user-name-cursor";
-          nameEl.style.left = `${points[0].x}px`;
-          nameEl.style.top = `${points[0].y - 20}px`;
-          containerCanvasesRef.current?.appendChild(nameEl);
-          usersNameElements.current.set(userId, nameEl);
+            const settings = usersSettings.current.get(userId);
+            if (settings) {
+              applyBrushSettings(manager, settings);
+            }
+
+            manager.draw(points[0]);
+
+            // const nameEl = usersNameElements.current.get(userId);
+            // if (nameEl) {
+            //   nameEl.style.left = `${points[0].x}px`;
+            //   nameEl.style.top = `${points[0].y - 20}px`;
+            // }
+
+            // const existingEl = usersNameElements.current.get(userId);
+            // if (!existingEl) {
+            //   const nameEl = document.createElement("div");
+            //   nameEl.innerText = name || "Anonymous";
+            //   nameEl.className = "user-name-cursor";
+            //   nameEl.style.left = `${points[0].x}px`;
+            //   nameEl.style.top = `${points[0].y - 20}px`;
+            //   containerCanvasesRef.current?.appendChild(nameEl);
+            //   usersNameElements.current.set(userId, nameEl);
+            // }
+
+            break;
+          }
+
+          case "writeText": {
+            const manager = usersDrawingManagers.current.get(userId);
+            if (!manager || !key) return;
+
+            const settings = usersSettings.current.get(userId);
+            if (settings) {
+              manager.setTextSettings(
+                settings.color ?? PALETTE_COLORS.BLACK,
+                settings.fontSize ?? 24,
+                settings.outline ?? ["Normal"]
+              );
+            }
+
+            manager.writeText(key);
+
+            const { width, height } = manager.getWidthAndHeightOfText();
+            const nameEl = usersNameElements.current.get(userId);
+            if (nameEl && settings?.lastPoint) {
+              nameEl.style.left = `${settings.lastPoint.x - width / 2}px`;
+              nameEl.style.top = `${settings.lastPoint.y + height - 20}px`;
+            }
+
+            break;
+          }
+
+          case "end": {
+            const manager = usersDrawingManagers.current.get(userId);
+            if (!manager) return;
+
+            const settings = usersSettings.current.get(userId);
+            if (!settings) return;
+
+            if (tool === "shape" && points?.length === 2) {
+              const canvas = canvasRef.current;
+              if (!canvas) return;
+
+              manager.finalizeDrawShape({
+                shapeType: (shapeType ??
+                  settings.shapeType ??
+                  "rectangle") as ShapeType,
+                startShapePoint: points[0],
+                endShapePoint: points[1],
+                color: settings.color ?? "#000000",
+                lineWidth: settings.lineWidth ?? 5,
+                opacity: settings.opacity ?? 1,
+                previewCtx: canvas.getContext("2d") as CanvasRenderingContext2D,
+              });
+            }
+
+            if (tool === "pencil" || tool === "eraser") {
+              manager.stopDraw();
+            }
+
+            break;
+          }
+
+          case "requestCurrentSettings": {
+            sendWsData({
+              type: "setTool",
+              tool,
+              lineWidth,
+              eraserLineWidth,
+              color,
+              opacity,
+              shapeType: tool === "shape" ? shapeType : undefined,
+            });
+
+            if (tool === "writeText") {
+              sendWsData({
+                type: "setTextSettings",
+                color,
+                fontSize,
+                outline,
+              });
+            }
+            break;
+          }
         }
       },
       () => {
