@@ -107,11 +107,7 @@ export class ShapesTool {
         const y = shapeConfig.startShapePoint.y;
         const width = (shapeConfig.endShapePoint?.x ?? x) - x;
         const height = (shapeConfig.endShapePoint?.y ?? y) - y;
-        ctx.beginPath();
         ctx.strokeRect(x, y, width, height);
-        ctx.closePath();
-
-        console.log("x, y", x, y, "width, height", width, height);
         break;
       }
       case "circle": {

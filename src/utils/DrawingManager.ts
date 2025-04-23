@@ -98,6 +98,7 @@ export class DrawingManager {
     this.points = [points];
     this.TextTool.startWrite(this.points);
   }
+
   setPreviewSettings(shape: ShapeConfig): void {
     this.ShapesTool.setPreviewSettings(shape);
   }
@@ -113,7 +114,7 @@ export class DrawingManager {
   }
 
   draw(points: Point): void {
-    if (this.tool === "writeText") return;
+    if (this.tool === "writeText" || this.tool === "shape") return;
     if (!this.isDrawing) {
       if (this.savedImageData) {
         this.ctx.putImageData(this.savedImageData, 0, 0);

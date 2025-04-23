@@ -76,14 +76,18 @@ export const useDrawingSync = ({
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
         if (isHistoryMessage(data)) {
-          console.log("📜 Replaying history:", data.events);
+          // console.log("📜 Replaying history:", data.events);
 
-          data.events.forEach((event, index) => {
-            console.log(">>> event", event, "index", index);
-          });
+          // data.events.forEach((event, index) => {
+          //   console.log(">>> event", event, "index", index);
+          //   data.events.forEach((event) => {
+          //     wsRef.current?.handleIncomingEvent(event);
+          //   });
+          // });
 
           return;
         }
+        console.log("data", data);
 
         const {
           tool = "pencil",
@@ -144,6 +148,7 @@ export const useDrawingSync = ({
             usersSettings.current.set(userId, {
               ...prev,
               tool,
+              shapeType,
               color,
               opacity,
               lineWidth,
@@ -152,7 +157,6 @@ export const useDrawingSync = ({
               outline,
               name,
               lastPoint: points[0],
-              shapeType: tool === "shape" ? shapeType : undefined,
             });
 
             if (tool === "eraser" || tool === "pencil") {
@@ -176,22 +180,22 @@ export const useDrawingSync = ({
 
             manager.draw(points[0]);
 
-            // const nameEl = usersNameElements.current.get(userId);
-            // if (nameEl) {
-            //   nameEl.style.left = `${points[0].x}px`;
-            //   nameEl.style.top = `${points[0].y - 20}px`;
-            // }
+            const nameEl = usersNameElements.current.get(userId);
+            if (nameEl) {
+              nameEl.style.left = `${points[0].x}px`;
+              nameEl.style.top = `${points[0].y - 20}px`;
+            }
 
-            // const existingEl = usersNameElements.current.get(userId);
-            // if (!existingEl) {
-            //   const nameEl = document.createElement("div");
-            //   nameEl.innerText = name || "Anonymous";
-            //   nameEl.className = "user-name-cursor";
-            //   nameEl.style.left = `${points[0].x}px`;
-            //   nameEl.style.top = `${points[0].y - 20}px`;
-            //   containerCanvasesRef.current?.appendChild(nameEl);
-            //   usersNameElements.current.set(userId, nameEl);
-            // }
+            const existingEl = usersNameElements.current.get(userId);
+            if (!existingEl && name) {
+              const nameEl = document.createElement("div");
+              nameEl.innerText = name;
+              nameEl.className = "user-name-cursor";
+              nameEl.style.left = `${points[0].x}px`;
+              nameEl.style.top = `${points[0].y - 20}px`;
+              containerCanvasesRef.current?.appendChild(nameEl);
+              usersNameElements.current.set(userId, nameEl);
+            }
 
             break;
           }
@@ -223,7 +227,6 @@ export const useDrawingSync = ({
           case "end": {
             const settings = usersSettings.current.get(userId);
             if (!settings) return;
-
             if (tool === "shape" && points?.length === 2) {
               const isWs = true;
               manager.finalizeDrawShape(
