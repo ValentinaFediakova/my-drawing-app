@@ -224,6 +224,7 @@ export const useDrawingSync = ({
           case "end": {
             const manager = usersDrawingManagers.current.get(userId);
             if (!manager) return;
+            console.log("!!!!!!!!! WS end");
 
             const settings = usersSettings.current.get(userId);
             if (!settings) return;
@@ -232,17 +233,17 @@ export const useDrawingSync = ({
               const canvas = canvasRef.current;
               if (!canvas) return;
 
-              manager.finalizeDrawShape({
-                shapeType: (shapeType ??
-                  settings.shapeType ??
-                  "rectangle") as ShapeType,
-                startShapePoint: points[0],
-                endShapePoint: points[1],
-                color: settings.color ?? "#000000",
-                lineWidth: settings.lineWidth ?? 5,
-                opacity: settings.opacity ?? 1,
-                previewCtx: canvas.getContext("2d") as CanvasRenderingContext2D,
-              });
+              // manager.finalizeDrawShape({
+              //   shapeType: (shapeType ??
+              //     settings.shapeType ??
+              //     "rectangle") as ShapeType,
+              //   startShapePoint: points[0],
+              //   endShapePoint: points[1],
+              //   color: settings.color ?? "#000000",
+              //   lineWidth: settings.lineWidth ?? 5,
+              //   opacity: settings.opacity ?? 1,
+              //   previewCtx: canvas.getContext("2d") as CanvasRenderingContext2D,
+              // });
             }
 
             if (tool === "pencil" || tool === "eraser") {

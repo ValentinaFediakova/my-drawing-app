@@ -90,7 +90,7 @@ export class ShapesTool {
 
   finalizeDrawShape(shapeConfig: ShapeConfig): void {
     if (!shapeConfig) return;
-
+    console.log("finalizeDrawShape ShapesTool - запись на текущий канвас");
     const ctx = this.ctx;
 
     ctx.strokeStyle = shapeConfig.color ?? "black";
@@ -99,11 +99,20 @@ export class ShapesTool {
 
     switch (shapeConfig.shapeType) {
       case "rectangle": {
+        console.log("CASE rectangle in finalizeDrawShape");
+        if (!shapeConfig.endShapePoint) {
+          console.warn("❌ Нет endShapePoint, фигура не будет нарисована");
+          return;
+        }
         const x = shapeConfig.startShapePoint.x;
         const y = shapeConfig.startShapePoint.y;
         const width = (shapeConfig.endShapePoint?.x ?? x) - x;
         const height = (shapeConfig.endShapePoint?.y ?? y) - y;
+        ctx.beginPath();
         ctx.strokeRect(x, y, width, height);
+        ctx.closePath();
+
+        console.log("x, y", x, y, "width, height", width, height);
         break;
       }
       case "circle": {

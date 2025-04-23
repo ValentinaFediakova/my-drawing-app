@@ -52,7 +52,7 @@ export class WebSocketClient {
       this.socket.send(data);
       // console.log("📤 Sent:", data);
     } else {
-      console.warn("⏳ WebSocket is not ready yet. Message not sent.");
+      // console.warn("⏳ WebSocket is not ready yet. Message not sent.");
     }
   }
 

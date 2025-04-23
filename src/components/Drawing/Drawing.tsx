@@ -86,6 +86,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       const previewCanvas = document.createElement("canvas");
       previewCanvas.width = window.innerWidth;
       previewCanvas.height = window.innerHeight;
+      previewCanvas.classList.add("preview-canvas");
       previewCanvas.style.position = "absolute";
       previewCanvas.style.top = "0";
       previewCanvas.style.left = "0";
@@ -94,7 +95,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       containerCanvasesRef.current?.appendChild(previewCanvas);
       previewCtx.current = previewCanvas.getContext("2d");
 
-      if (!previewCtx) return
+      if (!previewCtx.current) return;
 
       const shape: ShapeConfig = {
         shapeType: shapeType,
@@ -105,7 +106,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         previewCtx: previewCtx.current as CanvasRenderingContext2D
       }
 
-      drawingManagerRef.current?.setPreviewSettings(shape);
+        drawingManagerRef.current?.setPreviewSettings(shape);
     }
   };
 
@@ -143,6 +144,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     const shape: ShapeConfig = {
       shapeType: shapeType,
       startShapePoint: startPointRef.current || { x: 0, y: 0 },
+      endShapePoint: endPointRef.current || {x: 0, y: 0},
       color: color,
       lineWidth: lineWidth,
       opacity: opacity,
@@ -151,6 +153,15 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
     if (tool === 'shape') {
       drawingManagerRef.current?.finalizeDrawShape(shape);
+
+      if (previewCtx.current) {
+        const previewCanvas = previewCtx.current?.canvas;
+        if (previewCanvas) {
+          containerCanvasesRef.current?.removeChild(previewCanvas);
+        }
+      }
+
+      previewCtx.current = null;
     }
 
     startPointRef.current = null;
