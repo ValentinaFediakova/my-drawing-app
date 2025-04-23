@@ -138,6 +138,7 @@ export class DrawingManager {
   }
 
   writeText(key: string): void {
+    if (key.length > 1) return;
     this.TextTool.writingText(key);
     this.savedImageData = this.ctx.getImageData(
       0,

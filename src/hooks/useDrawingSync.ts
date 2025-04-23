@@ -76,18 +76,12 @@ export const useDrawingSync = ({
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
         if (isHistoryMessage(data)) {
-          // console.log("📜 Replaying history:", data.events);
-
-          // data.events.forEach((event, index) => {
-          //   console.log(">>> event", event, "index", index);
-          //   data.events.forEach((event) => {
-          //     wsRef.current?.handleIncomingEvent(event);
-          //   });
-          // });
+          data.events.forEach((event) => {
+            wsRef.current?.handleIncomingEvent(event);
+          });
 
           return;
         }
-        console.log("data", data);
 
         const {
           tool = "pencil",
