@@ -28,12 +28,12 @@ export class WebSocketClient {
         const parsedData = JSON.parse(text);
         onMessage(parsedData);
       } catch (err) {
-        // console.error("❌ Failed to parse WebSocket message:", err);
+        console.error("❌ Failed to parse WebSocket message:", err);
       }
     };
 
     this.socket.onerror = (err: Event): void => {
-      // console.warn("❌ WebSocket error:", err);
+      console.warn("❌ WebSocket error:", err);
     };
 
     this.socket.onclose = (): void => {
