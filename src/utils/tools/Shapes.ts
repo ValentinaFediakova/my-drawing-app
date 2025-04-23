@@ -33,6 +33,9 @@ export class ShapesTool {
       case "circle":
         this.drawCircle(endShapePoint);
         break;
+      // case "martiancircle":
+      //   this.drawMartianCircles(endShapePoint);
+      //   break;
       case "line":
         this.drawLine(endShapePoint);
         break;
@@ -87,6 +90,26 @@ export class ShapesTool {
     this.previewCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     this.previewCtx.stroke();
   }
+
+  // private drawMartianCircles(endShapePoint: Point) {
+  //   if (!this.previewCtx || !this.startShapePoint) return;
+
+  //   this.previewCtx.lineWidth = this.lineWidth ?? 5;
+  //   this.previewCtx.globalAlpha = this.opacity ?? 1;
+
+  //   this.endShapePoint = endShapePoint;
+
+  //   const { x: x1, y: y1 } = this.startShapePoint;
+  //   const { x: x2, y: y2 } = this.endShapePoint;
+
+  //   const centerX = (x1 + x2) / 2;
+  //   const centerY = (y1 + y2) / 2;
+  //   const radius = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) / 2;
+
+  //   this.previewCtx.beginPath();
+  //   this.previewCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+  //   this.previewCtx.stroke();
+  // }
 
   private drawLine(endShapePoint: Point) {
     if (!this.previewCtx || !this.startShapePoint) return;
