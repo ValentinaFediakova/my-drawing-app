@@ -42,6 +42,7 @@ export const useDrawingSync = ({
   const ensureUserInitialized = (userId: string) => {
     if (!userCanvases.current.has(userId) && containerCanvasesRef.current) {
       const newCanvas = document.createElement("canvas");
+      newCanvas.classList.add("other-user");
       newCanvas.width = window.innerWidth;
       newCanvas.height = window.innerHeight;
       newCanvas.style.position = "absolute";
@@ -166,7 +167,6 @@ export const useDrawingSync = ({
           }
 
           case "inDrawProgress": {
-            const manager = usersDrawingManagers.current.get(userId);
             if (!manager || !points || !points[0]) return;
 
             const settings = usersSettings.current.get(userId);
@@ -197,7 +197,6 @@ export const useDrawingSync = ({
           }
 
           case "writeText": {
-            const manager = usersDrawingManagers.current.get(userId);
             if (!manager || !key) return;
 
             const settings = usersSettings.current.get(userId);
@@ -222,28 +221,25 @@ export const useDrawingSync = ({
           }
 
           case "end": {
-            const manager = usersDrawingManagers.current.get(userId);
-            if (!manager) return;
-            console.log("!!!!!!!!! WS end");
-
             const settings = usersSettings.current.get(userId);
             if (!settings) return;
 
             if (tool === "shape" && points?.length === 2) {
-              const canvas = canvasRef.current;
-              if (!canvas) return;
-
-              // manager.finalizeDrawShape({
-              //   shapeType: (shapeType ??
-              //     settings.shapeType ??
-              //     "rectangle") as ShapeType,
-              //   startShapePoint: points[0],
-              //   endShapePoint: points[1],
-              //   color: settings.color ?? "#000000",
-              //   lineWidth: settings.lineWidth ?? 5,
-              //   opacity: settings.opacity ?? 1,
-              //   previewCtx: canvas.getContext("2d") as CanvasRenderingContext2D,
-              // });
+              const isWs = true;
+              manager.finalizeDrawShape(
+                {
+                  shapeType: (shapeType ??
+                    settings.shapeType ??
+                    "rectangle") as ShapeType,
+                  startShapePoint: points[0],
+                  endShapePoint: points[1],
+                  color: settings.color ?? "#000000",
+                  lineWidth: settings.lineWidth ?? 5,
+                  opacity: settings.opacity ?? 1,
+                  previewCtx: manager.getCtx(),
+                },
+                isWs
+              );
             }
 
             if (tool === "pencil" || tool === "eraser") {

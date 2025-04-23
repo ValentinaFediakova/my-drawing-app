@@ -36,6 +36,10 @@ export class DrawingManager {
     this.ShapesTool = new ShapesTool(this.ctx);
   }
 
+  getCtx(): CanvasRenderingContext2D {
+    return this.ctx;
+  }
+
   setTool(tool: Tool): void {
     this.tool = tool;
     if (tool !== `writeText`) {
@@ -104,8 +108,8 @@ export class DrawingManager {
     }
   }
 
-  finalizeDrawShape(shapeConfig: ShapeConfig): void {
-    this.ShapesTool.finalizeDrawShape(shapeConfig);
+  finalizeDrawShape(shapeConfig: ShapeConfig, isWs = false): void {
+    this.ShapesTool.finalizeDrawShape(shapeConfig, isWs);
   }
 
   draw(points: Point): void {
