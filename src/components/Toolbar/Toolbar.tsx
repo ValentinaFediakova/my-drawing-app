@@ -35,6 +35,12 @@ export const Toolbar: React.FC = ({ }) => {
       >
         <div className="toolbar-item__img toolbar-item__img_shape"></div>
       </button>
+      <button 
+        className={tool === "pastImg" ? "toolbar-item toolbar-item_active" : "toolbar-item"} 
+        onClick={() => dispatch(setTool("pastImg"))}
+      >
+        <div className="toolbar-item__img toolbar-item__img_pastImg"></div>
+      </button>
     </div>
   );
 };

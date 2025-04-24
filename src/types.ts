@@ -1,4 +1,4 @@
-export type Tool = "pencil" | "eraser" | "writeText" | "shape";
+export type Tool = "pencil" | "eraser" | "writeText" | "shape" | "pastImg";
 
 export type WsEventType =
   | "startDraw"

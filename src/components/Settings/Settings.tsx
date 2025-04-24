@@ -149,7 +149,14 @@ export const Settings: React.FC = ({ }) => {
             <Slider type='range' min='1' max='21' step='2' defaultValue='5' purpose='lineWidth' />
           </div> */}
         </>
-      )}      
+      )}   
+
+      {tool === 'pastImg' && (
+        <div className={"settings__block"}>
+          <div className="settings__title">Opacity</div>
+          <Slider type={'range'} min={'0.1'} max={'1'} step='0.1' defaultValue={'1'} purpose='opacity' />
+        </div>
+      )}   
     </div>
   );
 };
