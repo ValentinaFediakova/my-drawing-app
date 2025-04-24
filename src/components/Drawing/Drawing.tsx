@@ -180,6 +180,21 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     drawingManagerRef.current?.writeText(key);
   }
 
+  const handlePaste = (e: ClipboardEvent) => {
+
+    const htmlData = e.clipboardData?.getData("text/html");
+    if (htmlData) {
+      const doc = new DOMParser().parseFromString(htmlData, "text/html");
+      const img = doc.querySelector("img");
+      const src = img?.src;
+
+      if (src) {
+        drawingManagerRef.current?.drawImageOnCanvasTool(src, 150, 150, 100, 100);
+      }
+    }
+
+  };
+
   useEffect(() => {
     if (!userIdRef.current) {
       userIdRef.current = uuidv4();
@@ -228,8 +243,20 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     }
   }, [color, fontSize, outline, tool])
 
+
+  useEffect(() => {  
+    containerCanvasesRef.current?.focus();
+
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
+  }, []);
+
   return (
-    <div className="canvases-container" ref={containerCanvasesRef}>
+    <div 
+      className="canvases-container" 
+      ref={containerCanvasesRef}
+      tabIndex={0}
+      >
       <canvas 
         ref={canvasRef} 
         className="drawing-canvas" 

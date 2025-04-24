@@ -3,6 +3,7 @@ import { PencilTool } from "@/utils/tools/Pencil";
 import { EraserTool } from "@/utils/tools/Eraser";
 import { TextTool } from "@/utils/tools/Text";
 import { ShapesTool } from "@/utils/tools/Shapes";
+import { ImageTool } from "@/utils/tools/ImageTool";
 import { Tool } from "@/types";
 import { Point, ShapeConfig } from "@/types";
 
@@ -18,6 +19,7 @@ export class DrawingManager {
   private EraserTool: EraserTool;
   private TextTool: TextTool;
   private ShapesTool: ShapesTool;
+  private ImageTool: ImageTool;
   private tool: Tool = "pencil";
 
   constructor(canvas: HTMLCanvasElement) {
@@ -34,6 +36,7 @@ export class DrawingManager {
     this.EraserTool = new EraserTool(this.ctx);
     this.TextTool = new TextTool(this.ctx, canvas);
     this.ShapesTool = new ShapesTool(this.ctx);
+    this.ImageTool = new ImageTool(this.ctx);
   }
 
   getCtx(): CanvasRenderingContext2D {
@@ -109,8 +112,14 @@ export class DrawingManager {
     }
   }
 
-  finalizeDrawShape(shapeConfig: ShapeConfig, isWs = false): void {
-    this.ShapesTool.finalizeDrawShape(shapeConfig, isWs);
+  drawImageOnCanvasTool(
+    src: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): void {
+    this.ImageTool.drawImage(src, x, y, width, height);
   }
 
   draw(points: Point): void {
@@ -159,6 +168,10 @@ export class DrawingManager {
       this.canvas.width,
       this.canvas.height
     );
+  }
+
+  finalizeDrawShape(shapeConfig: ShapeConfig, isWs = false): void {
+    this.ShapesTool.finalizeDrawShape(shapeConfig, isWs);
   }
 
   clearCanvas(): void {
