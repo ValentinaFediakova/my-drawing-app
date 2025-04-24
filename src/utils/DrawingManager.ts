@@ -122,6 +122,10 @@ export class DrawingManager {
     this.ImageTool.drawImage(src, x, y, width, height);
   }
 
+  selectImgOnCanvas(points: Point) {
+    this.ImageTool.select(points);
+  }
+
   draw(points: Point): void {
     if (this.tool === "writeText" || this.tool === "shape") return;
     if (!this.isDrawing) {

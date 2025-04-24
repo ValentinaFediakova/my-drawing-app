@@ -108,6 +108,8 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
         drawingManagerRef.current?.setPreviewSettings(shape);
     }
+
+    drawingManagerRef.current?.selectImgOnCanvas(points)
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
