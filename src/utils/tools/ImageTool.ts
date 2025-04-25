@@ -1,32 +1,32 @@
 import { Point } from "@/types";
 
+interface Images {
+  image: HTMLImageElement;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  isSelected: boolean;
+}
 export class ImageTool {
   private ctx: CanvasRenderingContext2D;
-  private image: HTMLImageElement | null = null;
-  private x: number = 0;
-  private y: number = 0;
-  private width: number = 100;
-  private height: number = 100;
-  private isSelected: boolean = false;
+  private previewCtx: CanvasRenderingContext2D;
   private isResizing: boolean = false;
   private handleSize: number = 10;
+  private images: Images[] = [];
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
   }
 
-  setImage(
-    image: HTMLImageElement,
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ) {
-    this.image = image;
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
+  // setImage(image: HTMLImageElement, x: number, y: number) {
+  //   this.image = image;
+  //   this.startPoints.x = x;
+  //   this.startPoints.y = y;
+  // }
+
+  setPreviewCtx(previewCtx: CanvasRenderingContext2D) {
+    this.previewCtx = previewCtx;
   }
 
   drawImage(
@@ -39,64 +39,109 @@ export class ImageTool {
     const img = new Image();
     img.crossOrigin = "anonymous";
 
-    img.onload = () => {
+    this.image.onload = () => {
+      if (!this.image) return;
       const aspectRatio = img.width / img.height;
-
       const drawWidth = maxWidth;
-      const drawHeight = maxWidth / aspectRatio;
+      const drawHeight = drawWidth / aspectRatio;
 
-      this.ctx.drawImage(img, targetX, targetY, drawWidth, drawHeight);
+      this.images.push({
+        image: img,
+        x: targetX,
+        y: targetY,
+        width: drawWidth,
+        height: drawHeight,
+        isSelected: false,
+      });
     };
 
-    img.src = src;
+    this.image.src = src;
 
-    this.setImage(img, targetX, targetY, maxWidth, maxHeight);
+    // this.setImage(this.image, targetX, targetY);
   }
 
-  select(points: Point) {
-    console.log("points", points);
-    const { x: clickX, y: clickY } = points;
-
-    const withinImageX = clickX >= this.x && clickX <= this.x + this.width;
-    const withinImageY = clickY >= this.y && clickY <= this.y + this.height;
-
-    const handleX = this.x + this.width - this.handleSize;
-    const handleY = this.y + this.height - this.handleSize;
-
-    const onHandleX = clickX >= handleX && clickX <= handleX + this.handleSize;
-    const onHandleY = clickY >= handleY && clickY <= handleY + this.handleSize;
-
-    if (onHandleX && onHandleY) {
-      this.isResizing = true;
-      this.isSelected = false;
-    } else if (withinImageX && withinImageY) {
-      this.isSelected = true;
-      this.isResizing = false;
-    } else {
-      this.isSelected = false;
-      this.isResizing = false;
-    }
-
+  select() {
     this.framedImage();
   }
 
   framedImage() {
-    if (!this.isSelected) return;
-    console.log("nfkjsfkajfkajfakjbf");
+    const { x, y } = this.startPoints;
 
-    this.ctx.save();
-    this.ctx.strokeStyle = "blue";
-    this.ctx.lineWidth = 2;
-    this.ctx.setLineDash([5, 5]);
-    this.ctx.strokeRect(this.x, this.y, this.width, this.height);
-    this.ctx.restore();
+    this.previewCtxForImg.clearRect(
+      0,
+      0,
+      this.previewCtxForImg.canvas.width,
+      this.previewCtxForImg.canvas.height
+    );
 
-    this.ctx.fillStyle = "blue";
-    this.ctx.fillRect(
-      this.x + this.width - this.handleSize / 2,
-      this.y + this.height - this.handleSize / 2,
+    this.previewCtxForImg.save();
+    this.previewCtxForImg.strokeStyle = "blue";
+    this.previewCtxForImg.lineWidth = 2;
+    this.previewCtxForImg.setLineDash([5, 5]);
+    this.previewCtxForImg.strokeRect(x, y, this.width, this.height);
+    this.previewCtxForImg.restore();
+
+    this.previewCtxForImg.fillStyle = "blue";
+    this.previewCtxForImg.fillRect(
+      x + this.width,
+      y + this.height,
       this.handleSize,
       this.handleSize
     );
+
+    if (!this.image) return;
+    this.previewCtxForImg.drawImage(this.image, x, y, this.width, this.height);
+  }
+
+  resizeImage(resizePoints: Point) {
+    if (!this.image) return;
+
+    this.isResizing = true;
+
+    const { x: startX, y: startY } = this.startPoints;
+    const { x: clickX, y: clickY } = resizePoints;
+
+    const newWidth = clickX - startX;
+    const scale = newWidth / this.width;
+    const newHeight = this.height * scale;
+
+    this.width = newWidth;
+    this.height = newHeight;
+
+    this.previewCtxForImg.clearRect(
+      0,
+      0,
+      this.ctx.canvas.width,
+      this.ctx.canvas.height
+    );
+
+    this.framedImage();
+
+    this.previewCtxForImg.drawImage(
+      this.image,
+      startX,
+      startY,
+      this.width,
+      this.height
+    );
+  }
+
+  finalizeImageResize() {
+    if (!this.image || !this.isResizing) return;
+    this.previewCtxForImg.clearRect(
+      0,
+      0,
+      this.ctx.canvas.width,
+      this.ctx.canvas.height
+    );
+    this.previewCtxForImg.drawImage(
+      this.image,
+      this.startPoints.x,
+      this.startPoints.y,
+      this.width,
+      this.height
+    );
+
+    this.isResizing = false;
   }
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
+import { setTool } from "@/store/slices/settingsSlice";
 import { DrawingManager } from "@/utils/DrawingManager";
 import { WebSocketClient } from "@/utils/websocket";
 import { WS_URL } from "@/constants";
@@ -38,6 +39,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const startPointRef = useRef<Point | null>(null);
   const endPointRef = useRef<Point | null>(null);
   const previewCtx = useRef<CanvasRenderingContext2D | null>(null)
+  const previewCtxForImg = useRef<CanvasRenderingContext2D | null>(null)
+
+
+  const dispatch = useDispatch()
 
 
   const sendWsData = useCallback((data: WsData): void => {
@@ -109,7 +114,9 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         drawingManagerRef.current?.setPreviewSettings(shape);
     }
 
-    drawingManagerRef.current?.selectImgOnCanvas(points)
+    if (tool === 'pastImg') {
+      drawingManagerRef.current?.selectImgOnCanvas();
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -129,6 +136,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     }
     if (tool === 'shape') {
       drawingManagerRef.current?.drawShapePreview(point);
+    }
+
+    if (tool === 'pastImg') {
+      drawingManagerRef.current?.resizeImgOnCanvas(point);
     }
   };
   
@@ -166,6 +177,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       previewCtx.current = null;
     }
 
+    if (tool === 'pastImg') {
+      drawingManagerRef.current?.finalizeImageResize();
+    }
+
     startPointRef.current = null;
     endPointRef.current = null;
   }
@@ -184,6 +199,8 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
   const handlePaste = (e: ClipboardEvent) => {
 
+    dispatch(setTool('pastImg'))
+
     const htmlData = e.clipboardData?.getData("text/html");
     if (htmlData) {
       const doc = new DOMParser().parseFromString(htmlData, "text/html");
@@ -191,10 +208,23 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       const src = img?.src;
 
       if (src) {
+        const previewCanvas = document.createElement("canvas");
+        previewCanvas.width = window.innerWidth;
+        previewCanvas.height = window.innerHeight;
+        previewCanvas.classList.add("preview-canvas-for-image");
+        previewCanvas.style.position = "absolute";
+        previewCanvas.style.top = "0";
+        previewCanvas.style.left = "0";
+        previewCanvas.style.zIndex = "2";
+        previewCanvas.style.pointerEvents = "none";
+        containerCanvasesRef.current?.appendChild(previewCanvas);
+        previewCtxForImg.current = previewCanvas.getContext("2d");
+
+        drawingManagerRef.current?.setTool('pastImg')
+        drawingManagerRef.current?.setPreviewCtx(previewCtxForImg.current)
         drawingManagerRef.current?.drawImageOnCanvasTool(src, 150, 150, 100, 100);
       }
     }
-
   };
 
   useEffect(() => {

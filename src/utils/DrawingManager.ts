@@ -112,6 +112,10 @@ export class DrawingManager {
     }
   }
 
+  setPreviewCtx(previewCtxForImg) {
+    this.ImageTool.setPreviewCtx(previewCtxForImg);
+  }
+
   drawImageOnCanvasTool(
     src: string,
     x: number,
@@ -119,11 +123,15 @@ export class DrawingManager {
     width: number,
     height: number
   ): void {
-    this.ImageTool.drawImage(src, x, y, width, height);
+    this.ImageTool.drawImage(src, x, y, width, height, previewCtxForImg);
   }
 
-  selectImgOnCanvas(points: Point) {
-    this.ImageTool.select(points);
+  selectImgOnCanvas(): void {
+    this.ImageTool.select();
+  }
+
+  resizeImgOnCanvas(resizePoints: Point) {
+    this.ImageTool.resizeImage(resizePoints);
   }
 
   draw(points: Point): void {
@@ -176,6 +184,10 @@ export class DrawingManager {
 
   finalizeDrawShape(shapeConfig: ShapeConfig, isWs = false): void {
     this.ShapesTool.finalizeDrawShape(shapeConfig, isWs);
+  }
+
+  finalizeImageResize() {
+    this.ImageTool.finalizeImageResize();
   }
 
   clearCanvas(): void {
