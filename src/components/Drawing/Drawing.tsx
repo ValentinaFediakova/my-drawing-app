@@ -115,7 +115,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     }
 
     if (tool === 'pastImg') {
-      drawingManagerRef.current?.selectImgOnCanvas();
+      drawingManagerRef.current?.selectImgOnCanvas(points);
     }
   };
 

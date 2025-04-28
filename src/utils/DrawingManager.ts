@@ -123,11 +123,11 @@ export class DrawingManager {
     width: number,
     height: number
   ): void {
-    this.ImageTool.drawImage(src, x, y, width, height, previewCtxForImg);
+    this.ImageTool.drawImage(src, x, y, width, height);
   }
 
-  selectImgOnCanvas(): void {
-    this.ImageTool.select();
+  selectImgOnCanvas(points: Point): void {
+    this.ImageTool.selectImageByPoint(points);
   }
 
   resizeImgOnCanvas(resizePoints: Point) {
