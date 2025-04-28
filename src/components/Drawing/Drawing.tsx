@@ -144,8 +144,19 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     }
 
     if (tool === 'pastImg') {
-      drawingManagerRef.current?.resizeSelectedImage(point);
+      if (drawingManagerRef.current?.isImgDragging()) {
+        drawingManagerRef.current?.moveSelectedImage({ 
+          x: e.movementX, 
+          y: e.movementY 
+        });
+      } else {
+        drawingManagerRef.current?.resizeSelectedImage({ 
+          x: e.clientX, 
+          y: e.clientY 
+        });
+      }
     }
+    
   };
   
   const handleMouseUp = () => {

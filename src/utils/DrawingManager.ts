@@ -203,4 +203,12 @@ export class DrawingManager {
   finalizeResize(): void {
     this.ImageTool.finalizeResize();
   }
+
+  isImgDragging() {
+    return this.ImageTool.isImgDragging();
+  }
+
+  moveSelectedImage(points: Point) {
+    this.ImageTool.moveSelectedImage(points);
+  }
 }

@@ -12,6 +12,7 @@ export class ImageTool {
   private ctx: CanvasRenderingContext2D;
   private previewCtx: CanvasRenderingContext2D | null = null;
   private isResizing: boolean = false;
+  private isDragging: boolean = false;
   private handleSize: number = 10;
   private images: Images[] = [];
 
@@ -71,8 +72,8 @@ export class ImageTool {
         this.previewCtx.strokeRect(img.x, img.y, img.width, img.height);
         this.previewCtx.fillStyle = "blue";
         this.previewCtx.fillRect(
-          img.x + img.width - this.handleSize / 2,
-          img.y + img.height - this.handleSize / 2,
+          img.x + img.width,
+          img.y + img.height,
           this.handleSize,
           this.handleSize
         );
@@ -84,6 +85,14 @@ export class ImageTool {
   selectImageByPoint(point: Point) {
     for (let i = this.images.length - 1; i >= 0; i--) {
       const img = this.images[i];
+      const handleX = img.x + img.width - this.handleSize;
+      const handleY = img.y + img.height - this.handleSize;
+
+      const onHandleX =
+        point.x >= handleX && point.x <= handleX + this.handleSize;
+      const onHandleY =
+        point.y >= handleY && point.y <= handleY + this.handleSize;
+
       if (
         point.x >= img.x &&
         point.x <= img.x + img.width &&
@@ -92,29 +101,45 @@ export class ImageTool {
       ) {
         this.images.forEach((img) => (img.isSelected = false));
         img.isSelected = true;
+
+        if (onHandleX && onHandleY) {
+          this.isResizing = true;
+          this.isDragging = false;
+        } else {
+          this.isDragging = true;
+          this.isResizing = false;
+        }
+
         this.drawPreview();
         return;
       }
     }
+
     this.images.forEach((img) => (img.isSelected = false));
+    this.isDragging = false;
+    this.isResizing = false;
     this.drawPreview();
   }
 
-  startResizeIfOnHandle(point: Point) {
-    const selected = this.images.find((img) => img.isSelected);
-    if (!selected) return false;
+  startResizeIfOnHandle(point: Point): boolean {
+    for (let i = this.images.length - 1; i >= 0; i--) {
+      const img = this.images[i];
+      const handleX = img.x + img.width;
+      const handleY = img.y + img.height;
 
-    const handleX = selected.x + selected.width - this.handleSize / 2;
-    const handleY = selected.y + selected.height - this.handleSize / 2;
+      const onHandleX =
+        point.x >= handleX && point.x <= handleX + this.handleSize;
+      const onHandleY =
+        point.y >= handleY && point.y <= handleY + this.handleSize;
 
-    if (
-      point.x >= handleX &&
-      point.x <= handleX + this.handleSize &&
-      point.y >= handleY &&
-      point.y <= handleY + this.handleSize
-    ) {
-      this.isResizing = true;
-      return true;
+      if (onHandleX && onHandleY) {
+        this.images.forEach((img) => (img.isSelected = false));
+        img.isSelected = true;
+        this.isResizing = true;
+        this.isDragging = false;
+        this.drawPreview();
+        return true;
+      }
     }
 
     return false;
@@ -145,5 +170,19 @@ export class ImageTool {
 
       this.drawPreview();
     }
+  }
+
+  isImgDragging() {
+    return this.isDragging;
+  }
+
+  moveSelectedImage(newPoints: Point) {
+    const selected = this.images.find((img) => img.isSelected);
+    if (!selected || !this.isDragging) return;
+
+    selected.x += newPoints.x;
+    selected.y += newPoints.y;
+
+    this.drawPreview();
   }
 }
