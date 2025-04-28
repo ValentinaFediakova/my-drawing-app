@@ -226,8 +226,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         previewCtxForImg.current = previewCanvas.getContext("2d");
 
         drawingManagerRef.current?.setTool('pastImg')
-        drawingManagerRef.current?.setPreviewCtx(previewCtxForImg.current)
-        drawingManagerRef.current?.drawImageOnCanvasTool(src, 150, 150, 100, 100);
+        if (previewCtxForImg.current) {
+          drawingManagerRef.current?.setPreviewCtx(previewCtxForImg.current);
+        }
+        drawingManagerRef.current?.drawImageOnCanvasTool(src, 150, 150, 100);
       }
     }
   };

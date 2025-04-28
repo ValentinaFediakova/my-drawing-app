@@ -183,10 +183,9 @@ export class DrawingManager {
     src: string,
     x: number,
     y: number,
-    width: number,
-    height: number
+    width: number
   ): void {
-    this.ImageTool.drawImage(src, x, y, width, height);
+    this.ImageTool.drawImage(src, x, y, width);
   }
 
   selectImgOnCanvas(point: Point): void {
