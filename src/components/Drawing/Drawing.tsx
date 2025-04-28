@@ -65,7 +65,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const points = { x: e.clientX, y: e.clientY };
+    startPointRef.current = points
     isDrawing.current = true;
+
     sendWsData({
       type: 'startDraw',
       tool,
@@ -74,12 +77,11 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       opacity,
       lineWidth,
       eraserLineWidth,
-      points: [{ x: e.clientX, y: e.clientY }],
+      points: [points],
     })
 
-    const points = { x: e.clientX, y: e.clientY };
-
-    startPointRef.current = points
+  
+    isDrawing.current = true;
 
     if (tool === 'eraser' || tool === 'pencil') {
       drawingManagerRef.current?.startDraw(points);
@@ -111,11 +113,14 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         previewCtx: previewCtx.current as CanvasRenderingContext2D
       }
 
-        drawingManagerRef.current?.setPreviewSettings(shape);
+      drawingManagerRef.current?.setPreviewSettings(shape);
     }
 
     if (tool === 'pastImg') {
-      drawingManagerRef.current?.selectImgOnCanvas(points);
+      const startedResizing = drawingManagerRef.current?.startResizeIfOnHandle(points);
+      if (!startedResizing) {
+        drawingManagerRef.current?.selectImgOnCanvas(points);
+      }
     }
   };
 
@@ -139,7 +144,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     }
 
     if (tool === 'pastImg') {
-      drawingManagerRef.current?.resizeImgOnCanvas(point);
+      drawingManagerRef.current?.resizeSelectedImage(point);
     }
   };
   
@@ -177,9 +182,9 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       previewCtx.current = null;
     }
 
-    if (tool === 'pastImg') {
-      drawingManagerRef.current?.finalizeImageResize();
-    }
+  if (tool === 'pastImg') {
+    drawingManagerRef.current?.finalizeResize();
+  }
 
     startPointRef.current = null;
     endPointRef.current = null;

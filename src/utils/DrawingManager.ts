@@ -112,28 +112,6 @@ export class DrawingManager {
     }
   }
 
-  setPreviewCtx(previewCtxForImg) {
-    this.ImageTool.setPreviewCtx(previewCtxForImg);
-  }
-
-  drawImageOnCanvasTool(
-    src: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ): void {
-    this.ImageTool.drawImage(src, x, y, width, height);
-  }
-
-  selectImgOnCanvas(points: Point): void {
-    this.ImageTool.selectImageByPoint(points);
-  }
-
-  resizeImgOnCanvas(resizePoints: Point) {
-    this.ImageTool.resizeImage(resizePoints);
-  }
-
   draw(points: Point): void {
     if (this.tool === "writeText" || this.tool === "shape") return;
     if (!this.isDrawing) {
@@ -186,10 +164,6 @@ export class DrawingManager {
     this.ShapesTool.finalizeDrawShape(shapeConfig, isWs);
   }
 
-  finalizeImageResize() {
-    this.ImageTool.finalizeImageResize();
-  }
-
   clearCanvas(): void {
     this.savedImageData = this.ctx.getImageData(
       0,
@@ -199,5 +173,35 @@ export class DrawingManager {
     );
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.savedImageData = null;
+  }
+
+  setPreviewCtx(previewCtxForImg: CanvasRenderingContext2D): void {
+    this.ImageTool.setPreviewCtx(previewCtxForImg);
+  }
+
+  drawImageOnCanvasTool(
+    src: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): void {
+    this.ImageTool.drawImage(src, x, y, width, height);
+  }
+
+  selectImgOnCanvas(point: Point): void {
+    this.ImageTool.selectImageByPoint(point);
+  }
+
+  startResizeIfOnHandle(point: Point): boolean {
+    return this.ImageTool.startResizeIfOnHandle(point);
+  }
+
+  resizeSelectedImage(point: Point): void {
+    this.ImageTool.resizeSelectedImage(point);
+  }
+
+  finalizeResize(): void {
+    this.ImageTool.finalizeResize();
   }
 }
