@@ -10,7 +10,7 @@ interface Images {
 }
 export class ImageTool {
   private ctx: CanvasRenderingContext2D;
-  private previewCtx: CanvasRenderingContext2D;
+  private previewCtx: CanvasRenderingContext2D | null = null;
   private isResizing: boolean = false;
   private handleSize: number = 10;
   private images: Images[] = [];
@@ -27,10 +27,8 @@ export class ImageTool {
     src: string,
     targetX: number,
     targetY: number,
-    maxWidth: number,
-    maxHeight: number
+    maxWidth: number
   ): void {
-    console.log("drawImage sjdksjhdkjshd");
     const img = new Image();
     img.crossOrigin = "anonymous";
 
@@ -48,7 +46,6 @@ export class ImageTool {
         isSelected: false,
       });
 
-      console.log("this.drawPreview();");
       this.drawPreview();
     };
 
@@ -56,8 +53,7 @@ export class ImageTool {
   }
 
   drawPreview() {
-    console.log("1 drawPreview");
-
+    if (!this.previewCtx) return;
     this.previewCtx.clearRect(
       0,
       0,
@@ -66,8 +62,8 @@ export class ImageTool {
     );
 
     this.images.forEach((img) => {
+      if (!this.previewCtx) return;
       this.previewCtx.drawImage(img.image, img.x, img.y, img.width, img.height);
-      console.log("drawPreview");
       if (img.isSelected) {
         this.previewCtx.save();
         this.previewCtx.strokeStyle = "blue";
@@ -86,7 +82,6 @@ export class ImageTool {
   }
 
   selectImageByPoint(point: Point) {
-    console.log("point", point);
     for (let i = this.images.length - 1; i >= 0; i--) {
       const img = this.images[i];
       if (
@@ -140,6 +135,15 @@ export class ImageTool {
   }
 
   finalizeResize() {
-    this.isResizing = false;
+    if (this.isResizing) {
+      this.isResizing = false;
+
+      const selected = this.images.find((img) => img.isSelected);
+      if (selected) {
+        selected.isSelected = false;
+      }
+
+      this.drawPreview();
+    }
   }
 }
