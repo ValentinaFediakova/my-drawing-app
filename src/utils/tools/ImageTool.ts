@@ -77,6 +77,25 @@ export class ImageTool {
           this.handleSize,
           this.handleSize
         );
+        const trashSize = 20;
+        const trashX = img.x + img.width;
+        const trashY = img.y - trashSize;
+        const trashIcon = new Image();
+        trashIcon.src = "/trashIcon.svg";
+        trashIcon.onload = () => {
+          if (this.previewCtx) {
+            this.previewCtx.fillStyle = "blue";
+          }
+          this.previewCtx?.fillRect(trashX, trashY, trashSize, trashSize);
+          this.previewCtx?.drawImage(
+            trashIcon,
+            trashX,
+            trashY,
+            trashSize,
+            trashSize
+          );
+        };
+
         this.previewCtx.restore();
       }
     });
