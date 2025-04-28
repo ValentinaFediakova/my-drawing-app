@@ -156,7 +156,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         });
       }
     }
-    
   };
   
   const handleMouseUp = () => {
@@ -224,22 +223,25 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       const src = img?.src;
 
       if (src) {
-        const previewCanvas = document.createElement("canvas");
-        previewCanvas.width = window.innerWidth;
-        previewCanvas.height = window.innerHeight;
-        previewCanvas.classList.add("preview-canvas-for-image");
-        previewCanvas.style.position = "absolute";
-        previewCanvas.style.top = "0";
-        previewCanvas.style.left = "0";
-        previewCanvas.style.zIndex = "2";
-        previewCanvas.style.pointerEvents = "none";
-        containerCanvasesRef.current?.appendChild(previewCanvas);
-        previewCtxForImg.current = previewCanvas.getContext("2d");
-
-        drawingManagerRef.current?.setTool('pastImg')
-        if (previewCtxForImg.current) {
-          drawingManagerRef.current?.setPreviewCtx(previewCtxForImg.current);
+        if (!previewCtxForImg.current) {
+          const previewCanvas = document.createElement("canvas");
+          previewCanvas.width = window.innerWidth;
+          previewCanvas.height = window.innerHeight;
+          previewCanvas.classList.add("preview-canvas-for-image");
+          previewCanvas.style.position = "absolute";
+          previewCanvas.style.top = "0";
+          previewCanvas.style.left = "0";
+          previewCanvas.style.zIndex = "2";
+          previewCanvas.style.pointerEvents = "none";
+          containerCanvasesRef.current?.appendChild(previewCanvas);
+          previewCtxForImg.current = previewCanvas.getContext("2d");
+  
+          drawingManagerRef.current?.setTool('pastImg')
+          if (previewCtxForImg.current) {
+            drawingManagerRef.current?.setPreviewCtx(previewCtxForImg.current);
+          }
         }
+        
         drawingManagerRef.current?.drawImageOnCanvasTool(src, 150, 150, 100);
       }
     }
