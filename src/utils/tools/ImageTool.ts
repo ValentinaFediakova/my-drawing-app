@@ -7,6 +7,7 @@ interface Images {
   width: number;
   height: number;
   isSelected: boolean;
+  deleteBounds?: { x: number; y: number; width: number; height: number };
 }
 export class ImageTool {
   private ctx: CanvasRenderingContext2D;
@@ -82,18 +83,62 @@ export class ImageTool {
         const trashY = img.y - trashSize;
         const trashIcon = new Image();
         trashIcon.src = "/trashIcon.svg";
+
+        img.deleteBounds = {
+          x: trashX,
+          y: trashY,
+          width: trashSize,
+          height: trashSize,
+        };
+
         trashIcon.onload = () => {
           if (this.previewCtx) {
             this.previewCtx.fillStyle = "blue";
+            this.previewCtx.beginPath();
+            const radius = 6;
+            this.previewCtx.moveTo(trashX + radius, trashY);
+            this.previewCtx.lineTo(trashX + trashSize - radius, trashY);
+            this.previewCtx.quadraticCurveTo(
+              trashX + trashSize,
+              trashY,
+              trashX + trashSize,
+              trashY + radius
+            );
+            this.previewCtx.lineTo(
+              trashX + trashSize,
+              trashY + trashSize - radius
+            );
+            this.previewCtx.quadraticCurveTo(
+              trashX + trashSize,
+              trashY + trashSize,
+              trashX + trashSize - radius,
+              trashY + trashSize
+            );
+            this.previewCtx.lineTo(trashX + radius, trashY + trashSize);
+            this.previewCtx.quadraticCurveTo(
+              trashX,
+              trashY + trashSize,
+              trashX,
+              trashY + trashSize - radius
+            );
+            this.previewCtx.lineTo(trashX, trashY + radius);
+            this.previewCtx.quadraticCurveTo(
+              trashX,
+              trashY,
+              trashX + radius,
+              trashY
+            );
+            this.previewCtx.closePath();
+            this.previewCtx.fill();
+
+            this.previewCtx.drawImage(
+              trashIcon,
+              trashX,
+              trashY,
+              trashSize,
+              trashSize
+            );
           }
-          this.previewCtx?.fillRect(trashX, trashY, trashSize, trashSize);
-          this.previewCtx?.drawImage(
-            trashIcon,
-            trashX,
-            trashY,
-            trashSize,
-            trashSize
-          );
         };
 
         this.previewCtx.restore();
@@ -104,6 +149,22 @@ export class ImageTool {
   selectImageByPoint(point: Point) {
     for (let i = this.images.length - 1; i >= 0; i--) {
       const img = this.images[i];
+
+      if (img.deleteBounds) {
+        const { x, y, width, height } = img.deleteBounds;
+        const onTrashIcon =
+          point.x >= x &&
+          point.x <= x + width &&
+          point.y >= y &&
+          point.y <= y + height;
+
+        if (onTrashIcon) {
+          this.images.splice(i, 1);
+          this.drawPreview();
+          return;
+        }
+      }
+
       const handleX = img.x + img.width - this.handleSize;
       const handleY = img.y + img.height - this.handleSize;
 
