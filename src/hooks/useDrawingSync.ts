@@ -97,6 +97,10 @@ export const useDrawingSync = ({
           userId,
           name,
           shapeType,
+          src,
+          width,
+          height,
+          id,
         } = data;
 
         if (!userId || userId === userIdRef.current) return;
@@ -243,6 +247,32 @@ export const useDrawingSync = ({
               manager.stopDraw();
             }
 
+            break;
+          }
+
+          case "addImage": {
+            if (!src || width === undefined || height === undefined || !id)
+              return;
+
+            manager.drawImageOnCanvasTool(src, points[0], width, id);
+            break;
+          }
+
+          case "moveImage": {
+            if (!id) return;
+            manager.moveImageById(id, points[0]);
+            break;
+          }
+
+          case "resizeImage": {
+            if (!id || width === undefined || height === undefined) return;
+            manager.resizeImageById(id, width, height);
+            break;
+          }
+
+          case "deleteImage": {
+            if (!id) return;
+            manager.deleteImageById(id);
             break;
           }
 

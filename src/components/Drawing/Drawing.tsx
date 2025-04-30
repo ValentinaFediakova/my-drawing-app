@@ -69,6 +69,21 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     startPointRef.current = points
     isDrawing.current = true;
 
+    if (tool === 'pastImg') {
+      const deleteData = drawingManagerRef.current?.deleteImgOnCanvas(points);
+      if (deleteData) {
+        sendWsData(deleteData);
+        return;
+      }
+  
+      const startedResizing = drawingManagerRef.current?.startResizeIfOnHandle(points);
+      if (!startedResizing) {
+        drawingManagerRef.current?.selectImgOnCanvas(points);
+      }
+  
+      return;
+    }
+
     sendWsData({
       type: 'startDraw',
       tool,
@@ -115,13 +130,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
       drawingManagerRef.current?.setPreviewSettings(shape);
     }
-
-    if (tool === 'pastImg') {
-      const startedResizing = drawingManagerRef.current?.startResizeIfOnHandle(points);
-      if (!startedResizing) {
-        drawingManagerRef.current?.selectImgOnCanvas(points);
-      }
-    }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -130,6 +138,20 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     const point = { x: e.clientX, y: e.clientY };
 
     endPointRef.current = point
+
+    if (tool === 'pastImg') {
+      if (drawingManagerRef.current?.isImgDragging()) {
+        const moveData = drawingManagerRef.current?.moveSelectedImage({
+          x: e.movementX,
+          y: e.movementY,
+        });
+        if (moveData) sendWsData(moveData);
+      } else {
+        const resizeData = drawingManagerRef.current?.resizeSelectedImage(point);
+        if (resizeData) sendWsData(resizeData);
+      }
+      return;
+    }
 
     sendWsData({
       type: 'inDrawProgress',
@@ -142,24 +164,15 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     if (tool === 'shape') {
       drawingManagerRef.current?.drawShapePreview(point);
     }
-
-    if (tool === 'pastImg') {
-      if (drawingManagerRef.current?.isImgDragging()) {
-        drawingManagerRef.current?.moveSelectedImage({ 
-          x: e.movementX, 
-          y: e.movementY 
-        });
-      } else {
-        drawingManagerRef.current?.resizeSelectedImage({ 
-          x: e.clientX, 
-          y: e.clientY 
-        });
-      }
-    }
   };
   
   const handleMouseUp = () => {
     isDrawing.current = false;
+
+    if (tool === 'pastImg') {
+      drawingManagerRef.current?.finalizeImageInteraction();
+      return;
+    }
 
     if (startPointRef.current && endPointRef.current) {
       sendWsData({ type: "end", tool, shapeType, points: [startPointRef.current, endPointRef.current], color, lineWidth, opacity});
@@ -192,9 +205,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
       previewCtx.current = null;
     }
 
-  if (tool === 'pastImg') {
-    drawingManagerRef.current?.finalizeResize();
-  }
 
     startPointRef.current = null;
     endPointRef.current = null;
@@ -213,6 +223,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   }
 
   const handlePaste = (e: ClipboardEvent) => {
+    console.log('>>>>>>> handlePaste')
 
     dispatch(setTool('pastImg'))
 
@@ -242,7 +253,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
           }
         }
         
-        drawingManagerRef.current?.drawImageOnCanvasTool(src, 150, 150, 100);
+        const wsData = drawingManagerRef.current?.drawImageOnCanvasTool(src, {x: 150, y: 150}, 100);
+        if (wsData) {
+          sendWsData(wsData);
+        }
       }
     }
   };

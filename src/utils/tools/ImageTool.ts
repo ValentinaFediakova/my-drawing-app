@@ -1,6 +1,9 @@
 import { Point } from "@/types";
+import { v4 as uuidv4 } from "uuid";
+import { WsData } from "@/types";
 
 interface Images {
+  id: string;
   image: HTMLImageElement;
   x: number;
   y: number;
@@ -27,10 +30,18 @@ export class ImageTool {
 
   drawImage(
     src: string,
-    targetX: number,
-    targetY: number,
-    maxWidth: number
-  ): void {
+    points: Point,
+    maxWidth: number,
+    idArg?: string
+  ): {
+    type: "addImage";
+    id: string;
+    src: string;
+    points: Point[];
+    width: number;
+  } | void {
+    const { x: targetX, y: targetY } = points;
+    const id = idArg ? idArg : uuidv4();
     const img = new Image();
     img.crossOrigin = "anonymous";
 
@@ -40,6 +51,7 @@ export class ImageTool {
       const drawHeight = drawWidth / aspectRatio;
 
       this.images.push({
+        id,
         image: img,
         x: targetX,
         y: targetY,
@@ -52,6 +64,14 @@ export class ImageTool {
     };
 
     img.src = src;
+
+    return {
+      type: "addImage",
+      id,
+      src,
+      points: [points],
+      width: maxWidth,
+    };
   }
 
   drawPreview() {
@@ -78,68 +98,71 @@ export class ImageTool {
           this.handleSize,
           this.handleSize
         );
-        const trashSize = 20;
-        const trashX = img.x + img.width;
-        const trashY = img.y - trashSize;
-        const trashIcon = new Image();
-        trashIcon.src = "/trashIcon.svg";
 
-        img.deleteBounds = {
-          x: trashX,
-          y: trashY,
-          width: trashSize,
-          height: trashSize,
-        };
+        if (!this.isResizing && !this.isDragging) {
+          const trashSize = 20;
+          const trashX = img.x + img.width;
+          const trashY = img.y - trashSize;
+          const trashIcon = new Image();
+          trashIcon.src = "/trashIcon.svg";
 
-        trashIcon.onload = () => {
-          if (this.previewCtx) {
-            this.previewCtx.fillStyle = "blue";
-            this.previewCtx.beginPath();
-            const radius = 6;
-            this.previewCtx.moveTo(trashX + radius, trashY);
-            this.previewCtx.lineTo(trashX + trashSize - radius, trashY);
-            this.previewCtx.quadraticCurveTo(
-              trashX + trashSize,
-              trashY,
-              trashX + trashSize,
-              trashY + radius
-            );
-            this.previewCtx.lineTo(
-              trashX + trashSize,
-              trashY + trashSize - radius
-            );
-            this.previewCtx.quadraticCurveTo(
-              trashX + trashSize,
-              trashY + trashSize,
-              trashX + trashSize - radius,
-              trashY + trashSize
-            );
-            this.previewCtx.lineTo(trashX + radius, trashY + trashSize);
-            this.previewCtx.quadraticCurveTo(
-              trashX,
-              trashY + trashSize,
-              trashX,
-              trashY + trashSize - radius
-            );
-            this.previewCtx.lineTo(trashX, trashY + radius);
-            this.previewCtx.quadraticCurveTo(
-              trashX,
-              trashY,
-              trashX + radius,
-              trashY
-            );
-            this.previewCtx.closePath();
-            this.previewCtx.fill();
+          img.deleteBounds = {
+            x: trashX,
+            y: trashY,
+            width: trashSize,
+            height: trashSize,
+          };
 
-            this.previewCtx.drawImage(
-              trashIcon,
-              trashX,
-              trashY,
-              trashSize,
-              trashSize
-            );
-          }
-        };
+          trashIcon.onload = () => {
+            if (this.previewCtx) {
+              this.previewCtx.fillStyle = "blue";
+              this.previewCtx.beginPath();
+              const radius = 6;
+              this.previewCtx.moveTo(trashX + radius, trashY);
+              this.previewCtx.lineTo(trashX + trashSize - radius, trashY);
+              this.previewCtx.quadraticCurveTo(
+                trashX + trashSize,
+                trashY,
+                trashX + trashSize,
+                trashY + radius
+              );
+              this.previewCtx.lineTo(
+                trashX + trashSize,
+                trashY + trashSize - radius
+              );
+              this.previewCtx.quadraticCurveTo(
+                trashX + trashSize,
+                trashY + trashSize,
+                trashX + trashSize - radius,
+                trashY + trashSize
+              );
+              this.previewCtx.lineTo(trashX + radius, trashY + trashSize);
+              this.previewCtx.quadraticCurveTo(
+                trashX,
+                trashY + trashSize,
+                trashX,
+                trashY + trashSize - radius
+              );
+              this.previewCtx.lineTo(trashX, trashY + radius);
+              this.previewCtx.quadraticCurveTo(
+                trashX,
+                trashY,
+                trashX + radius,
+                trashY
+              );
+              this.previewCtx.closePath();
+              this.previewCtx.fill();
+
+              this.previewCtx.drawImage(
+                trashIcon,
+                trashX,
+                trashY,
+                trashSize,
+                trashSize
+              );
+            }
+          };
+        }
 
         this.previewCtx.restore();
       }
@@ -151,18 +174,7 @@ export class ImageTool {
       const img = this.images[i];
 
       if (img.deleteBounds) {
-        const { x, y, width, height } = img.deleteBounds;
-        const onTrashIcon =
-          point.x >= x &&
-          point.x <= x + width &&
-          point.y >= y &&
-          point.y <= y + height;
-
-        if (onTrashIcon) {
-          this.images.splice(i, 1);
-          this.drawPreview();
-          return;
-        }
+        this.deleteImageByPoint(point);
       }
 
       const handleX = img.x + img.width - this.handleSize;
@@ -225,7 +237,7 @@ export class ImageTool {
     return false;
   }
 
-  resizeSelectedImage(point: Point) {
+  resizeSelectedImage(point: Point): WsData | void {
     const selected = this.images.find((img) => img.isSelected);
     if (!selected || !this.isResizing) return;
 
@@ -237,15 +249,35 @@ export class ImageTool {
     selected.height = newHeight;
 
     this.drawPreview();
+
+    return {
+      type: "resizeImage",
+      id: selected.id,
+      width: newWidth,
+    };
   }
 
-  finalizeResize() {
-    if (this.isResizing) {
+  // finalizeResize() {
+  //   if (this.isResizing) {
+  //     this.isResizing = false;
+
+  //     const selected = this.images.find((img) => img.isSelected);
+  //     if (selected) {
+  //       selected.isSelected = false;
+  //     }
+
+  //     this.drawPreview();
+  //   }
+  // }
+
+  finalizeImageInteraction() {
+    if (this.isDragging || this.isResizing) {
+      this.isDragging = false;
       this.isResizing = false;
 
       const selected = this.images.find((img) => img.isSelected);
       if (selected) {
-        selected.isSelected = false;
+        selected.isSelected = true;
       }
 
       this.drawPreview();
@@ -256,7 +288,7 @@ export class ImageTool {
     return this.isDragging;
   }
 
-  moveSelectedImage(newPoints: Point) {
+  moveSelectedImage(newPoints: Point): WsData | void {
     const selected = this.images.find((img) => img.isSelected);
     if (!selected || !this.isDragging) return;
 
@@ -264,5 +296,64 @@ export class ImageTool {
     selected.y += newPoints.y;
 
     this.drawPreview();
+
+    return {
+      type: "moveImage",
+      id: selected.id,
+      points: [{ x: selected.x, y: selected.y }],
+    };
+  }
+
+  deleteImageByPoint(point: Point): WsData | void {
+    for (let i = this.images.length - 1; i >= 0; i--) {
+      const img = this.images[i];
+
+      if (img.deleteBounds) {
+        const { x, y, width, height } = img.deleteBounds;
+        const onTrashIcon =
+          point.x >= x &&
+          point.x <= x + width &&
+          point.y >= y &&
+          point.y <= y + height;
+
+        if (onTrashIcon) {
+          this.images.splice(i, 1);
+          this.drawPreview();
+          const deletedId = img.id;
+          return {
+            type: "deleteImage",
+            id: deletedId,
+          };
+        }
+      }
+    }
+  }
+
+  moveImageById(id: string, point: Point): void {
+    const img = this.images.find((img) => img.id === id);
+    if (!img) return;
+
+    img.x = point.x;
+    img.y = point.y;
+
+    this.drawPreview();
+  }
+
+  resizeImageById(id: string, width: number, height: number): void {
+    const img = this.images.find((img) => img.id === id);
+    if (!img) return;
+
+    img.width = width;
+    img.height = height;
+
+    this.drawPreview();
+  }
+
+  deleteImageById(id: string): void {
+    const index = this.images.findIndex((img) => img.id === id);
+    if (index !== -1) {
+      this.images.splice(index, 1);
+      this.drawPreview();
+    }
   }
 }

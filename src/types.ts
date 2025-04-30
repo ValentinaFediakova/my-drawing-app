@@ -7,9 +7,14 @@ export type WsEventType =
   | "end"
   | "setTool"
   | "setTextSettings"
-  | "requestCurrentSettings";
+  | "requestCurrentSettings"
+  | "addImage"
+  | "moveImage"
+  | "resizeImage"
+  | "deleteImage";
 
 export interface WsData {
+  id?: string;
   type?: WsEventType;
   tool?: Tool;
   shapeType?: string;
@@ -24,6 +29,8 @@ export interface WsData {
   userId?: string;
   name?: string;
   lastPoint?: { x: number; y: number };
+  width?: number;
+  src?: string;
 }
 
 export type HistoryMessage = {

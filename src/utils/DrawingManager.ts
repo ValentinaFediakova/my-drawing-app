@@ -179,15 +179,6 @@ export class DrawingManager {
     this.ImageTool.setPreviewCtx(previewCtxForImg);
   }
 
-  drawImageOnCanvasTool(
-    src: string,
-    x: number,
-    y: number,
-    width: number
-  ): void {
-    this.ImageTool.drawImage(src, x, y, width);
-  }
-
   selectImgOnCanvas(point: Point): void {
     this.ImageTool.selectImageByPoint(point);
   }
@@ -196,12 +187,12 @@ export class DrawingManager {
     return this.ImageTool.startResizeIfOnHandle(point);
   }
 
-  resizeSelectedImage(point: Point): void {
-    this.ImageTool.resizeSelectedImage(point);
+  resizeSelectedImage(point: Point) {
+    return this.ImageTool.resizeSelectedImage(point);
   }
 
-  finalizeResize(): void {
-    this.ImageTool.finalizeResize();
+  finalizeImageInteraction(): void {
+    this.ImageTool.finalizeImageInteraction();
   }
 
   isImgDragging() {
@@ -209,6 +200,35 @@ export class DrawingManager {
   }
 
   moveSelectedImage(points: Point) {
-    this.ImageTool.moveSelectedImage(points);
+    return this.ImageTool.moveSelectedImage(points);
+  }
+
+  deleteImgOnCanvas(points: Point) {
+    return this.ImageTool.deleteImageByPoint(points);
+  }
+
+  drawImageOnCanvasTool(
+    src: string,
+    points: Point,
+    width: number,
+    id?: string
+  ) {
+    return this.ImageTool.drawImage(src, points, width, id);
+  }
+
+  moveImageById(id: string, point: Point) {
+    this.ImageTool.moveImageById(id, point);
+  }
+
+  resizeImageById(id: string, width: number, height: number) {
+    this.ImageTool.resizeImageById(id, width, height);
+  }
+
+  deleteImageById(id: string) {
+    this.ImageTool.deleteImageById(id);
+  }
+
+  drawImageById(src: string, point: Point, width: number, id: string) {
+    this.ImageTool.drawImage(src, point, width, id);
   }
 }
