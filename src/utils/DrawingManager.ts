@@ -179,6 +179,10 @@ export class DrawingManager {
     this.ImageTool.setPreviewCtx(previewCtxForImg);
   }
 
+  setImageOpacity(opacity: number): void {
+    this.ImageTool.setOpacityForSelectedImage(opacity);
+  }
+
   selectImgOnCanvas(point: Point): void {
     this.ImageTool.selectImageByPoint(point);
   }

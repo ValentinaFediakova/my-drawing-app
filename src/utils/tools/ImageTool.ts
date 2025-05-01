@@ -11,6 +11,7 @@ interface Images {
   height: number;
   isSelected: boolean;
   deleteBounds?: { x: number; y: number; width: number; height: number };
+  opacity: number;
 }
 export class ImageTool {
   private ctx: CanvasRenderingContext2D;
@@ -19,6 +20,7 @@ export class ImageTool {
   private isDragging: boolean = false;
   private handleSize: number = 10;
   private images: Images[] = [];
+  private currentOpacity: number = 1;
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -26,6 +28,16 @@ export class ImageTool {
 
   setPreviewCtx(previewCtx: CanvasRenderingContext2D) {
     this.previewCtx = previewCtx;
+  }
+
+  setOpacityForSelectedImage(opacity: number) {
+    this.currentOpacity = opacity;
+
+    const selected = this.images.find((img) => img.isSelected);
+    if (selected) {
+      selected.opacity = opacity;
+      this.drawPreview();
+    }
   }
 
   drawImage(
@@ -58,6 +70,7 @@ export class ImageTool {
         width: drawWidth,
         height: drawHeight,
         isSelected: false,
+        opacity: this.currentOpacity ?? 1,
       });
 
       this.drawPreview();
@@ -85,7 +98,12 @@ export class ImageTool {
 
     this.images.forEach((img) => {
       if (!this.previewCtx) return;
+
+      this.previewCtx.save();
+      this.previewCtx.globalAlpha = img.opacity;
       this.previewCtx.drawImage(img.image, img.x, img.y, img.width, img.height);
+      this.previewCtx.restore();
+
       if (img.isSelected) {
         this.previewCtx.save();
         this.previewCtx.strokeStyle = "blue";
@@ -256,19 +274,6 @@ export class ImageTool {
       width: newWidth,
     };
   }
-
-  // finalizeResize() {
-  //   if (this.isResizing) {
-  //     this.isResizing = false;
-
-  //     const selected = this.images.find((img) => img.isSelected);
-  //     if (selected) {
-  //       selected.isSelected = false;
-  //     }
-
-  //     this.drawPreview();
-  //   }
-  // }
 
   finalizeImageInteraction() {
     if (this.isDragging || this.isResizing) {
