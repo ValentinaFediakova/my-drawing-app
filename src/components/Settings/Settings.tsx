@@ -152,10 +152,20 @@ export const Settings: React.FC = ({ }) => {
       )}   
 
       {tool === 'pastImg' && (
-        <div className={"settings__block"}>
-          <div className="settings__title">Opacity</div>
-          <Slider type={'range'} min={'0.1'} max={'1'} step='0.1' defaultValue={'1'} purpose='opacity' />
-        </div>
+        <>
+          <div className='settings__block'>
+            <div className='settings__subtitle'>
+            You need to copy the image from third party sites and paste it on canvas using <span className='settings__subtitle_bold'>CTRL + V</span>
+            </div>
+            <div className='settings__subtitle'>
+            You can select a picture, expand it, move it around the canvas and delete
+            </div>
+          </div>
+          <div className={"settings__block"}>
+            <div className="settings__title">Opacity</div>
+            <Slider type={'range'} min={'0.1'} max={'1'} step='0.1' defaultValue={'1'} purpose='opacity' />
+          </div>
+        </>
       )}   
     </div>
   );

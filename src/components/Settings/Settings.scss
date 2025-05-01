@@ -33,6 +33,20 @@
   margin-bottom: 12px;
 }
 
+.settings__subtitle {
+  font-size: 16px;
+  font-weight: 400;
+  font-family: "Manrope", serif;
+  color: aliceblue;
+  margin-bottom: 12px;
+  line-height: 24px;
+
+  &_bold {
+    font-weight: 600;
+    font-style: italic;
+  }
+}
+
 .settings__buttons-outline {
   display: flex;
 }
