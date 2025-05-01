@@ -40,10 +40,23 @@ export class ImageTool {
     }
   }
 
+  getSelectedImage() {
+    return this.images.find((img) => img.isSelected);
+  }
+
+  setImageOpacityById(id: string, opacity: number) {
+    const img = this.images.find((img) => img.id === id);
+    if (img) {
+      img.opacity = opacity;
+      this.drawPreview();
+    }
+  }
+
   drawImage(
     src: string,
     points: Point,
     maxWidth: number,
+    opacity: number,
     idArg?: string
   ): {
     type: "addImage";
@@ -51,6 +64,7 @@ export class ImageTool {
     src: string;
     points: Point[];
     width: number;
+    opacity: number;
   } | void {
     const { x: targetX, y: targetY } = points;
     const id = idArg ? idArg : uuidv4();
@@ -70,7 +84,7 @@ export class ImageTool {
         width: drawWidth,
         height: drawHeight,
         isSelected: false,
-        opacity: this.currentOpacity ?? 1,
+        opacity,
       });
 
       this.drawPreview();
@@ -84,11 +98,13 @@ export class ImageTool {
       src,
       points: [points],
       width: maxWidth,
+      opacity,
     };
   }
 
   drawPreview() {
     if (!this.previewCtx) return;
+
     this.previewCtx.clearRect(
       0,
       0,
@@ -98,7 +114,10 @@ export class ImageTool {
 
     this.images.forEach((img) => {
       if (!this.previewCtx) return;
-
+      console.log(
+        "IMAGES IN PREVIEW",
+        this.images.map((i) => i.opacity)
+      );
       this.previewCtx.save();
       this.previewCtx.globalAlpha = img.opacity;
       this.previewCtx.drawImage(img.image, img.x, img.y, img.width, img.height);
@@ -272,6 +291,8 @@ export class ImageTool {
       type: "resizeImage",
       id: selected.id,
       width: newWidth,
+      height: newHeight,
+      points: [point],
     };
   }
 
@@ -328,6 +349,7 @@ export class ImageTool {
           return {
             type: "deleteImage",
             id: deletedId,
+            points: [point],
           };
         }
       }

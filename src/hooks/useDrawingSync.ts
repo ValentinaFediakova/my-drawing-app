@@ -54,7 +54,23 @@ export const useDrawingSync = ({
       containerCanvasesRef.current.appendChild(newCanvas);
       userCanvases.current.set(userId, newCanvas);
 
+      // --- preview-img-canvas ---
+      const previewCanvas = document.createElement("canvas");
+      previewCanvas.classList.add("previewCanvas-for-img");
+      previewCanvas.width = window.innerWidth;
+      previewCanvas.height = window.innerHeight;
+      previewCanvas.style.position = "absolute";
+      previewCanvas.style.left = "0";
+      previewCanvas.style.top = "0";
+      previewCanvas.style.pointerEvents = "none";
+      previewCanvas.style.zIndex = "2";
+      containerCanvasesRef.current.appendChild(previewCanvas);
+      const previewCtx = previewCanvas.getContext("2d");
+
       const manager = new DrawingManager(newCanvas);
+      if (previewCtx) {
+        manager.setPreviewCtx(previewCtx);
+      }
       usersDrawingManagers.current.set(userId, manager);
     }
   };
@@ -75,6 +91,7 @@ export const useDrawingSync = ({
 
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
+        console.log("[WS DATA]", data);
         if (isHistoryMessage(data)) {
           data.events.forEach((event) => {
             wsRef.current?.handleIncomingEvent(event);
@@ -251,10 +268,8 @@ export const useDrawingSync = ({
           }
 
           case "addImage": {
-            if (!src || width === undefined || height === undefined || !id)
-              return;
-
-            manager.drawImageOnCanvasTool(src, points[0], width, id);
+            if (!src || width === undefined || !id) return;
+            manager.drawImageOnCanvasTool(src, points[0], width, opacity, id);
             break;
           }
 
@@ -263,10 +278,17 @@ export const useDrawingSync = ({
             manager.moveImageById(id, points[0]);
             break;
           }
-
           case "resizeImage": {
             if (!id || width === undefined || height === undefined) return;
             manager.resizeImageById(id, width, height);
+            break;
+          }
+
+          case "updateImageOpacity": {
+            console.log(">>>>>>>>>> updateImageOpacity");
+            if (!id || opacity === undefined) return;
+
+            manager.setImageOpacityById?.(id, opacity);
             break;
           }
 
@@ -297,6 +319,8 @@ export const useDrawingSync = ({
             }
             break;
           }
+          default:
+            console.warn("Unknown type received:", type);
         }
       },
       () => {

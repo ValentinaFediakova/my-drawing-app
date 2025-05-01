@@ -215,9 +215,10 @@ export class DrawingManager {
     src: string,
     points: Point,
     width: number,
+    opacity: number,
     id?: string
   ) {
-    return this.ImageTool.drawImage(src, points, width, id);
+    return this.ImageTool.drawImage(src, points, width, opacity, id);
   }
 
   moveImageById(id: string, point: Point) {
@@ -232,7 +233,11 @@ export class DrawingManager {
     this.ImageTool.deleteImageById(id);
   }
 
-  drawImageById(src: string, point: Point, width: number, id: string) {
-    this.ImageTool.drawImage(src, point, width, id);
+  getSelectedImage() {
+    return this.ImageTool.getSelectedImage();
+  }
+
+  setImageOpacityById(id: string, opacity: number) {
+    this.ImageTool.setImageOpacityById(id, opacity);
   }
 }

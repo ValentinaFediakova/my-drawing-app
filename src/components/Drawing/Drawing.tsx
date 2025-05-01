@@ -47,7 +47,8 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
   const sendWsData = useCallback((data: WsData): void => {
     if (userIdRef.current) {
-      wsRef.current?.send(JSON.stringify({ ...data, userId: userIdRef.current, name: userName }));
+      const payload = { ...data, userId: userIdRef.current, name: userName };
+      wsRef.current?.send(JSON.stringify(payload));
     }
   }, [userName]);
 
@@ -72,6 +73,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     if (tool === 'pastImg') {
       const deleteData = drawingManagerRef.current?.deleteImgOnCanvas(points);
       if (deleteData) {
+        console.log('>>>>>>>>>>>> sendWsData(deleteData)')
         sendWsData(deleteData);
         return;
       }
@@ -148,7 +150,9 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         if (moveData) sendWsData(moveData);
       } else {
         const resizeData = drawingManagerRef.current?.resizeSelectedImage(point);
-        if (resizeData) sendWsData(resizeData);
+        if (resizeData) {
+          sendWsData(resizeData);
+        }
       }
       return;
     }
@@ -252,8 +256,9 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
           }
         }
         
-        const wsData = drawingManagerRef.current?.drawImageOnCanvasTool(src, {x: 150, y: 150}, 100);
+        const wsData = drawingManagerRef.current?.drawImageOnCanvasTool(src, {x: 150, y: 150}, 100, opacity);
         if (wsData) {
+          console.log('wsData', wsData)
           sendWsData(wsData);
         }
       }
@@ -292,7 +297,17 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
 
     if (tool === 'pastImg') {
+      const selectedImg = drawingManagerRef.current.getSelectedImage?.();
+
       drawingManagerRef.current?.setImageOpacity(opacity);
+      if (selectedImg) {
+        sendWsData({
+          type: "updateImageOpacity",
+          id: selectedImg.id,
+          opacity,
+          points: [{x: 0, y: 0}]
+        });
+      }
     }
   }, [color, lineWidth, eraserLineWidth, opacity, tool]);
 
