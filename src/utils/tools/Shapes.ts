@@ -140,8 +140,6 @@ export class ShapesTool {
     if (!shapeConfig) return;
     const ctx = isWs ? shapeConfig.previewCtx : this.ctx;
 
-    console.log("WS finalizeDrawShape");
-
     ctx.strokeStyle = shapeConfig.color ?? "black";
     ctx.lineWidth = shapeConfig.lineWidth ?? 5;
     ctx.globalAlpha = shapeConfig.opacity ?? 1;

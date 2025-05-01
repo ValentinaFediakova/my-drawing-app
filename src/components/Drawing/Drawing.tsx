@@ -292,7 +292,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     drawingManagerRef.current.setBrushSettings(lineWidth, eraserLineWidth, color, opacity);
 
     if (tool === 'pastImg') {
-      console.log('>>>>>>>>>>> opacity', opacity)
       drawingManagerRef.current?.setImageOpacity(opacity);
     }
   }, [color, lineWidth, eraserLineWidth, opacity, tool]);

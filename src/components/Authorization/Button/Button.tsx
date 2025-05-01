@@ -8,7 +8,7 @@ interface ButtonProps {
 }
 
 export const Button: React.FC<ButtonProps> = ({text, type, onHandleClick, isLoading}) => {
-console.log('isLoading', isLoading)
+
   return (
     <button 
       className={type === 'main' ? 'button button_main' : 'button button_secondary'} 
