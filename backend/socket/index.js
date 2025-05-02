@@ -19,6 +19,14 @@ export const setupWebSocket = (server) => {
       })
     );
 
+    console.log(
+      ">>>>>>>>>. history",
+      JSON.stringify({
+        type: "history",
+        events: [...history, ...imageHistory.values()],
+      })
+    );
+
     ws.on("message", (message) => {
       const data = JSON.parse(message);
 
@@ -57,6 +65,7 @@ export const setupWebSocket = (server) => {
 
       if (clients.size === 0) {
         history.length = 0;
+        imageHistory.clear();
       }
     });
 

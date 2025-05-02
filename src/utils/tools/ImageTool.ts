@@ -57,35 +57,47 @@ export class ImageTool {
     points: Point,
     maxWidth: number,
     opacity: number,
+    height?: number,
     idArg?: string
   ): {
-    type: "addImage";
+    type: "addOrUpdateImage";
     id: string;
     src: string;
     points: Point[];
     width: number;
     opacity: number;
+    height: number;
   } | void {
     const { x: targetX, y: targetY } = points;
     const id = idArg ? idArg : uuidv4();
     const img = new Image();
     img.crossOrigin = "anonymous";
-
+    let drawHeight = 0;
     img.onload = () => {
       const aspectRatio = img.width / img.height;
       const drawWidth = maxWidth;
-      const drawHeight = drawWidth / aspectRatio;
+      drawHeight = height ?? drawWidth / aspectRatio;
 
-      this.images.push({
-        id,
-        image: img,
-        x: targetX,
-        y: targetY,
-        width: drawWidth,
-        height: drawHeight,
-        isSelected: false,
-        opacity,
-      });
+      const existing = this.images.find((img) => img.id === id);
+      if (existing) {
+        existing.x = targetX;
+        existing.y = targetY;
+        existing.width = drawWidth;
+        existing.height = drawHeight;
+        existing.opacity = opacity;
+        existing.image = img;
+      } else {
+        this.images.push({
+          id,
+          image: img,
+          x: targetX,
+          y: targetY,
+          width: drawWidth,
+          height: drawHeight,
+          isSelected: false,
+          opacity,
+        });
+      }
 
       this.drawPreview();
     };
@@ -93,11 +105,12 @@ export class ImageTool {
     img.src = src;
 
     return {
-      type: "addImage",
+      type: "addOrUpdateImage",
       id,
       src,
       points: [points],
       width: maxWidth,
+      height: height ?? drawHeight / (img.width / img.height),
       opacity,
     };
   }
@@ -382,5 +395,9 @@ export class ImageTool {
       this.images.splice(index, 1);
       this.drawPreview();
     }
+  }
+
+  getImageById(id: string) {
+    return this.images.find((img) => img.id === id);
   }
 }

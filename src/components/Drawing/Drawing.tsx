@@ -44,6 +44,25 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
   const dispatch = useDispatch()
 
+  const broadcastImageUpdate = (img: {
+    id: string;
+    image: HTMLImageElement;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    opacity: number;
+  }) => {
+    sendWsData({
+      type: "addOrUpdateImage",
+      id: img.id,
+      src: img.image.src,
+      points: [{ x: img.x, y: img.y }],
+      width: img.width,
+      height: img.height,
+      opacity: img.opacity,
+    });
+  };
 
   const sendWsData = useCallback((data: WsData): void => {
     if (userIdRef.current) {
@@ -73,7 +92,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     if (tool === 'pastImg') {
       const deleteData = drawingManagerRef.current?.deleteImgOnCanvas(points);
       if (deleteData) {
-        console.log('>>>>>>>>>>>> sendWsData(deleteData)')
         sendWsData(deleteData);
         return;
       }
@@ -152,6 +170,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         const resizeData = drawingManagerRef.current?.resizeSelectedImage(point);
         if (resizeData) {
           sendWsData(resizeData);
+          const movedImg = drawingManagerRef.current?.getSelectedImage?.();
+          if (movedImg) {
+            broadcastImageUpdate(movedImg);
+          }
         }
       }
       return;
@@ -301,12 +323,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
       drawingManagerRef.current?.setImageOpacity(opacity);
       if (selectedImg) {
-        sendWsData({
-          type: "updateImageOpacity",
-          id: selectedImg.id,
-          opacity,
-          points: [{x: 0, y: 0}]
-        });
+        broadcastImageUpdate(selectedImg);
       }
     }
   }, [color, lineWidth, eraserLineWidth, opacity, tool]);

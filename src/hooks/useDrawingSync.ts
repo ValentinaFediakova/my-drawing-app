@@ -285,7 +285,6 @@ export const useDrawingSync = ({
           }
 
           case "updateImageOpacity": {
-            console.log(">>>>>>>>>> updateImageOpacity");
             if (!id || opacity === undefined) return;
 
             manager.setImageOpacityById?.(id, opacity);
@@ -295,6 +294,21 @@ export const useDrawingSync = ({
           case "deleteImage": {
             if (!id) return;
             manager.deleteImageById(id);
+            break;
+          }
+
+          case "addOrUpdateImage": {
+            if (!src || width === undefined || height === undefined || !id)
+              return;
+
+            manager.drawImageOnCanvasTool(
+              src,
+              points[0],
+              width,
+              opacity,
+              height,
+              id
+            );
             break;
           }
 
