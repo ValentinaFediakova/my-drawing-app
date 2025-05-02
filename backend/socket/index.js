@@ -19,7 +19,12 @@ export const setupWebSocket = (server) => {
         data.type === "writeText" ||
         data.type === "end" ||
         data.type === "setTool" ||
-        data.type === "setTextSettings"
+        data.type === "setTextSettings" ||
+        data.type === "addImage" ||
+        data.type === "resizeImage" ||
+        data.type === "moveImage" ||
+        data.type === "deleteImage" ||
+        data.type === "updateImageOpacity"
       ) {
         history.push(data);
       }
