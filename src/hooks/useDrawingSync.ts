@@ -268,7 +268,14 @@ export const useDrawingSync = ({
 
           case "addImage": {
             if (!src || width === undefined || !id) return;
-            manager.drawImageOnCanvasTool(src, points[0], width, opacity, id);
+            manager.drawImageOnCanvasTool(
+              src,
+              points[0],
+              width,
+              opacity,
+              undefined,
+              id
+            );
             break;
           }
 
