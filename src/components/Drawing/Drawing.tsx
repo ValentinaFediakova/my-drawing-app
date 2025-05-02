@@ -280,7 +280,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
         
         const wsData = drawingManagerRef.current?.drawImageOnCanvasTool(src, {x: 150, y: 150}, 100, opacity);
         if (wsData) {
-          console.log('wsData', wsData)
           sendWsData(wsData);
         }
       }

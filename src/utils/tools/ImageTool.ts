@@ -127,10 +127,7 @@ export class ImageTool {
 
     this.images.forEach((img) => {
       if (!this.previewCtx) return;
-      console.log(
-        "IMAGES IN PREVIEW",
-        this.images.map((i) => i.opacity)
-      );
+
       this.previewCtx.save();
       this.previewCtx.globalAlpha = img.opacity;
       this.previewCtx.drawImage(img.image, img.x, img.y, img.width, img.height);

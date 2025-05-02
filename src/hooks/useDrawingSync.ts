@@ -91,7 +91,6 @@ export const useDrawingSync = ({
 
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
-        console.log("[WS DATA]", data);
         if (isHistoryMessage(data)) {
           data.events.forEach((event) => {
             wsRef.current?.handleIncomingEvent(event);

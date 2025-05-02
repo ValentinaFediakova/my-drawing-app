@@ -19,14 +19,6 @@ export const setupWebSocket = (server) => {
       })
     );
 
-    console.log(
-      ">>>>>>>>>. history",
-      JSON.stringify({
-        type: "history",
-        events: [...history, ...imageHistory.values()],
-      })
-    );
-
     ws.on("message", (message) => {
       const data = JSON.parse(message);
 
@@ -78,9 +70,3 @@ export const setupWebSocket = (server) => {
 
   console.log("✅ WebSocket server is attached to existing HTTP server");
 };
-
-// data.type === "addImage" ||
-// data.type === "resizeImage" ||
-// data.type === "moveImage" ||
-// data.type === "deleteImage" ||
-// data.type === "updateImageOpacity"
