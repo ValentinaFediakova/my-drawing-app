@@ -3,6 +3,7 @@ import { WebSocketServer, WebSocket } from "ws";
 export const setupWebSocket = (server) => {
   const wss = new WebSocketServer({ server });
   const history = [];
+  const imageHistory = new Map();
 
   const clients = new Map();
 
@@ -11,20 +12,27 @@ export const setupWebSocket = (server) => {
 
     let userId = "";
 
+    ws.send(
+      JSON.stringify({
+        type: "history",
+        events: [...history, ...imageHistory.values()],
+      })
+    );
+
     ws.on("message", (message) => {
       const data = JSON.parse(message);
+
+      if (data.type === "addOrUpdateImage") {
+        imageHistory.set(data.id, data);
+      }
+
       if (
         data.type === "startDraw" ||
         data.type === "inDrawProgress" ||
         data.type === "writeText" ||
         data.type === "end" ||
         data.type === "setTool" ||
-        data.type === "setTextSettings" ||
-        data.type === "addImage" ||
-        data.type === "resizeImage" ||
-        data.type === "moveImage" ||
-        data.type === "deleteImage" ||
-        data.type === "updateImageOpacity"
+        data.type === "setTextSettings"
       ) {
         history.push(data);
       }
@@ -61,3 +69,9 @@ export const setupWebSocket = (server) => {
 
   console.log("✅ WebSocket server is attached to existing HTTP server");
 };
+
+// data.type === "addImage" ||
+// data.type === "resizeImage" ||
+// data.type === "moveImage" ||
+// data.type === "deleteImage" ||
+// data.type === "updateImageOpacity"
