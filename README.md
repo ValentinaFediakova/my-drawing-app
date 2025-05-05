@@ -1,25 +1,29 @@
-# 🎨 My Drawing App
+# 🖌️ Realtime Collaborative Drawing App
 
-My Drawing App is a web application for drawing with support for various colors, line thicknesses, and opacity. The project is built using **Next.js** with **Redux Toolkit** for state management and **Canvas API** for drawing.
+A web-based collaborative drawing app built with **React**, **Canvas API**, **Redux Toolkit**, and **WebSockets**. Users can draw, insert images, write text, and collaborate in real-time across tabs or with other users.
 
 ## 🚀 **Features:**
 
-- ✏️ Draw lines with different thickness and color.
-- 🎨 Choose color and opacity.
+- ✏️ Pencil tool. Draw lines with different thickness and color.
 - 🧽 Eraser mode.
+- 📝 Text input on canvas.
+- 🎨 Choose color and opacity.
+- 🔺 Drawing geometric shapes (rectangle, circle, line).
 - 🗑️ Clear the canvas.
-- 🔤 Text mode.
-- 🌃 Past images and edit
-- 🔄 Undo and redo actions (planned).
-- 📂 Save images (planned).
-- 🌐 WebSocket support for real-time collaborative drawing.
+- 🖼️ Inserting and editing images (resize, drag, opacity control).
+- 📡 WebSocket-powered real-time collaboration.
+- 👥 Per-user canvas layers.
+- 🔐 Simple user authentication.
 
 ## 🛠️ **Technologies:**
 
-- **Next.js** — frontend framework.
+- **Next.js** — framework.
 - **Redux Toolkit** — state management.
 - **Canvas API** — for drawing.
 - **TypeScript** — for typing.
+- **WebSockets (ws)** — for real-time collaboration.
+- **Node.js** — WebSocket server backend.
+- **JWT + Express** — for user authentication.
 
 ## 📦 **Installation:**
 
