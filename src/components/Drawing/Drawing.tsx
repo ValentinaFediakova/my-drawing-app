@@ -12,6 +12,7 @@ import { useDrawingSync } from '@/hooks/useDrawingSync'
 import { WsData, Point, ShapeConfig } from '@/types'
 
 import "./Drawing.scss";
+import { useCanvasInteractions } from "@/hooks/useCanvasInteractions";
 
 interface DrawingProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -31,7 +32,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const wsRef = useRef<WebSocketClient>(new WebSocketClient(WS_URL));
   const userIdRef = useRef<string | null>(null)
   const usersNameElements = useRef<Map<string, HTMLDivElement>>(new Map());
-  const containerCanvasesRef = useRef<HTMLDivElement | null>(null);
+  const containerCanvasesRef = useRef<HTMLDivElement>(null!);
   const userCanvases = useRef<Map<string, HTMLCanvasElement>>(new Map());
   const usersDrawingManagers = useRef<Map<string, DrawingManager>>(new Map());
   const usersSettings = useRef<Map<string, WsData>>(new Map());
@@ -40,7 +41,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   const endPointRef = useRef<Point | null>(null);
   const previewCtx = useRef<CanvasRenderingContext2D | null>(null)
   const previewCtxForImg = useRef<CanvasRenderingContext2D | null>(null)
-
 
   const dispatch = useDispatch()
 
@@ -82,75 +82,23 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     usersNameElements,
     sendWsData,
   });
-  
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const points = { x: e.clientX, y: e.clientY };
-    startPointRef.current = points
-    isDrawing.current = true;
-
-    if (tool === 'pastImg') {
-      const deleteData = drawingManagerRef.current?.deleteImgOnCanvas(points);
-      if (deleteData) {
-        sendWsData(deleteData);
-        return;
-      }
-  
-      const startedResizing = drawingManagerRef.current?.startResizeIfOnHandle(points);
-      if (!startedResizing) {
-        drawingManagerRef.current?.selectImgOnCanvas(points);
-      }
-  
-      return;
-    }
-
-    sendWsData({
-      type: 'startDraw',
-      tool,
-      shapeType,
-      color,
-      opacity,
-      lineWidth,
-      eraserLineWidth,
-      points: [points],
-    })
-
-  
-    isDrawing.current = true;
-
-    if (tool === 'eraser' || tool === 'pencil') {
-      drawingManagerRef.current?.startDraw(points);
-    }
-    if (tool === 'writeText') {
-      drawingManagerRef.current?.startWriteText(points)
-    }
-    if (tool === 'shape') {
-      const previewCanvas = document.createElement("canvas");
-      previewCanvas.width = window.innerWidth;
-      previewCanvas.height = window.innerHeight;
-      previewCanvas.classList.add("preview-canvas");
-      previewCanvas.style.position = "absolute";
-      previewCanvas.style.top = "0";
-      previewCanvas.style.left = "0";
-      previewCanvas.style.zIndex = "2";
-      previewCanvas.style.pointerEvents = "none";
-      containerCanvasesRef.current?.appendChild(previewCanvas);
-      previewCtx.current = previewCanvas.getContext("2d");
-
-      if (!previewCtx.current) return;
-
-      const shape: ShapeConfig = {
-        shapeType: shapeType,
-        startShapePoint: startPointRef.current || { x: 0, y: 0 },
-        color: color,
-        lineWidth: lineWidth,
-        opacity: opacity,
-        previewCtx: previewCtx.current as CanvasRenderingContext2D
-      }
-
-      drawingManagerRef.current?.setPreviewSettings(shape);
-    }
-  };
+  const {
+    handleMouseDown, handleKeyDown,
+  } = useCanvasInteractions({
+    tool,
+    shapeType,
+    color,
+    lineWidth,
+    eraserLineWidth,
+    opacity,
+    previewCtx,
+    drawingManagerRef,
+    sendWsData,
+    containerCanvasesRef,
+    isDrawing,
+    startPointRef,
+  });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing.current) return;
@@ -234,18 +182,6 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
 
     startPointRef.current = null;
     endPointRef.current = null;
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
-    const key = e.key;
-    if (key.length > 1) return
-    sendWsData({
-      type: "writeText",
-      tool: "writeText",
-      key,
-    })
-    
-    drawingManagerRef.current?.writeText(key);
   }
 
   const handlePaste = (e: ClipboardEvent) => {

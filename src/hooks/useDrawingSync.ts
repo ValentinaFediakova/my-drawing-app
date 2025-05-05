@@ -126,7 +126,7 @@ export const useDrawingSync = ({
         const manager = usersDrawingManagers.current.get(userId);
         const settings = usersSettings.current.get(userId);
 
-        if (!manager || !points || !points[0]) return;
+        if (!manager) return;
 
         switch (type) {
           case "setTool": {
@@ -157,6 +157,7 @@ export const useDrawingSync = ({
             break;
           }
           case "startDraw": {
+            if (!points) return;
             const prev = usersSettings.current.get(userId);
 
             usersSettings.current.set(userId, {
@@ -185,7 +186,7 @@ export const useDrawingSync = ({
           }
 
           case "inDrawProgress": {
-            if (!manager || !points || !points[0]) return;
+            if (!points) return;
 
             const settings = usersSettings.current.get(userId);
             if (settings) {
@@ -215,7 +216,7 @@ export const useDrawingSync = ({
           }
 
           case "writeText": {
-            if (!manager || !key) return;
+            if (!key) return;
 
             const settings = usersSettings.current.get(userId);
             if (settings) {
@@ -240,8 +241,8 @@ export const useDrawingSync = ({
 
           case "end": {
             const settings = usersSettings.current.get(userId);
-            if (!settings) return;
-            if (tool === "shape" && points?.length === 2) {
+            if (!settings || !points) return;
+            if (tool === "shape" && points.length === 2) {
               const isWs = true;
               manager.finalizeDrawShape(
                 {
@@ -267,7 +268,7 @@ export const useDrawingSync = ({
           }
 
           case "addImage": {
-            if (!src || width === undefined || !id) return;
+            if (!src || width === undefined || !id || !points) return;
             manager.drawImageOnCanvasTool(
               src,
               points[0],
@@ -280,7 +281,7 @@ export const useDrawingSync = ({
           }
 
           case "moveImage": {
-            if (!id) return;
+            if (!id || !points) return;
             manager.moveImageById(id, points[0]);
             break;
           }
@@ -304,7 +305,13 @@ export const useDrawingSync = ({
           }
 
           case "addOrUpdateImage": {
-            if (!src || width === undefined || height === undefined || !id)
+            if (
+              !src ||
+              width === undefined ||
+              height === undefined ||
+              !id ||
+              !points
+            )
               return;
 
             manager.drawImageOnCanvasTool(
