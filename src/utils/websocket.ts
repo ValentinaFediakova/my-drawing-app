@@ -37,7 +37,6 @@ export class WebSocketClient {
     };
 
     this.socket.onclose = (): void => {
-      // console.log("🔌 WebSocket closed");
       if (!this.isManuallyClosed) {
         setTimeout(
           () => this.connect(onMessage, onOpen),
@@ -50,9 +49,6 @@ export class WebSocketClient {
   send(data: string): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(data);
-      // console.log("📤 Sent:", data);
-    } else {
-      // console.warn("⏳ WebSocket is not ready yet. Message not sent.");
     }
   }
 

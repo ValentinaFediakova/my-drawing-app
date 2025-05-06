@@ -18,6 +18,5 @@ export const WS_URL = process.env.NEXT_PUBLIC_WS_URL!;
 export const SHAPES = {
   RECTANGLE: "rectangle",
   CIRCLE: "circle",
-  // MARTIANCIRCLE: "martiancircle",
   LINE: "line",
 };

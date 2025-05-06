@@ -32,12 +32,6 @@ export const ActionBar: React.FC<ActionBarProps> = ({ drawingManagerRef }) => {
       </button>
       {actionBarOpen && (
         <div className={'action-bar'}>
-        {/* <button className="action-bar__item">
-          <div className="action-bar__undo"></div>
-        </button>
-        <button className="action-bar__item">
-          <div className="action-bar__redo"></div>
-        </button> */}
         <button className="action-bar__item action-bar__item_margin" onClick={handleClear}>
           <div className="action-bar__clear-img action-bar__clear-img_trash"></div>
           <div className="action-bar__item-title">Очистить лист</div>

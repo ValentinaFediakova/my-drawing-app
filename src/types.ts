@@ -44,7 +44,6 @@ export type HistoryMessage = {
 export type WebSocketMessage = WsData | HistoryMessage;
 
 export type Point = { x: number; y: number };
-// export type ShapeType = "rectangle" | "circle" | "line" | "martiancircle";
 export type ShapeType = "rectangle" | "circle" | "line";
 
 export interface ShapeConfig {

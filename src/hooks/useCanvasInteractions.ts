@@ -1,7 +1,5 @@
-// import { useCallback, useEffect } from "react";
 import { Point, ShapeConfig, ShapeType, Tool, WsData, MoveImg } from "@/types";
 import { DrawingManager } from "@/utils/DrawingManager";
-// import { AppDispatch } from "@/store";
 
 interface UseCanvasInteractionsParams {
   tool: Tool;
@@ -10,17 +8,9 @@ interface UseCanvasInteractionsParams {
   lineWidth: number;
   eraserLineWidth: number;
   opacity: number;
-  // fontSize: number;
-  // outline: string[];
-  // canvasRef: React.RefObject<HTMLCanvasElement>;
-  // containerRef: React.RefObject<HTMLDivElement>;
   previewCtx: React.MutableRefObject<CanvasRenderingContext2D | null>;
-  // previewCtxForImg: React.MutableRefObject<CanvasRenderingContext2D | null>;
   drawingManagerRef: React.RefObject<DrawingManager | null>;
   sendWsData: (data: WsData) => void;
-  // dispatch: AppDispatch;
-  // setToolAction: (tool: string) => void;
-  // userId: string | null;
   containerCanvasesRef: React.RefObject<HTMLDivElement>;
   isDrawing: React.MutableRefObject<boolean>;
   startPointRef: React.MutableRefObject<Point | null>;
