@@ -116,17 +116,21 @@ export const Settings: React.FC = ({ }) => {
 
       {tool === 'shape' && (
         <>
-          <div className="settings__colors">
-            {Object.values(PALETTE_COLORS).map((color) => (
-              <ColorPicker key={color} color={color} />
-            ))}
-            <input 
-              className="settings__choose-many-colors" 
-              type="color" 
-              value={convertRgbaToHex(color)} 
-              onChange={(e) => dispatch(setColor(e.target.value))} 
-            />
+          <div className={"settings__block"}>
+            <div className="settings__title">Color</div>
+            <div className="settings__colors">
+              {Object.values(PALETTE_COLORS).map((color) => (
+                <ColorPicker key={color} color={color} />
+              ))}
+              <input 
+                className="settings__choose-many-colors" 
+                type="color" 
+                value={convertRgbaToHex(color)} 
+                onChange={(e) => dispatch(setColor(e.target.value))} 
+              />
+            </div>
           </div>
+          
           <div className={"settings__block"}>
             <div className="settings__title">Shape</div>
             <div className='settings__buttons-shape'>
