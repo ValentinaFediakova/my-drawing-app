@@ -9,7 +9,7 @@ import { WebSocketClient } from "@/utils/websocket";
 import { WS_URL } from "@/constants";
 import { v4 as uuidv4 } from 'uuid';
 import { useDrawingSync } from '@/hooks/useDrawingSync'
-import { WsData, Point, ShapeConfig } from '@/types'
+import { WsData, Point } from '@/types'
 
 import "./Drawing.scss";
 import { useCanvasInteractions } from "@/hooks/useCanvasInteractions";
@@ -84,7 +84,7 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
   });
 
   const {
-    handleMouseDown, handleKeyDown,
+    handleMouseDown, handleMouseMove, handleMouseUp, handleKeyDown
   } = useCanvasInteractions({
     tool,
     shapeType,
@@ -98,91 +98,10 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     containerCanvasesRef,
     isDrawing,
     startPointRef,
+    endPointRef,
+    broadcastImageUpdate
   });
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing.current) return;
-  
-    const point = { x: e.clientX, y: e.clientY };
-
-    endPointRef.current = point
-
-    if (tool === 'pastImg') {
-      if (drawingManagerRef.current?.isImgDragging()) {
-        const moveData = drawingManagerRef.current?.moveSelectedImage({
-          x: e.movementX,
-          y: e.movementY,
-        });
-        if (moveData) sendWsData(moveData);
-      } else {
-        const resizeData = drawingManagerRef.current?.resizeSelectedImage(point);
-        if (resizeData) {
-          sendWsData(resizeData);
-          const movedImg = drawingManagerRef.current?.getSelectedImage?.();
-          if (movedImg) {
-            broadcastImageUpdate(movedImg);
-          }
-        }
-      }
-      return;
-    }
-
-    sendWsData({
-      type: 'inDrawProgress',
-      points: [point],
-    });
-
-    if (tool === 'eraser' || tool === 'pencil') {
-      drawingManagerRef.current?.draw(point);
-    }
-    if (tool === 'shape') {
-      drawingManagerRef.current?.drawShapePreview(point);
-    }
-  };
-  
-  const handleMouseUp = () => {
-    isDrawing.current = false;
-
-    if (tool === 'pastImg') {
-      drawingManagerRef.current?.finalizeImageInteraction();
-      return;
-    }
-
-    if (startPointRef.current && endPointRef.current) {
-      sendWsData({ type: "end", tool, shapeType, points: [startPointRef.current, endPointRef.current], color, lineWidth, opacity});
-    }
-
-    if (tool === 'eraser' || tool === 'pencil') {
-      drawingManagerRef.current?.stopDraw();
-    }
-
-    const shape: ShapeConfig = {
-      shapeType: shapeType,
-      startShapePoint: startPointRef.current || { x: 0, y: 0 },
-      endShapePoint: endPointRef.current || {x: 0, y: 0},
-      color: color,
-      lineWidth: lineWidth,
-      opacity: opacity,
-      previewCtx: previewCtx.current as CanvasRenderingContext2D
-    }
-
-    if (tool === 'shape') {
-      drawingManagerRef.current?.finalizeDrawShape(shape);
-
-      if (previewCtx.current) {
-        const previewCanvas = previewCtx.current?.canvas;
-        if (previewCanvas) {
-          containerCanvasesRef.current?.removeChild(previewCanvas);
-        }
-      }
-
-      previewCtx.current = null;
-    }
-
-
-    startPointRef.current = null;
-    endPointRef.current = null;
-  }
 
   const handlePaste = (e: ClipboardEvent) => {
 

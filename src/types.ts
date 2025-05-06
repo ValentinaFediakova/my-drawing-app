@@ -56,3 +56,13 @@ export interface ShapeConfig {
   opacity: number;
   previewCtx: CanvasRenderingContext2D;
 }
+
+export interface MoveImg {
+  id: string;
+  image: HTMLImageElement;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number;
+}

@@ -1,7 +1,7 @@
-import { useCallback, useEffect } from "react";
-import { Point, ShapeConfig, ShapeType, Tool, WsData } from "@/types";
+// import { useCallback, useEffect } from "react";
+import { Point, ShapeConfig, ShapeType, Tool, WsData, MoveImg } from "@/types";
 import { DrawingManager } from "@/utils/DrawingManager";
-import { AppDispatch } from "@/store";
+// import { AppDispatch } from "@/store";
 
 interface UseCanvasInteractionsParams {
   tool: Tool;
@@ -24,6 +24,8 @@ interface UseCanvasInteractionsParams {
   containerCanvasesRef: React.RefObject<HTMLDivElement>;
   isDrawing: React.MutableRefObject<boolean>;
   startPointRef: React.MutableRefObject<Point | null>;
+  endPointRef: React.MutableRefObject<Point | null>;
+  broadcastImageUpdate: (data: MoveImg) => void;
 }
 
 export const useCanvasInteractions = ({
@@ -39,6 +41,8 @@ export const useCanvasInteractions = ({
   containerCanvasesRef,
   isDrawing,
   startPointRef,
+  endPointRef,
+  broadcastImageUpdate,
 }: UseCanvasInteractionsParams) => {
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const points = { x: e.clientX, y: e.clientY };
@@ -109,6 +113,98 @@ export const useCanvasInteractions = ({
     }
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing.current) return;
+
+    const point = { x: e.clientX, y: e.clientY };
+
+    endPointRef.current = point;
+
+    if (tool === "pastImg") {
+      if (drawingManagerRef.current?.isImgDragging()) {
+        const moveData = drawingManagerRef.current?.moveSelectedImage({
+          x: e.movementX,
+          y: e.movementY,
+        });
+        if (moveData) sendWsData(moveData);
+      } else {
+        const resizeData =
+          drawingManagerRef.current?.resizeSelectedImage(point);
+        if (resizeData) {
+          sendWsData(resizeData);
+          const movedImg = drawingManagerRef.current?.getSelectedImage?.();
+          if (movedImg) {
+            broadcastImageUpdate(movedImg);
+          }
+        }
+      }
+      return;
+    }
+
+    sendWsData({
+      type: "inDrawProgress",
+      points: [point],
+    });
+
+    if (tool === "eraser" || tool === "pencil") {
+      drawingManagerRef.current?.draw(point);
+    }
+    if (tool === "shape") {
+      drawingManagerRef.current?.drawShapePreview(point);
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDrawing.current = false;
+
+    if (tool === "pastImg") {
+      drawingManagerRef.current?.finalizeImageInteraction();
+      return;
+    }
+
+    if (startPointRef.current && endPointRef.current) {
+      sendWsData({
+        type: "end",
+        tool,
+        shapeType,
+        points: [startPointRef.current, endPointRef.current],
+        color,
+        lineWidth,
+        opacity,
+      });
+    }
+
+    if (tool === "eraser" || tool === "pencil") {
+      drawingManagerRef.current?.stopDraw();
+    }
+
+    const shape: ShapeConfig = {
+      shapeType: shapeType,
+      startShapePoint: startPointRef.current || { x: 0, y: 0 },
+      endShapePoint: endPointRef.current || { x: 0, y: 0 },
+      color: color,
+      lineWidth: lineWidth,
+      opacity: opacity,
+      previewCtx: previewCtx.current as CanvasRenderingContext2D,
+    };
+
+    if (tool === "shape") {
+      drawingManagerRef.current?.finalizeDrawShape(shape);
+
+      if (previewCtx.current) {
+        const previewCanvas = previewCtx.current?.canvas;
+        if (previewCanvas) {
+          containerCanvasesRef.current?.removeChild(previewCanvas);
+        }
+      }
+
+      previewCtx.current = null;
+    }
+
+    startPointRef.current = null;
+    endPointRef.current = null;
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     const key = e.key;
     console.log("handleKeyDown");
@@ -116,12 +212,11 @@ export const useCanvasInteractions = ({
     sendWsData({
       type: "writeText",
       tool: "writeText",
-      points: [{ x: 0, y: 0 }],
       key,
     });
 
     drawingManagerRef.current?.writeText(key);
   };
 
-  return { handleMouseDown, handleKeyDown };
+  return { handleMouseDown, handleKeyDown, handleMouseMove, handleMouseUp };
 };
