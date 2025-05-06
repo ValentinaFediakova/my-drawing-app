@@ -124,55 +124,27 @@ export const useDrawingSync = ({
         ensureUserInitialized(userId);
 
         const manager = usersDrawingManagers.current.get(userId);
+        const prevSettings = usersSettings.current.get(userId) || {};
+        usersSettings.current.set(userId, {
+          ...prevSettings,
+          ...data,
+        });
         const settings = usersSettings.current.get(userId);
 
         if (!manager) return;
 
         switch (type) {
           case "setTool": {
-            usersSettings.current.set(userId, {
-              tool,
-              shapeType: tool === "shape" ? shapeType : undefined,
-              color,
-              lineWidth,
-              eraserLineWidth,
-              opacity,
-              name,
-            });
-
             if (settings) {
               applyBrushSettings(manager, settings);
             }
             break;
           }
           case "setTextSettings": {
-            const prev = usersSettings.current.get(userId);
-            usersSettings.current.set(userId, {
-              ...prev,
-              color,
-              fontSize,
-              outline,
-              name,
-            });
             break;
           }
           case "startDraw": {
             if (!points) return;
-            const prev = usersSettings.current.get(userId);
-
-            usersSettings.current.set(userId, {
-              ...prev,
-              tool,
-              shapeType,
-              color,
-              opacity,
-              lineWidth,
-              eraserLineWidth,
-              fontSize,
-              outline,
-              name,
-              lastPoint: points[0],
-            });
 
             if (tool === "eraser" || tool === "pencil") {
               manager.startDraw(points[0]);
@@ -188,7 +160,6 @@ export const useDrawingSync = ({
           case "inDrawProgress": {
             if (!points) return;
 
-            const settings = usersSettings.current.get(userId);
             if (settings) {
               applyBrushSettings(manager, settings);
             }
@@ -218,12 +189,11 @@ export const useDrawingSync = ({
           case "writeText": {
             if (!key) return;
 
-            const settings = usersSettings.current.get(userId);
             if (settings) {
               manager.setTextSettings(
-                settings.color ?? PALETTE_COLORS.BLACK,
-                settings.fontSize ?? 24,
-                settings.outline ?? ["Normal"]
+                settings.color ?? color ?? PALETTE_COLORS.BLACK,
+                settings.fontSize ?? fontSize ?? 24,
+                settings.outline ?? outline ?? ["Normal"]
               );
             }
 
@@ -240,7 +210,6 @@ export const useDrawingSync = ({
           }
 
           case "end": {
-            const settings = usersSettings.current.get(userId);
             if (!settings || !points) return;
             if (tool === "shape" && points.length === 2) {
               const isWs = true;

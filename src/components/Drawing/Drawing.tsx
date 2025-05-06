@@ -92,6 +92,8 @@ export const Drawing: React.FC<DrawingProps> = ({ canvasRef, drawingManagerRef})
     lineWidth,
     eraserLineWidth,
     opacity,
+    fontSize,
+    outline,
     previewCtx,
     drawingManagerRef,
     sendWsData,

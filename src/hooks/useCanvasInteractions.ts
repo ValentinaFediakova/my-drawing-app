@@ -8,6 +8,8 @@ interface UseCanvasInteractionsParams {
   lineWidth: number;
   eraserLineWidth: number;
   opacity: number;
+  fontSize: number;
+  outline: string[];
   previewCtx: React.MutableRefObject<CanvasRenderingContext2D | null>;
   drawingManagerRef: React.RefObject<DrawingManager | null>;
   sendWsData: (data: WsData) => void;
@@ -25,6 +27,8 @@ export const useCanvasInteractions = ({
   lineWidth,
   eraserLineWidth,
   opacity,
+  fontSize,
+  outline,
   previewCtx,
   drawingManagerRef,
   sendWsData,
@@ -203,6 +207,9 @@ export const useCanvasInteractions = ({
       type: "writeText",
       tool: "writeText",
       key,
+      color,
+      fontSize,
+      outline,
     });
 
     drawingManagerRef.current?.writeText(key);
