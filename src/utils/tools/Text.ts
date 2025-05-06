@@ -36,6 +36,7 @@ export class TextTool {
   private textWidth: number = 0;
   private sumAllMaxFontSizeForClearReactByY: number = 0;
   public isTextActive: boolean = false;
+  private isTyping: boolean = false;
 
   constructor(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
     this.ctx = ctx;
@@ -51,6 +52,10 @@ export class TextTool {
     this.outline = outline;
     this.ctx.fillStyle = finalColor;
     this.ctx.font = `${outline[0]} ${fontSize}px Arial`;
+  }
+
+  setTypingMode(isTyping: boolean) {
+    this.isTyping = isTyping;
   }
 
   coursorBlinking(): void {
@@ -113,7 +118,7 @@ export class TextTool {
     );
 
     // Draw new cursor if visible
-    if (this.isCoursorVisible) {
+    if (this.isCoursorVisible && this.isTyping) {
       const cursorX = this.currentPoints[0].x + lineWidth + 5;
       const cursorYtop = baseY - currentFontSize * 0.7 + totalOffsetY;
       const cursorYbot = baseY + currentFontSize * 0.1 + totalOffsetY;

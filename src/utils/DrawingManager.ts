@@ -75,6 +75,10 @@ export class DrawingManager {
     this.TextTool.setText(fontSize, outline, color);
   }
 
+  setTypingMode(isTyping: boolean) {
+    this.TextTool.setTypingMode(isTyping);
+  }
+
   startDraw(points: Point): void {
     this.isDrawing = true;
     this.points = [points];

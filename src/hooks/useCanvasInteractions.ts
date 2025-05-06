@@ -73,6 +73,7 @@ export const useCanvasInteractions = ({
     }
     if (tool === "writeText") {
       console.log('tool === "writeText"');
+      drawingManagerRef.current?.setTypingMode(true);
       drawingManagerRef.current?.startWriteText(points);
     }
     if (tool === "shape") {
