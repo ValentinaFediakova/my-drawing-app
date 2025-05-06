@@ -65,6 +65,7 @@ export class ShapesTool {
   private drawCircle(endShapePoint: Point) {
     if (!this.previewCtx || !this.startShapePoint) return;
 
+    this.previewCtx.strokeStyle = this.color ?? "black";
     this.previewCtx.lineWidth = this.lineWidth ?? 5;
     this.previewCtx.globalAlpha = this.opacity ?? 1;
 
@@ -91,6 +92,7 @@ export class ShapesTool {
   private drawLine(endShapePoint: Point) {
     if (!this.previewCtx || !this.startShapePoint) return;
 
+    this.previewCtx.strokeStyle = this.color ?? "black";
     this.previewCtx.lineWidth = this.lineWidth ?? 5;
     this.previewCtx.globalAlpha = this.opacity ?? 1;
 
