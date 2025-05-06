@@ -179,6 +179,7 @@ export const useCanvasInteractions = ({
     };
 
     if (tool === "shape") {
+      if (!startPointRef.current || !endPointRef.current) return;
       drawingManagerRef.current?.finalizeDrawShape(shape);
 
       if (previewCtx.current) {
