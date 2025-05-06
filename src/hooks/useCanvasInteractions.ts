@@ -72,7 +72,6 @@ export const useCanvasInteractions = ({
       drawingManagerRef.current?.startDraw(points);
     }
     if (tool === "writeText") {
-      console.log('tool === "writeText"');
       drawingManagerRef.current?.setTypingMode(true);
       drawingManagerRef.current?.startWriteText(points);
     }
@@ -199,7 +198,6 @@ export const useCanvasInteractions = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     const key = e.key;
-    console.log("handleKeyDown");
     if (key.length > 1) return;
     sendWsData({
       type: "writeText",
