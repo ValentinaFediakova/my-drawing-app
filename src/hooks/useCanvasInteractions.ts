@@ -121,6 +121,8 @@ export const useCanvasInteractions = ({
           y: e.movementY,
         });
         if (moveData) sendWsData(moveData);
+        const updated = drawingManagerRef.current.getSelectedImage();
+        if (updated) broadcastImageUpdate(updated);
       } else {
         const resizeData =
           drawingManagerRef.current?.resizeSelectedImage(point);

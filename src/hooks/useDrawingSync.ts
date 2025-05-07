@@ -92,7 +92,6 @@ export const useDrawingSync = ({
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
         if (isHistoryMessage(data)) {
-          console.log("########## data history", data);
           data.events.forEach((event) => {
             wsRef.current?.handleIncomingEvent(event);
           });
@@ -117,7 +116,7 @@ export const useDrawingSync = ({
           src,
           width,
           height,
-          id,
+          id: imageId,
         } = data;
 
         if (!userId || userId === userIdRef.current) return;
@@ -133,8 +132,6 @@ export const useDrawingSync = ({
         const settings = usersSettings.current.get(userId);
 
         if (!manager) return;
-
-        console.log(">>>>>>>>>>>>>>>>>> 1 type", type, "points", points);
 
         switch (type) {
           case "setTool": {
@@ -240,34 +237,34 @@ export const useDrawingSync = ({
           }
 
           case "addImage": {
-            if (!src || width === undefined || !id || !points) return;
+            if (!src || width === undefined || !imageId || !points) return;
             manager.drawImageOnCanvasTool(
               src,
               points[0],
               width,
               opacity,
               undefined,
-              id
+              imageId
             );
             break;
           }
 
           case "moveImage": {
-            if (!id || !points) return;
-            manager.moveImageById(id, points[0]);
+            if (!imageId || !points) return;
+            manager.moveImageById(imageId, points[0]);
 
             break;
           }
           case "resizeImage": {
-            if (!id || width === undefined || height === undefined) return;
-            manager.resizeImageById(id, width, height);
+            if (!imageId || width === undefined || height === undefined) return;
+            manager.resizeImageById(imageId, width, height);
             break;
           }
 
           case "deleteImage": {
-            if (!id) return;
+            if (!imageId) return;
 
-            manager.deleteImageById(id);
+            manager.deleteImageById(imageId);
             break;
           }
 
@@ -276,7 +273,7 @@ export const useDrawingSync = ({
               !src ||
               width === undefined ||
               height === undefined ||
-              !id ||
+              !imageId ||
               !points
             )
               return;
@@ -287,7 +284,7 @@ export const useDrawingSync = ({
               width,
               opacity,
               height,
-              id
+              imageId
             );
             break;
           }

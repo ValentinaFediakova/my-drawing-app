@@ -221,9 +221,16 @@ export class DrawingManager {
     width: number,
     opacity: number,
     height?: number,
-    id?: string
+    imageId?: string
   ) {
-    return this.ImageTool.drawImage(src, points, width, opacity, height, id);
+    return this.ImageTool.drawImage(
+      src,
+      points,
+      width,
+      opacity,
+      height,
+      imageId
+    );
   }
 
   moveImageById(id: string, point: Point) {

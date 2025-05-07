@@ -21,6 +21,7 @@ export class ImageTool {
   private handleSize: number = 10;
   private images: Images[] = [];
   private currentOpacity: number = 1;
+  private imgSrc: string = "";
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -50,7 +51,7 @@ export class ImageTool {
     maxWidth: number,
     opacity: number,
     height?: number,
-    idArg?: string
+    imageId?: string
   ): {
     type: "addOrUpdateImage";
     id: string;
@@ -61,16 +62,19 @@ export class ImageTool {
     height: number;
   } | void {
     const { x: targetX, y: targetY } = points;
-    const id = idArg ? idArg : uuidv4();
+    const id = imageId ? imageId : uuidv4();
     const img = new Image();
     img.crossOrigin = "anonymous";
+
     let drawHeight = 0;
+
     img.onload = () => {
       const aspectRatio = img.width / img.height;
       const drawWidth = maxWidth;
       drawHeight = height ?? drawWidth / aspectRatio;
 
       const existing = this.images.find((img) => img.id === id);
+
       if (existing) {
         existing.x = targetX;
         existing.y = targetY;
@@ -95,12 +99,13 @@ export class ImageTool {
     };
 
     img.src = src;
+    this.imgSrc = src;
 
     return {
       type: "addOrUpdateImage",
       id,
       src,
-      points: [points],
+      points: [{ x: targetX, y: targetY }],
       width: maxWidth,
       height: height ?? drawHeight / (img.width / img.height),
       opacity,
@@ -295,6 +300,7 @@ export class ImageTool {
       width: newWidth,
       height: newHeight,
       points: [point],
+      src: this.imgSrc,
     };
   }
 
@@ -329,6 +335,7 @@ export class ImageTool {
       type: "moveImage",
       id: selected.id,
       points: [{ x: selected.x, y: selected.y }],
+      src: this.imgSrc,
     };
   }
 
