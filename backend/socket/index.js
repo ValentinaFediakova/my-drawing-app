@@ -8,9 +8,7 @@ export const setupWebSocket = (server) => {
   const clients = new Map();
 
   wss.on("connection", (ws) => {
-    ws.send(JSON.stringify({ type: "history", events: history }));
-
-    let userId = "";
+    let userId = `user-${Math.random().toString(36).substr(2, 9)}`;
 
     ws.send(
       JSON.stringify({
@@ -19,10 +17,21 @@ export const setupWebSocket = (server) => {
       })
     );
 
+    clients.set(userId, ws);
+
     ws.on("message", (message) => {
       const data = JSON.parse(message);
 
-      if (data.type === "addOrUpdateImage") {
+      if (data.userId) {
+        userId = data.userId;
+      }
+
+      if (
+        data.type === "addOrUpdateImage" ||
+        data.type === "moveImage" ||
+        data.type === "resizeImage" ||
+        data.type === "updateImageOpacity"
+      ) {
         imageHistory.set(data.id, data);
       }
 
@@ -36,14 +45,6 @@ export const setupWebSocket = (server) => {
       ) {
         history.push(data);
       }
-
-      if (data.userId) {
-        userId = data.userId;
-      } else {
-        userId = `user-${Math.random().toString(36).substr(2, 9)}`;
-      }
-
-      clients.set(userId, ws);
 
       for (const [, clientWs] of clients.entries()) {
         if (clientWs !== ws && clientWs.readyState === WebSocket.OPEN) {

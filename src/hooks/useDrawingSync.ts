@@ -92,6 +92,7 @@ export const useDrawingSync = ({
     wsRef.current?.connect(
       (data: WebSocketMessage) => {
         if (isHistoryMessage(data)) {
+          console.log("########## data history", data);
           data.events.forEach((event) => {
             wsRef.current?.handleIncomingEvent(event);
           });
@@ -132,6 +133,8 @@ export const useDrawingSync = ({
         const settings = usersSettings.current.get(userId);
 
         if (!manager) return;
+
+        console.log(">>>>>>>>>>>>>>>>>> 1 type", type, "points", points);
 
         switch (type) {
           case "setTool": {
@@ -191,9 +194,9 @@ export const useDrawingSync = ({
 
             if (settings) {
               manager.setTextSettings(
-                settings.color ?? color ?? PALETTE_COLORS.BLACK,
-                settings.fontSize ?? fontSize ?? 24,
-                settings.outline ?? outline ?? ["Normal"]
+                settings.color ?? PALETTE_COLORS.BLACK,
+                settings.fontSize ?? 24,
+                settings.outline ?? ["Normal"]
               );
             }
 
@@ -252,6 +255,7 @@ export const useDrawingSync = ({
           case "moveImage": {
             if (!id || !points) return;
             manager.moveImageById(id, points[0]);
+
             break;
           }
           case "resizeImage": {
@@ -260,15 +264,9 @@ export const useDrawingSync = ({
             break;
           }
 
-          case "updateImageOpacity": {
-            if (!id || opacity === undefined) return;
-
-            manager.setImageOpacityById?.(id, opacity);
-            break;
-          }
-
           case "deleteImage": {
             if (!id) return;
+
             manager.deleteImageById(id);
             break;
           }

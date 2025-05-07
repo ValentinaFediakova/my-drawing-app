@@ -241,8 +241,4 @@ export class DrawingManager {
   getSelectedImage() {
     return this.ImageTool.getSelectedImage();
   }
-
-  setImageOpacityById(id: string, opacity: number) {
-    this.ImageTool.setImageOpacityById(id, opacity);
-  }
 }

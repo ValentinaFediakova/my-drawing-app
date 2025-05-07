@@ -44,14 +44,6 @@ export class ImageTool {
     return this.images.find((img) => img.isSelected);
   }
 
-  setImageOpacityById(id: string, opacity: number) {
-    const img = this.images.find((img) => img.id === id);
-    if (img) {
-      img.opacity = opacity;
-      this.drawPreview();
-    }
-  }
-
   drawImage(
     src: string,
     points: Point,

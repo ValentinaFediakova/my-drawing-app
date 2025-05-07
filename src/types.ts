@@ -12,7 +12,6 @@ export type WsEventType =
   | "moveImage"
   | "resizeImage"
   | "deleteImage"
-  | "updateImageOpacity"
   | "addOrUpdateImage";
 
 export interface WsData {
