@@ -24,6 +24,10 @@ export const setupWebSocket = (server) => {
         imageHistory.set(data.id, data);
       }
 
+      if (data.type === "deleteImage") {
+        imageHistory.delete(data.id);
+      }
+
       if (
         data.type === "startDraw" ||
         data.type === "inDrawProgress" ||
