@@ -204,7 +204,13 @@ export const useCanvasInteractions = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     const key = e.key;
-    if (key.length > 1) return;
+    if (
+      key.length > 1 ||
+      (e.ctrlKey && e.key.toLowerCase() === "v") ||
+      (e.metaKey && e.key.toLowerCase() === "v")
+    )
+      return;
+
     sendWsData({
       type: "writeText",
       tool: "writeText",
