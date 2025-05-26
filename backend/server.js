@@ -9,6 +9,7 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   "https://my-drawing-app-rust.vercel.app",
+  "https://my-drawing-app-production.up.railway.app/api/auth/signup",
   "http://localhost:3000",
 ];
 
