@@ -9,10 +9,10 @@ const server = http.createServer(app);
 
 const allowedOrigins = [
   "https://my-drawing-app-rust.vercel.app",
-  "https://my-drawing-app-production.up.railway.app/api/auth/signup",
+  "https://my-drawing-app-production.up.railway.app",
   "http://localhost:3000",
 ];
-
+console.log("CORS ACTIVE");
 app.use(
   cors({
     origin: (origin, callback) => {
