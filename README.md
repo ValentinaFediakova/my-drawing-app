@@ -1,6 +1,11 @@
 # 🖌️ Realtime Collaborative Drawing App
 
-A web-based collaborative drawing app built with **React**, **Canvas API**, **Redux Toolkit**, and **WebSockets**. Users can draw, insert images, write text, and collaborate in real-time across tabs or with other users.
+A web-based collaborative drawing app built with **React**, **Canvas API**, **Redux Toolkit**, and **WebSockets**. 
+Users can draw, insert images, write text, and collaborate in real-time across tabs or with other users.
+
+## 🌐 Live Demo
+
+[Open Drawing App](https://my-drawing-app-rust.vercel.app/)
 
 ## 🚀 **Features:**
 
@@ -15,15 +20,22 @@ A web-based collaborative drawing app built with **React**, **Canvas API**, **Re
 - 👥 Per-user canvas layers.
 - 🔐 Simple user authentication.
 
-## 🛠️ **Technologies:**
+## 🛠️ Tech Stack
 
-- **Next.js** — framework.
-- **Redux Toolkit** — state management.
-- **Canvas API** — for drawing.
-- **TypeScript** — for typing.
-- **WebSockets (ws)** — for real-time collaboration.
-- **Node.js** — WebSocket server backend.
-- **JWT + Express** — for user authentication.
+### Frontend
+- **Next.js**
+- **React**
+- **TypeScript**
+- **Redux Toolkit**
+- **Canvas API**
+- **SCSS**
+
+### Backend
+- **Node.js**
+- **Express**
+- **WebSockets (`ws`)**
+- **JWT**
+- **bcrypt**
 
 ## 📦 **Installation:**
 
@@ -43,3 +55,15 @@ A web-based collaborative drawing app built with **React**, **Canvas API**, **Re
    ```bash
    npm run dev
    ```
+
+## 💡 What This Project Demonstrates
+
+- Building a realtime application with WebSockets
+- Synchronizing application state between multiple clients
+- Working directly with the HTML Canvas API
+- Designing separate abstractions for different drawing tools
+- Managing multiple canvas layers
+- Handling interactive image manipulation
+- Combining React state with imperative Canvas rendering
+- Building a small full-stack authentication flow
+- Structuring a Next.js frontend with a separate Node.js backend
